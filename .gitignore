@@ -1,0 +1,7 @@
+*.*fasl
+*.*~
+**/*.framework/**/*
+*.zip
+**/*.framework.dSYM/**
+_lib/**
+reference-pages/*
