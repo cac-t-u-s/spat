@@ -10,7 +10,7 @@
 
 (:om-lib
  (:author "J. Bresson, T. Carpentier, J. Garcia (2016-2017)")
- (:version 3.000100)
+ (:version 3.000200)
  (:source-files
   (:pathname (:directory (:relative "sources" "spat-lib")) (:name "load-omspat"))
   (:pathname (:directory (:relative "sources")) (:name "spatialize"))
