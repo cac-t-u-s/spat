@@ -24,7 +24,9 @@
         (spat-object-set-audio-dsp self))
     (panning-type self)))
 
-(defmethod additional-class-attributes ((self spat-scene)) '(action panning-type buffer-size interpol))
+(defmethod additional-class-attributes ((self spat-scene)) 
+  (append (call-next-method)
+          '(action panning-type buffer-size interpol)))
 
 
 ;;; we have to do this because :panning-type is not a class initarg
