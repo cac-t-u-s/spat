@@ -88,9 +88,9 @@
                    (spat-descriptors '("trajecories"))
                    (nstreams (length spat-descriptors)))
               (when filepath
-                (let* ((sources (loop for src in (sources self) collect (get-sound src)))
-                       (srcnames (loop for src in (sources self) collect (get-sound-name src)))
-                       (srcfiles (loop for src in (sources self) collect (get-sound-file src)))
+                (let* ((sources (loop for src in (audio-in self) collect (get-sound src)))
+                       (srcnames (loop for src in (audio-in self) collect (get-sound-name src)))
+                       (srcfiles (loop for src in (audio-in self) collect (get-sound-file src)))
                        (sndtable (loop for file in srcfiles 
                                        for i = 1 then (+ i 1) do 
                                        (when (and file export-sounds)

@@ -4,7 +4,7 @@
 
 
 (defclass! spat-scene (spat-object time-sequence)
-  ((sources :accessor sources :initform nil :initarg :sources :documentation "audio source file(s)") ;;; repeated slot to make it appear on the box
+  ((audio-in :accessor audio-in :initform nil :initarg :audio-in :documentation "audio source file(s)") ;;; repeated slot to make it appear on the box
    (trajectories :accessor trajectories :initform nil :initarg :trajectories) ;list of 3DC
    (speakers :accessor speakers :initform '((-1 1 0) (1 1 0)) :initarg :speakers)    ;  (1 -1 0) (-1 -1 0)
    (panning-type :accessor panning-type :initform "angular")
@@ -52,7 +52,7 @@
 (defmethod SpatControllerComponent-name ((self spat-scene)) "spat.viewer")
 
 (defmethod n-channels-in ((self spat-scene)) 
-  (length (list! (sources self))))
+  (length (list! (audio-in self))))
 
 (defmethod n-channels-out ((self spat-scene)) 
   (if (string-equal (panning-type self) "binaural")
@@ -62,7 +62,7 @@
 (defmethod get-obj-dur ((self spat-scene)) 
   (reduce 'max 
           (cons (get-last-time-point self)
-                (remove nil (mapcar 'get-obj-dur (sources self))))))
+                (remove nil (mapcar 'get-obj-dur (audio-in self))))))
 
 
 ;(defmethod om-init-instance ((self spat-scene) &optional args)
@@ -95,21 +95,21 @@
     (when (find :speakers initargs :key 'car) 
       (setf (speakers self) (copy-list (cadr (find :speakers initargs :key 'car)))))
 
-    (setf (sources self) (list! (sources self))
+    (setf (audio-in self) (list! (audio-in self))
           (trajectories self) (list! (trajectories self)))
   
-    (let* ((max-len (max (length (list! (trajectories self))) (length (list! (sources self))))))
+    (let* ((max-len (max (length (list! (trajectories self))) (length (list! (audio-in self))))))
       (loop for i from 0 to (1- max-len) 
-            collect (if (nth i (sources self)) 
-                        (get-sound (nth i (sources self)))
+            collect (if (nth i (audio-in self)) 
+                        (get-sound (nth i (audio-in self)))
                       (om-init-instance (make-instance 'sound)))
             into sounds
             collect (format-traj-as-3DC (nth i (trajectories self))) 
             into trajects
-            finally (setf (sources self) sounds
+            finally (setf (audio-in self) sounds
                           (trajectories self) trajects))
                             
-      (loop for sr in (sources self)
+      (loop for sr in (audio-in self)
             for tr in (trajectories self) do
             (let ((dur (if sr (sound-dur-ms sr) 0)))
               (when (< (get-obj-dur tr) dur)

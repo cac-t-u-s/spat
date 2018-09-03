@@ -4,7 +4,7 @@
 (defstruct spat-component (type) (ptr) (object) (window))
 
 (defclass spat-object (om-cleanup-mixin named-object schedulable-object object-with-action)
-  ((sources :accessor sources :initform nil :initarg :sources :documentation "audio source file(s)") ; sound or list of sounds
+  ((audio-in :accessor audio-in :initform nil :initarg :audio-in :documentation "audio input") ; sound or list of sounds
    (spat-processor :accessor spat-processor :initform nil)
    (spat-controller :accessor spat-controller :initform nil)
    (in-buffer :accessor in-buffer :initform nil)
@@ -24,14 +24,14 @@
 (defmethod SpatControllerComponent-name ((self spat-object)) nil)
 
 (defmethod n-channels-in ((self spat-object)) 
-  (apply '+ (mapcar 'n-channels (list! (sources self)))))
+  (apply '+ (mapcar 'n-channels (list! (audio-in self)))))
 
 (defmethod n-channels-out ((self spat-object)) 
   (n-channels-in self))
 
 (defmethod get-obj-dur ((self spat-object)) 
   (reduce 'max 
-          (or (remove nil (mapcar 'get-obj-dur (list! (sources self))))
+          (or (remove nil (mapcar 'get-obj-dur (list! (audio-in self))))
               '(1000))))
 
 (defmethod play-obj? ((self spat-object)) t)
@@ -52,12 +52,12 @@
   ; time-window determines the pre-delay and the rate of the calls from the scheduler 
   ; maybe better to round it ?
   
-  (if (find-value-in-kv-list args :sources)
-      (setf (sources self)
-            (loop for s in (list! (find-value-in-kv-list args :sources))
+  (if (find-value-in-kv-list args :audio-in)
+      (setf (audio-in self)
+            (loop for s in (list! (find-value-in-kv-list args :audio-in))
                   collect (get-sound (om-copy s)))
             )
-    (setf (sources self) (list! (sources self))))
+    (setf (audio-in self) (list! (audio-in self))))
   
   (set-object-time-window self (* 4 (samples->ms (buffer-size self) (audio-sr self)))) 
   (spat-object-set-audio-dsp self)
@@ -270,7 +270,7 @@
     ;(om-print (format nil "Get ~D samples from ~D" n-samples from-smp) "SPAT-SCENE-PLAYER")
         ;;; FILL THE SPAT IN-POINTER WITH SOURCES
         (when (>= from-smp 0)
-          (loop for src in (sources self)
+          (loop for src in (audio-in self)
                 do (when src 
                      (let ((b (buffer src))) 
                        (when (and b (om-sound-buffer-ptr b)) ;;; if not = problem...

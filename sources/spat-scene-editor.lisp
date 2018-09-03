@@ -205,7 +205,7 @@
 (defmethod create-GL-objects ((self spat-scene-editor))
   (let ((ss (object-value self)))
     (append 
-     (loop for src in (sources ss) 
+     (loop for src in (audio-in ss) 
            for traj in (trajectories ss) 
            when (or (null src) (not (mute src)))
            collect 
@@ -230,7 +230,7 @@
          (ss (object-value editor))
          (time (player-get-object-time (player editor) ss)))
     (when (equal (player-get-object-state (player editor) ss) :play)
-      (loop for src in (sources ss) 
+      (loop for src in (audio-in ss) 
             for traj in (trajectories ss)
             when (or (null src) (not (mute src))) do
             (let ((point (time-sequence-get-active-timed-item-at traj time)))
@@ -255,7 +255,7 @@
          (last-traj-index (1- (length (trajectories ss))))
          (last-col (and (trajectories ss) (color (nth last-traj-index (trajectories ss))))))
 
-    (setf (sources ss) (append (sources ss) (list nil))) ; (number-to-string (+ last-traj-index 2)))))
+    (setf (audio-in ss) (append (audio-in ss) (list nil))) ; (number-to-string (+ last-traj-index 2)))))
     (setf (trajectories ss) 
           (append (trajectories ss) 
                   (list (om-init-instance 
@@ -282,7 +282,7 @@
               (when ed
                 (when (window (cadr ed)) (om-close-window (window (cadr ed))))
                 (setf (source-editors self) (remove ed (source-editors self))))
-              (setf (sources ss) (remove-nth ns (sources ss)))
+              (setf (audio-in ss) (remove-nth ns (audio-in ss)))
               (setf (trajectories ss) (remove-nth ns (trajectories ss)))
               ))
       
@@ -354,7 +354,7 @@
          spatview
          (spat-component-ptr spatviewhandler)
          (append 
-          (list (list "/source/number" (length (sources ss)))
+          (list (list "/source/number" (length (audio-in ss)))
                 (list "/speaker/number" (length (speakers ss)))
                 (list "/set/format" "xyz"))
           (loop for spk in (speakers ss) for n = 1 then (1+ n) append
@@ -365,7 +365,7 @@
         (update-spat-view-sources self)
         
         (loop for traj in (trajectories ss)
-              for src in (sources ss)
+              for src in (audio-in ss)
               for n = 1 then (+ n 1) do 
               (let ((col (or (color traj) (om-def-color :green)))
                     (pt (time-sequence-get-active-timed-item-at ;;; here goes the interpolation
@@ -398,7 +398,7 @@
         (spat-osc-command-in-view 
          spatview 
          (spat-component-ptr spatviewhandler) 
-         (loop for n from 0 to (1- (length (sources (object-value self)))) append
+         (loop for n from 0 to (1- (length (audio-in (object-value self)))) append
                (list 
                 (list (format nil "/set/source/~D/select" (1+ n)) (if (find n ids) 1 0))
                                  ;(list (format nil "/set/source/~D/visible" (1+ n)) (if (find n (muted-sources self)) 0 1))
@@ -486,7 +486,7 @@
 ;;===================
 
 (defmethod make-timeline-left-item ((self spat-scene-editor) id)
-  (let* ((src (nth id (sources (object-value self))))
+  (let* ((src (nth id (audio-in (object-value self))))
          (cb (om-make-di  
               'om-check-box :size (omp 15 15) 
               :enable src
@@ -505,7 +505,7 @@
                                     (let* ((ss (object-value self))
                                            (traj (nth id (trajectories ss)))
                                            (point (make-default-tpoint-at-time traj (get-obj-dur snd))))
-                                      (setf (nth id (sources ss)) snd)
+                                      (setf (nth id (audio-in ss)) snd)
                                       (insert-timed-point-in-time-sequence traj point))
                                     (update-source-picts self)
                                     (om-enable-dialog-item cb t)

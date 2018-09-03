@@ -254,9 +254,9 @@
                              (let ((snd (om-init-instance (objFromObjs :choose-file (make-instance 'sound))))
                                    (spat-obj (object-value self)))
                                (when snd 
-                                 (if (consp (sources spat-obj))
-                                     (setf (nth id (sources spat-obj)) snd)
-                                   (setf (sources spat-obj) (list snd)))
+                                 (if (consp (audio-in spat-obj))
+                                     (setf (nth id (audio-in spat-obj)) snd)
+                                   (setf (audio-in spat-obj) (list snd)))
                                  (update-source-picts self)
                                  (spat-object-set-audio-dsp spat-obj)
                                  (reinit-ranges (timeline-editor self)))))
@@ -265,7 +265,7 @@
 
 (defmethod update-source-picts ((editor spat-editor))
   (setf (source-picts editor)
-        (loop for src in (list! (sources (object-value editor)))
+        (loop for src in (list! (audio-in (object-value editor)))
               collect (when (subtypep (type-of src) 'sound)
                         (let ((*def-sound-color* (om-gray-color 0.7)))
                           (list (get-cache-display-for-draw src)
