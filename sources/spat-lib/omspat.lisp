@@ -166,6 +166,7 @@
 (cffi:defcfun ("OmSpatInstallComponentInNSView" OmSpatInstallComponentInNSView) :boolean (component :pointer) (view :pointer))
 (cffi:defcfun ("OmSpatRemoveFromNSView" OmSpatRemoveFromNSView) :boolean (component :pointer))
 (cffi:defcfun ("OmSpatRegisterOscCallback" OmSpatRegisterOscCallback) :boolean (component :pointer) (callback :pointer))
+(cffi:defcfun ("OmSpatSetWindowSize" OmSpatSetWindowSize) :boolean (component :pointer) (w :int) (h :int))
 
 ;;; to call with OmSpatInstallComponentInNSView
 (defun spat-get-view-pointer (view)

@@ -132,10 +132,7 @@
 (defmethod om-view-resized ((self spat-view) size) 
   (call-next-method)
   (when (spat-view-handler self) 
-    (spat-osc-command 
-     (spat-component-ptr (spat-view-handler self)) 
-     `(("/om/window/size" ,(w self) ,(h self)))
-     self)
+    (spat::OmSpatSetWindowSize (spat-component-ptr (spat-view-handler self)) (w self) (h self))
     ))
 
 
