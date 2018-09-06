@@ -519,8 +519,8 @@
   (call-next-method))
 
 (defmethod set-object-time ((self spat-object) time)
-  (when (and (equal (action object) 'render-audio)
-             (buffer-player object))   
+  (when (and (equal (action self) 'render-audio)
+             (buffer-player self))   
     (jump-to-time (buffer-player self) time))
   (call-next-method))
 
