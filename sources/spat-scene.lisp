@@ -60,10 +60,10 @@
                    ("hoa3d" "hoa3d")))))
 
 (defmethod SpatDSPComponent-name ((self spat-scene)) 
-  (if (reverb self) "spat.spat~" "spat.pan~"))
+  (if (reverb self) "spat5.spat~" "spat5.pan~"))
 
 (defmethod SpatControllerComponent-name ((self spat-scene)) 
-  (if (reverb self) "spat.oper" "spat.viewer"))
+  (if (reverb self) "spat5.oper" "spat5.viewer"))
 
 (defmethod n-channels-in ((self spat-scene)) 
   (length (list! (audio-in self))))
