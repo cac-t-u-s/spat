@@ -5,8 +5,36 @@
 
 (in-package :om)
 
+;;======= spat GUI view =========
+;;directly controlled by the spat object using a pointer to the view.
+
+(defclass spat-view (om-view) 
+  ((spat-GUI-component :accessor spat-GUI-component :initform nil)
+   (spat-object :accessor spat-object :initform nil)
+   (id :accessor id :initform nil :initarg :id)))
+
+(defmethod get-spat-view-id ((self t)) -1)
+(defmethod get-spat-view-id ((self spat-editor)) 
+  (if (spat-view self)
+      (id (spat-view self))
+    -2))
+
+(defun find-window-with-spat-view (id)
+  (find id (capi::collect-interfaces 'OMEditorWindow)
+        :test #'(lambda (id win) 
+                  (= id (get-spat-view-id (editor win))))))
+
+
+(defmethod om-view-resized ((self spat-view) size) 
+  (call-next-method)
+  (when (spat-GUI-component self) 
+    (spat::OmSpatSetWindowSize (spat-GUI-component self) (w self) (h self))))
+
+
+;;======= an editor of SPAT-OBJECT containing a spat-view =========
+
 (defclass spat-editor (OMEditor play-editor-mixin) 
-  ((timeline-editor :accessor timeline-editor :initform nil)
+  ((timeline-editor :accessor timeline-editor :initform nil) 
    (spat-view :accessor spat-view :initform nil)
    (source-picts :accessor source-picts :initform nil)))
 
@@ -25,11 +53,13 @@
   (setf (timeline-editor self) (make-instance 'timeline-editor :object (object self) :container-editor self)))
 
 (defmethod make-editor-window-contents ((editor spat-editor))
+
   (let ((timeline-container (om-make-layout 'om-simple-layout))
         (spat-view (om-make-view 'spat-view  :size (omp 200 200)))
         (attributes-view (make-default-editor-view editor)))
     
     (setf (spat-view editor) spat-view)
+
     (when (timeline-editor editor)
       (set-g-component (timeline-editor editor) :main-panel timeline-container)
       (make-timeline-view (timeline-editor editor)))
@@ -76,23 +106,17 @@
 (defmethod update-to-editor ((editor spat-editor) (from OMBox)) 
   (call-next-method)
   (when (and (window editor) (spat-view editor)) 
-    (let ((spat-controller (spat-view-handler (spat-view editor))))
-      (if (and spat-controller 
-               (equal (spat-component-object spat-controller)
-                      (object-value editor)))
+    (let ((spatcomponent (spat-GUI-component (spat-view editor))))
+      (if (equal (spat-object (spat-view editor)) (object-value editor))
           (call-next-method)
-        ;;; new object
+        ;;; it's a new new object => reinitialize the spat-view
         (om-close-window (window editor)))
       )))
 
 (defmethod update-to-editor ((editor spat-editor) (from collection-editor))
-  (let ((current-spat-controller-in-view (spat-component-ptr (spat-view-handler (spat-view editor))))
-        (current-spat-controller-in-object (spat-component-ptr (spat-controller (object-value editor)))))
-        
-    (unless (equal current-spat-controller-in-view current-spat-controller-in-object)
-      (spat-editor-remove-spat-component editor)
-      (spat-editor-set-spat-component editor)
-      ))
+  (unless (equal (spat-object (spat-view editor)) (object-value editor))
+    (spat-editor-remove-spat-component editor)
+    (spat-editor-set-spat-component editor))
   (call-next-method))
 
 
@@ -110,56 +134,38 @@
 ;; SPAT-VIEWER
 ;;===================
 
-;;======= spat scene view =========
-;;directly controlled by the spat object using a pointer to the view.
-
-(defclass spat-view (om-view) 
-  ((spat-view-handler :accessor spat-view-handler :initform nil)
-   (id :accessor id :initform nil :initarg :id)))
-
-(defmethod get-spat-view-id ((self t)) -1)
-(defmethod get-spat-view-id ((self spat-editor)) 
-  (if (spat-view self)
-      (id (spat-view self))
-    -2))
-
-(defun find-window-with-spat-view (id)
-  (find id (capi::collect-interfaces 'OMEditorWindow)
-        :test #'(lambda (id win) 
-                  (= id (get-spat-view-id (editor win))))))
-
-
-(defmethod om-view-resized ((self spat-view) size) 
-  (call-next-method)
-  (when (spat-view-handler self) 
-    (spat::OmSpatSetWindowSize (spat-component-ptr (spat-view-handler self)) (w self) (h self))
-    ))
-
-
-
 (defmethod spat-editor-set-spat-component ((editor spat-editor))
-  (let* ((spat-object (object-value editor))
-         (view (spat-view editor))
-         (spat-controller (spat-controller spat-object)))
-    
-    ;;; not used...
+  
+  (let ((spat-object (object-value editor))
+        (view (spat-view editor)))
+   
+      ;;; not used...
     (setf (id view) (read-from-string (subseq (string (gensym)) 1)))
     
-    (when (and spat-controller (spat-component-ptr spat-controller))
-      (om-print-dbg "integrating spat-controller ~A [~A]" 
-                    (list (spat-component-ptr spat-controller) (remove #\~ (spat-component-type spat-controller)))
-                    "OM-SPAT EDITOR")
+    (let ((ctrl-comp-name (SpatControllerComponent-name spat-object)))
       
-      (capi:execute-with-interface 
-       (window editor)
-       'spat::OmSpatInstallComponentInNSView 
-       (spat-component-ptr spat-controller) 
-       (spat::spat-get-view-pointer view))
+      (when ctrl-comp-name
+      
+        (if (spat::omspatisvalidcomponenttype ctrl-comp-name)
+            
+            (let ((comp (spat::OmSpatCreateComponentWithType ctrl-comp-name)))
 
-      (setf (spat-view-handler view) spat-controller)
-      (spat::spat-component-register-callback (spat-component-ptr spat-controller))
-      (setf (spat-component-window spat-controller) (window editor))
-      )
+              (om-print-dbg "Create GUI-Component ~A [~A] in ~A" (list comp (remove #\~ ctrl-comp-name) editor) "OM-SPAT")
+              (setf (spat-GUI-component view) comp)
+                    
+              (capi:execute-with-interface 
+               (window editor)
+               'spat::OmSpatInstallComponentInNSView 
+               (spat-GUI-component view) 
+               (spat::spat-get-view-pointer view))
+
+              (spat::spat-component-register-callback (spat-GUI-component view))
+              (setf (spat-object view) spat-object)
+              )
+          
+          (om-beep-msg "OM-SPAT: Wrong GUI component: ~A" ctrl-comp-name))
+        
+        ))
     
     view))
 
@@ -167,16 +173,17 @@
   
   (when (and (window editor) 
              (spat-view editor)
-             (spat-view-handler (spat-view editor)))
-
-  (capi:execute-with-interface 
-       (window editor)
-       'spat::OmSpatRemoveFromNSView 
-       (spat-component-ptr (spat-view-handler (spat-view editor))))
-
-  (setf (spat-component-window (spat-view-handler (spat-view editor))) nil)
-  
-))
+             (spat-GUI-component (spat-view editor)))
+    
+    (capi:execute-with-interface (window editor)
+                                 'spat::OmSpatRemoveFromNSView 
+                                 (spat-GUI-component (spat-view editor)))
+    
+    (om-print-dbg "Free GUI GUI-Component ~A in ~A" (list (spat-GUI-component (spat-view editor)) editor) "OM-SPAT")
+    (spat::OmSpatFreeComponent (spat-GUI-component (spat-view editor)))
+    
+    (setf (spat-object (spat-view editor)) nil)
+    ))
 
 (defmethod editor-close ((self spat-editor))
   (spat-editor-remove-spat-component self)
@@ -194,13 +201,12 @@
                                        (decode-bundle-s-pointer-data bundle-ptr))
       (odot::osc_bundle_s_deepFree bundle-ptr))))
 
-(defmethod spat-init-messages ((editor spat-editor)) 
-  `(("/om/window/size" ,(w (spat-view editor)) ,(h (spat-view editor)))))
+(defmethod spat-init-messages ((editor spat-editor)) nil)
             
 (defmethod init-spat-viewer ((editor spat-editor))
-  (when (and (spat-view editor) (spat-view-handler (spat-view editor)))
+  (when (and (spat-view editor) (spat-GUI-component (spat-view editor)))
     (spat-osc-command 
-     (spat-component-ptr (spat-view-handler (spat-view editor)))
+     (spat-GUI-component (spat-view editor))
      (spat-init-messages editor)
      (spat-view editor))))
 

@@ -8,6 +8,30 @@
    (controls :initarg :controls :accessor controls :initform nil :documentation "list of timed OSC-bundles"))
   (:default-initargs :default-frame-type 'osc-bundle :action 'render-audio))
 
+
+(defmethod get-properties-list ((self spat-dsp))
+  `((""  
+     (:name "Name" :text name)
+     (:action "Action" :action action-accessor)
+     (:interpol "Interpolation" ,(make-number-or-nil :min 20 :max 1000) interpol)
+     (:buffer-size "Buffer size" :number buffer-size-accessor)
+     )))
+
+;;; DATA-STREAM API
+(defmethod data-stream-frames-slot ((self spat-dsp)) 'controls)
+
+;;; TIME-SEQUENCE API
+(defmethod time-sequence-get-timed-item-list ((self spat-dsp)) (controls self))
+(defmethod time-sequence-set-timed-item-list ((self spat-dsp) list) (setf (controls self) list))
+
+(defmethod time-sequence-make-timed-item-at ((self spat-dsp) at)
+  (let ((previous (find at (time-sequence-get-timed-item-list self) :key 'date :test '> :from-end t))) 
+    (make-instance 'osc-bundle 
+                   :date at
+                   :messages (and previous (om-copy (messages previous))))
+    ))
+
+
 ;;; controls is a list of controller values : 
 ;;; ("/osc_identifier" value-s)
 ;;; or automation wih name "/osc_identifier"
@@ -24,26 +48,24 @@
 (defparameter *spat-components* '(("spat5.filterdesign" "spat5.cascade~") 
                                   ("spat5.equalizer" "spat5.cascade~")   
                                   ("spat5.eq" "spat5.cascade~")   
-                                  ("spat5.ircamverb" "spat5.ircamverb~")
-                                  ;("spat5.routing" "spat5.routing~")
                                   ("spat5.compressor" "spat5.compressor~")
                                   ("spat5.graphiceq" "spat5.graphiceq~")
                                   ("spat5.hlshelf" "spat5.hlshelf~")
-                                  ;("spat5.viewer" "spat.pan~")
-                                  ;("spat5.oper" "spat.spat~")
+                                  ;;("spat5.ircamverb" "spat5.ircamverb~")
+                                  ;;("spat5.viewer" "spat.pan~")
+                                  ;;("spat5.oper" "spat.spat~")
+                                  ;;("spat5.routing" "spat5.routing~")
                                   ))
 
-(defun spat-components ()                                
-  (mapcar 'car *spat-components*))
+(defun spat-components () (mapcar 'car *spat-components*))
 
 (defun spat-dsp-component-name (dsp-compo-name)
   (cadr (find dsp-compo-name *spat-components* 
               :key 'car :test 'string-equal)))
 
-
 (defmethod ensure-init-state ((self spat-dsp))
   (unless (and (controls self) (= 0 (date (car (controls self)))))
-    (let ((init (get-gui-state self)))
+    (let ((init (get-controller-state self)))
       (when init
         (setf (controls self) (cons init (controls self)))))))
 
@@ -52,16 +74,6 @@
     (ensure-init-state dsp)
     dsp))
 
-;;; TIME-SEQUENCE API
-(defmethod time-sequence-get-timed-item-list ((self spat-dsp)) (controls self))
-(defmethod time-sequence-set-timed-item-list ((self spat-dsp) list) (setf (controls self) list))
-
-(defmethod time-sequence-make-timed-item-at ((self spat-dsp) at)
-  (let ((previous (find at (time-sequence-get-timed-item-list self) :key 'date :test '> :from-end t))) 
-    (make-instance 'osc-bundle 
-                   :date at
-                   :messages (and previous (om-copy (messages previous))))
-    ))
 
 (defun same-kind (b1 b2)
   (let ((top1 (cdr (find "/topology" (messages b1) :key 'car :test 'string-equal)))
@@ -111,42 +123,26 @@
                  (om-copy (messages previous))))
     ))
   
-; (find 3 '(1 2 3 4 5) :test '< :from-end nil)
 
-;;; DATA-STREAM API
-(defmethod data-stream-frames-slot ((self spat-dsp)) 'controls)
-
-
-
-(defmethod get-properties-list ((self spat-dsp))
-  `((""  
-     (:name "Name" :text name)
-     (:action "Action" :action action-accessor)
-     (:interpol "Interpolation" ,(make-number-or-nil :min 20 :max 1000) interpol)
-     (:buffer-size "Buffer size" :number buffer-size-accessor)
-     )))
 
 
 ;;;=========================
 ;;; SYNTH
 ;;;=========================
 
-
 (defmethod spat-object-get-process-messages-at-time ((self spat-dsp) time-ms)
-
+  
   (let ((b (time-sequence-get-active-timed-item-at self time-ms))) ;; will handle interpolation if needed
     (when b 
-      
       ;;; set the controller
-      (spat-osc-command (spat-component-ptr (spat-controller self)) 
+      ;(om-print-dbg "=> SET VIRTUAL GUI FOR DSP =============================" nil "OM-SPAT")
+      (spat-osc-command (spat-controller self) 
                         (append-set-to-state-messages (messages b))
-                        (spat-component-window (spat-controller self)))
-      
-      ;;; get DSP commands from controller
-      (spat-get-dsp-commands (spat-component-ptr (spat-controller self)))
+                        )))
 
-      )))
-    
+  ;;; get DSP commands from controller
+  (spat-get-dsp-commands (spat-controller self))
+  )
        
 
 ;;;=========================
@@ -170,6 +166,7 @@
                            (list b)  ;; (traj-id point)
                            ))
        ) '< :key 'car)))
+
 
 ;;;=========================
 ;;; EDITOR
@@ -230,7 +227,7 @@
               (modifier (cadr keypressed)))
           (editor-key-action editor (code-char key)))
       (let* ((obj (object-value editor))
-             (spatguicomponent (spat-component-ptr (spat-view-handler (spat-view editor))))
+             (spatguicomponent (spat-GUI-component (spat-view editor)))
              (current-state (spat-get-state spatguicomponent))
              (date (or (get-cursor-time (timeline-editor editor)) 0)))
         (let ((osc-b (if (editor-get-edit-param editor :dynamic-edit)
@@ -245,25 +242,27 @@
           ))
       )))
 
+
+; this tests if we're playing in in 'render-audio mode
+; we're not using it
+; (and (eq (player-get-object-state (player self) (get-obj-to-play self)) :play)
+;     (equal (action (object-value self)) 'render-audio))
+
 (defmethod update-spat-display ((self spat-dsp-editor)) 
   (when (window self) 
-    (unless (and (eq (player-get-object-state (player self) (get-obj-to-play self)) :play)
-                 (equal (action (object-value self)) 'render-audio))
-      ;; in this case the DSP process will not update the spat controller...
-      (let* ((dsp (object-value self))
-             (spatview (spat-view self))
-             (spatviewhandler (and spatview (spat-view-handler spatview))))
-        (when (and dsp spatviewhandler)
-          (let ((osc-b (or (time-sequence-get-active-timed-item-at 
-                            dsp (or (get-cursor-time (timeline-editor self)) 0))
-                           (init-state dsp))))
-            (when osc-b 
-              (spat-osc-command 
-               (spat-component-ptr spatviewhandler) 
-               (append-set-to-state-messages (messages osc-b))  
-               spatview)
-              ))
-          )))
+    (let* ((spatobject (object-value self))
+           (spatview (spat-view self))
+           (spatguicomponent (spat-GUI-component spatview)))
+      (when (and spatobject spatguicomponent)
+        (let ((osc-b (or (time-sequence-get-active-timed-item-at spatobject 
+                                                                 (or (get-cursor-time (timeline-editor self)) 0))
+                         (init-state spatobject))))
+          (when osc-b 
+            (spat-osc-command spatguicomponent 
+                              (append-set-to-state-messages (messages osc-b))  
+                              spatview)
+            ))
+        ))
     (call-next-method) ;;; will invalidate the timeline(s)
     ))
       

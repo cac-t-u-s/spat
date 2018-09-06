@@ -342,12 +342,12 @@
     
     (let* ((ss (object-value self))
            (spatview (spat-view self))
-           (spatviewhandler (and spatview (spat-view-handler spatview))))
+           (spatgui (and spatview (spat-GUI-component spatview))))
 
-      (when spatviewhandler
+      (when spatgui
         
         (spat-osc-command  
-         (spat-component-ptr spatviewhandler)
+         spatgui
          (append 
           (list (list "/source/number" (length (audio-in ss)))
                 (list "/speaker/number" (length (speakers ss)))
@@ -368,7 +368,7 @@
                                                                 traj 
                                                                 (or (get-cursor-time (timeline-editor self)) 0))))
                 (spat-osc-command
-                 (spat-component-ptr spatviewhandler)
+                 spatgui
                  (remove 
                   nil 
                   (list (when col (list (format nil "/set/source/~D/color" n) 
@@ -388,12 +388,12 @@
 (defmethod update-spat-view-sources ((self spat-scene-editor))
   (when (window self)
     (let* ((spatview (spat-view self))
-           (spatviewhandler (and spatview (spat-view-handler spatview)))
+           (spatgui (and spatview (spat-GUI-component spatview)))
            (ids (get-selected-timelines (timeline-editor self))))
-      (when (and spatviewhandler ids)
+      (when (and spatgui ids)
         
         (spat-osc-command
-         (spat-component-ptr spatviewhandler) 
+         spatgui 
          (loop for n from 0 to (1- (length (audio-in (object-value self)))) append
                (list 
                 (list (format nil "/set/source/~D/select" (1+ n)) (if (find n ids) 1 0))

@@ -1,8 +1,6 @@
 
 (in-package :om)
 
-(defstruct spat-component (type) (ptr) (object) (window))
-
 (defclass spat-object (om-cleanup-mixin named-object schedulable-object object-with-action)
   ((audio-in :accessor audio-in :initform nil :initarg :audio-in :documentation "audio input") ; sound or list of sounds
    (controls :initarg :controls :accessor controls :initform nil :documentation "list of timed OSC-bundles")
@@ -12,6 +10,7 @@
    
    (spat-processor :accessor spat-processor :initform nil)
    (spat-controller :accessor spat-controller :initform nil)
+
    (in-buffer :accessor in-buffer :initform nil)
    (out-buffer :accessor out-buffer :initform nil)
    (buffer-player :accessor buffer-player :initform nil)
@@ -41,12 +40,11 @@
 
 (defmethod play-obj? ((self spat-object)) t)
 
-(defmethod get-gui-state ((self spat-object))
+(defmethod get-controller-state ((self spat-object))
   (when (spat-controller self)
     (make-instance 
      'osc-bundle :date 0
-     :messages (spat-get-state (spat-component-ptr (spat-controller self))))))
-
+     :messages (spat-get-state (spat-controller self)))))
 
 (defmethod get-dsp-state ((self spat-object))
   (when (spat-processor self)
@@ -78,7 +76,7 @@
   (set-object-time-window self (* 4 (samples->ms (buffer-size self) (audio-sr self)))) 
   (spat-object-set-audio-dsp self)
   (spat-object-set-spat-controller self)
-  (setf (init-state self) (get-gui-state self))
+  (setf (init-state self) (get-controller-state self))
   
   ;(when (equal (action self) 'render-audio)
   ;  (set-play-buffer self))
@@ -128,7 +126,7 @@
 
 (defmethod spat-object-free-audio-dsp ((self spat-object))
   (when (spat-processor self)
-    (om-print-dbg "~A: free SPAT-Processor ~A in ~A" (list (type-of self) (spat-processor self) self) "OM-SPAT") 
+    (om-print-dbg "~A: Free SPAT-Processor ~A in ~A" (list (type-of self) (spat-processor self) self) "OM-SPAT") 
     (spat::OmSpatFreeComponent (spat-processor self)))
   (when (in-buffer self) 
     (spat::OmSpatFreeAudioBuffer (in-buffer self))
@@ -142,20 +140,10 @@
   
 
 (defmethod spat-object-free-spat-controller ((self spat-object))
-  (let ((spat-controller (spat-controller self)))
-    (when spat-controller
-      
-      (om-print-dbg "~A: free SPAT-Controller ~A in ~A" 
-                    (list (type-of self) (spat-component-ptr spat-controller) self) 
-                    "OM-SPAT")
-  
-      (when (spat-component-window spat-controller)
-        (om-close-window (spat-component-window spat-controller)))
-  
-      (when (spat-component-ptr spat-controller)
-        (spat::OmSpatFreeComponent (spat-component-ptr spat-controller)))
-      
-      )))
+  (when (spat-controller self)
+    (om-print-dbg "~A: Free SPAT-Controller ~A in ~A" (list (type-of self) (spat-controller self) self) "OM-SPAT")
+    (spat::OmSpatFreeComponent (spat-controller self))
+    ))
 
 
 ;;; from om-cleanup-mixin
@@ -167,21 +155,12 @@
 (defmethod set-spat-controller ((self spat-object))
   (let ((ctrl-comp-name (SpatControllerComponent-name self)))
     (when ctrl-comp-name
-      
       (if (spat::omspatisvalidcomponenttype ctrl-comp-name)
-          
           (let ((comp (spat::OmSpatCreateComponentWithType ctrl-comp-name)))
-            (setf (spat-controller self) 
-                  (make-spat-component :ptr comp :type ctrl-comp-name
-                                       :object self))
-            
-            (om-print-dbg "~A: create spat-controller ~A [~A]" 
-                          (list (type-of self) comp (remove #\~ ctrl-comp-name)) 
-                          "OM-SPAT"))
-        
+            (om-print-dbg "~A: Create spat-controller ~A [~A] in ~A" (list (type-of self) comp (remove #\~ ctrl-comp-name) self) "OM-SPAT")
+            (setf (spat-controller self) comp))
         (om-beep-msg "OM-SPAT: Wrong GUI component: ~A" ctrl-comp-name)) 
       )))
-
 
 (defmethod set-spat-processor ((self spat-object))
   (let ((n-out (n-channels-out self))
@@ -190,12 +169,13 @@
     (when dsp-comp-name
       (if (spat::omspatisvalidcomponenttype dsp-comp-name)
           (progn 
+            (om-print-dbg "~A: Create spat-processor ~A [~A] in ~A" 
+                          (list (type-of self) (spat-processor self) (remove #\~ dsp-comp-name) self) "OM-SPAT")
             (setf (spat-processor self) (spat::OmSpatCreateDspComponentWithType dsp-comp-name n-in n-out))
-            (om-print-dbg "~A: create spat-processor ~A [~A]" 
-                          (list (type-of self) (spat-processor self) (remove #\~ dsp-comp-name)) 
-                          "OM-SPAT"))
+            )
         (om-beep-msg "OM-SPAT: Wrong DSP component: ~A" dsp-comp-name)) 
       )))
+
 
 (defmethod set-audio-buffers ((self spat-object))
   (let* ((buffersize (buffer-size self))
