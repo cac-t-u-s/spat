@@ -25,6 +25,8 @@
 ;; load now
 (load-spat-lib)
 
+(print (spat::OmSpatGetVersion))
+
 ;; load at OM startup
 ;; #+macosx(om-fi::add-foreign-loader 'load-spat-lib)
 
