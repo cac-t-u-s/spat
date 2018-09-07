@@ -63,17 +63,6 @@
   (cadr (find dsp-compo-name *spat-components* 
               :key 'car :test 'string-equal)))
 
-(defmethod ensure-init-state ((self spat-dsp))
-  (unless (and (controls self) (= 0 (date (car (controls self)))))
-    (let ((init (get-controller-state self)))
-      (when init
-        (setf (controls self) (cons init (controls self)))))))
-
-(defmethod om-init-instance ((self spat-dsp) &optional args)
-  (let ((dsp (call-next-method)))
-    (ensure-init-state dsp)
-    dsp))
-
 
 (defun same-kind (b1 b2)
   (let ((top1 (cdr (find "/topology" (messages b1) :key 'car :test 'string-equal)))
@@ -112,9 +101,11 @@
                  )))))
               
 (defmethod time-sequence-make-interpolated-timed-item-at ((self spat-dsp) time)
-  (let ((previous (or (find time (time-sequence-get-timed-item-list self) :key 'date :test '>= :from-end t)
-                      (init-state self)))
-        (next (find time (time-sequence-get-timed-item-list self) :key 'date :test '<)))      
+  (let ((previous (find time (time-sequence-get-timed-item-list self) :key 'date :test '>= :from-end t))
+        (next (find time (time-sequence-get-timed-item-list self) :key 'date :test '<)))
+
+    (assert previous nil "PREVIOUS CONTROL NOT FOUND - SPAT-OBJECT SEEMS TO HAVE NO INITIAL STATE")
+
     (make-instance 
      'osc-bundle 
      :date time
@@ -216,8 +207,9 @@
     (editor-invalidate-views self)
     (report-modifications self)))
 
-;(defmethod spat-init-messages ((editor spat-dsp-editor)) 
-;  (append (call-next-method) '(("/cursor/visible" 1))))
+(defmethod spat-object-init-GUI-messages ((editor spat-dsp-editor)) 
+  (append (call-next-method) 
+          '(("/cursor/visible" 1))))
 
 ;;; called when something happens in the spat view
 (defmethod spat-callback-to-front-editor ((editor spat-dsp-editor) messages)
@@ -253,10 +245,11 @@
     (let* ((spatobject (object-value self))
            (spatview (spat-view self))
            (spatguicomponent (spat-GUI-component spatview)))
+
       (when (and spatobject spatguicomponent)
-        (let ((osc-b (or (time-sequence-get-active-timed-item-at spatobject 
-                                                                 (or (get-cursor-time (timeline-editor self)) 0))
-                         (init-state spatobject))))
+        (let ((osc-b (time-sequence-get-active-timed-item-at 
+                      spatobject 
+                      (or (get-cursor-time (timeline-editor self)) 0))))
           (when osc-b 
             (spat-osc-command spatguicomponent 
                               (append-set-to-state-messages (messages osc-b))  

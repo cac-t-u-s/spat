@@ -182,6 +182,7 @@
     (om-print-dbg "Free GUI GUI-Component ~A in ~A" (list (spat-GUI-component (spat-view editor)) editor) "OM-SPAT")
     (spat::OmSpatFreeComponent (spat-GUI-component (spat-view editor)))
     
+    (setf (spat-GUI-component (spat-view editor)) nil)
     (setf (spat-object (spat-view editor)) nil)
     ))
 
@@ -197,18 +198,25 @@
 (defun spat::spat-component-handle-callback (component-ptr bundle-ptr)
   (let ((frontwin (om-front-window))) ;;; mmpf..
     (unwind-protect
-        (spat-callback-to-front-editor (editor frontwin) 
-                                       (decode-bundle-s-pointer-data bundle-ptr))
+        (let ((messages (decode-bundle-s-pointer-data bundle-ptr)))
+          (om-print-dbg 
+           "Received from SPAT: ~{~%                         => ~A ~}" 
+           (list messages)
+           "OM-SPAT")
+          (spat-callback-to-front-editor (editor frontwin) 
+                                         messages))
       (odot::osc_bundle_s_deepFree bundle-ptr))))
 
-(defmethod spat-init-messages ((editor spat-editor)) nil)
+(defmethod spat-object-init-GUI-messages ((editor spat-editor)) 
+  (messages (car (controls (object-value editor)))))
             
 (defmethod init-spat-viewer ((editor spat-editor))
   (when (and (spat-view editor) (spat-GUI-component (spat-view editor)))
     (spat-osc-command 
      (spat-GUI-component (spat-view editor))
-     (spat-init-messages editor)
-     (spat-view editor))))
+     (append-set-to-state-messages (spat-object-init-GUI-messages editor))
+     (spat-view editor))
+    ))
 
 ;;===================
 ;; PLAY FUNCTIONS

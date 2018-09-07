@@ -14,13 +14,12 @@
    (in-buffer :accessor in-buffer :initform nil)
    (out-buffer :accessor out-buffer :initform nil)
    (buffer-player :accessor buffer-player :initform nil)
-   (init-state :accessor init-state :initform nil) ;; a memory of the initial state
    ))
 
 ;;; we don't want to copy these slots
 ;;; ?? this is probably not necessary are the slots are neither :initargs or adiitional-class-attributes...
 (defmethod excluded-slots-from-copy ((from spat-object)) 
-  '(spat-processor spat-controller in-buffer out-buffer buffer-player init-state))
+  '(spat-processor spat-controller in-buffer out-buffer buffer-player))
 
 (defmethod additional-class-attributes ((self spat-object)) '(audio-sr buffer-size))
 
@@ -52,9 +51,24 @@
      'osc-bundle :date 0
      :messages (spat-get-state (spat-processor self)))))
 
+
+;;; create a complete control bundle at t=0
+(defmethod ensure-init-state ((self spat-object))
+  (unless (and (controls self) (= 0 (date (car (controls self)))))
+    (let ((init (get-controller-state self)))
+      (when init
+        (setf (controls self) (cons init (controls self)))))))
+
+
 (defun append-set-to-state-messages (messages)
   (loop for msg in messages 
         collect (cons (string+ "/set" (car msg)) (cdr msg))))
+
+(defun filter-osc-messages (messages addresses)
+  (remove-if #'(lambda (msg) 
+                 (find (car msg) addresses 
+                       :test #'(lambda (a b) (lw::find-regexp-in-string b a))))
+             messages))
 
 
 ;;; better use om-init-instance ?
@@ -76,10 +90,11 @@
   (set-object-time-window self (* 4 (samples->ms (buffer-size self) (audio-sr self)))) 
   (spat-object-set-audio-dsp self)
   (spat-object-set-spat-controller self)
-  (setf (init-state self) (get-controller-state self))
   
-  ;(when (equal (action self) 'render-audio)
-  ;  (set-play-buffer self))
+  (ensure-init-state self)
+  
+  ; we'll do this only if necessary before play
+  ;(when (equal (action self) 'render-audio) (set-play-buffer self))
   
   self)
 
@@ -115,7 +130,7 @@
   (spat-object-free-audio-dsp self)
   (set-audio-buffers self)
   (set-spat-processor self)
-  (spat-osc-command (spat-processor self) (spat-object-init-messages self))
+  (spat-osc-command (spat-processor self) (spat-object-init-DSP-messages self))
   ;(set-play-buffer self)
   )
 
@@ -161,6 +176,7 @@
             (setf (spat-controller self) comp))
         (om-beep-msg "OM-SPAT: Wrong GUI component: ~A" ctrl-comp-name)) 
       )))
+
 
 (defmethod set-spat-processor ((self spat-object))
   (let ((n-out (n-channels-out self))
@@ -240,7 +256,7 @@
 ;;; CALL DSP
 ;;;=====================
 
-(defmethod spat-object-init-messages ((self spat-object)) 
+(defmethod spat-object-init-DSP-messages ((self spat-object)) 
   `(("/dsp/samplerate" ,(float (audio-sr self)))))
 
 ;;; !! TO-FROM must be <= WINDOW-SIZE !!
@@ -301,8 +317,8 @@
             
             (when messages 
               
-              (when (= time-ms 0)
-                (setq messages (append-set-to-state-messages messages)))
+              ;(when (= time-ms 0)
+              ;  (setq messages (append-set-to-state-messages messages)))
               
               (unless (spat-osc-command (spat-processor self) messages)
                 (error "ERROR IN SPAT CONTROL-MESSAGE PROCESSING"))
@@ -343,7 +359,10 @@
                       :ptr (make-audio-buffer (n-channels-out sp) total-size))))
     
     (spat-osc-command (spat-processor self) '(("/dsp/clear")))
-    (spat-osc-command (spat-processor self) (spat-object-init-messages self))
+    (spat-osc-command (spat-processor self) (spat-object-init-DSP-messages self))
+    ;;; messages from the first bundle (with "/set/...")
+    (spat-osc-command (spat-controller self)  (append-set-to-state-messages (messages (car (controls self)))))
+    (spat-osc-command (spat-processor self) (append-set-to-state-messages (spat-get-dsp-commands (spat-controller self))))
 
     (loop for smp = 0 then (+ smp buffer-size)
           while (< smp total-size) do
@@ -472,6 +491,11 @@
     
     (unless (buffer-player object) (set-play-buffer object))
     
+    (spat-osc-command (spat-processor self) '(("/dsp/clear")))
+    (spat-osc-command (spat-processor self) (spat-object-init-DSP-messages self))
+    ;;; messages from the first bundle (with "/set/...")
+    (spat-osc-command (spat-processor self)  (spat-object-get-process-messages-at-time object (or (car interval) 0)))
+
     (when (buffer-player object)
       (jump-to-frame (buffer-player object) 0)
       (start-buffer-player (buffer-player object) 
@@ -481,7 +505,8 @@
 (defmethod player-stop-object ((self scheduler) (object spat-object))
   (when (and (equal (action object) 'render-audio)
              (buffer-player object))
-    (stop-buffer-player (buffer-player object)))
+    (stop-buffer-player (buffer-player object))
+    (spat-osc-command (spat-processor object) '(("/dsp/clear"))))
   (call-next-method))
 
 (defmethod player-pause-object ((self scheduler) (object spat-object))

@@ -79,24 +79,51 @@
                 (remove nil (mapcar 'get-obj-dur (audio-in self))))))
 
 
-;(defmethod om-init-instance ((self spat-scene) &optional args)
-;  (let ((dsp (call-next-method)))
-;    (ensure-init-state dsp)
-;    dsp))
-
-(defmethod set-spat-processor ((self spat-scene))
-  (call-next-method)
-  (spat-osc-command (spat-processor self) `(("/panning/type" ,(panning-type self)))))
-
-(defmethod spat-object-init-messages ((self spat-scene)) 
+(defmethod spat-object-init-DSP-messages ((self spat-scene)) 
   (append (call-next-method)
-          `(("/speakers/xyz" ,.(apply 'append (speakers self))))
-          ))
+          `(("/panning/type" ,(panning-type self))
+            ("/speakers/xyz" ,.(apply 'append (speakers self))))))
+          
 
 
 ;;;======================================================
 ;;; INIT
 ;;;======================================================
+
+(defmethod get-controller-state ((self spat-scene))
+  (when (spat-controller self)
+    (make-instance 
+     'osc-bundle :date 0
+     :messages (filter-osc-messages (spat-get-state (spat-controller self))
+                                    '("/source/number" 
+                                      "/speaker/number" 
+                                      "/format" 
+                                      "/layout"
+                                      "/source/.*/aed"
+                                      "/source/.*/xyz"
+                                      "/speaker/.*/aed"
+                                      "/speaker/.*/xyz"
+                                      "/speakers/xyz"
+                                      "/speakers/aed"
+                                      )))
+    ))
+
+
+
+(defmethod ensure-init-state ((self spat-scene))
+  (spat-osc-command 
+   (spat-controller self)
+   (append 
+    `(("/set/source/number" ,(length (audio-in self)))
+      ("/set/speaker/number" ,(length (speakers self)))
+      ("/set/format" "xyz"))
+    (loop for spk in (speakers self) for n = 1 then (1+ n) append
+          (list (cons (format nil "/set/speaker/~D/xyz" n) spk)
+                (list (format nil "/set/speaker/~D/editable" n) 0))
+          )
+    ))
+  (call-next-method))
+  
 
 ;; do this with om-init-instance ??
 ;(defmethod initialize-instance :after ((self spat-scene) &rest args)
@@ -113,6 +140,7 @@
           (trajectories self) (list! (trajectories self)))
   
     (let* ((max-len (max (length (list! (trajectories self))) (length (list! (audio-in self))))))
+
       (loop for i from 0 to (1- max-len) 
             collect (if (nth i (audio-in self)) 
                         (get-sound (nth i (audio-in self)))
@@ -144,7 +172,7 @@
                    :times (nth 3 tranformed-lists))))
     (om-init-instance obj)))
 
-;new version used for the range functions
+; new version used for the range functions
 (defmethod time-sequence-get-timed-item-list ((self spat-scene))
   (loop for traj in (list! (trajectories self)) 
         when traj append (time-sequence-get-timed-item-list traj)))
@@ -375,7 +403,7 @@
          for i = 1 then (+ i 1) collect
          (let ((p (time-sequence-get-active-timed-item-at traj time-ms))) ;; will handle interpolation if needed
            ;; (find time-ms (point-list traj) :test '<= :key 'tpoint-internal-time)))
-           (when p (list (format nil "/source/~D/xyz" i) (om-point-x p) (om-point-y p) (om-point-z p)))))))
+           (when p (list (format nil "/set/source/~D/xyz" i) (om-point-x p) (om-point-y p) (om-point-z p)))))))
 
 
 ; (find 7 '(1 2 3 4 5 6) :test '<=)

@@ -8,11 +8,6 @@
 ;;; OSC binding for Spat Component
 ;;;===============================
 (defun spat-osc-command (component-ptr messages &optional apply-in-view)
-  
-  (om-print-dbg 
-   "[~A] ~A/~A ~{~%                         <= ~A ~}" 
-   (list (remove #\~ (spat::OmSpatGetComponentType component-ptr)) component-ptr apply-in-view messages)
-   "OM-SPAT")
     
   (when messages 
    
@@ -22,7 +17,13 @@
         (capi:apply-in-pane-process apply-in-view 'spat-osc-command component-ptr messages) 
       
       (let ((osc-ptr (make-foreign-bundle-s-pointer messages))) ;; (ob (make-o.bundle messages))
-        (unwind-protect  
+        
+        (om-print-dbg 
+         "[~A] ~A/~A ~{~%                         <= ~A ~}" 
+         (list (remove #\~ (spat::OmSpatGetComponentType component-ptr)) component-ptr apply-in-view messages)
+         "OM-SPAT")
+        
+        (unwind-protect
             (spat::OmSpatProcessOscCommands component-ptr osc-ptr)
           (odot::osc_bundle_s_deepFree osc-ptr))
         )
@@ -43,6 +44,8 @@
 
 ;; (spat-osc-command spat '(("/panning/type" "binaural")))
 
+
+;;; TEST FUNCTION (not used anywhere eslse)
 ;;; in-buffer and out-buffer come from / is returned to the environment
 ;;; all the rest is freed 
 (defmethod spat-process-sound ((self sound) spat-comp n-speakers (oscb osc-bundle))
