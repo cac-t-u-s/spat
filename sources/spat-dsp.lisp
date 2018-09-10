@@ -51,11 +51,14 @@
                                   ("spat5.compressor" "spat5.compressor~")
                                   ("spat5.graphiceq" "spat5.graphiceq~")
                                   ("spat5.hlshelf" "spat5.hlshelf~")
-                                  ;;("spat5.ircamverb" "spat5.ircamverb~")
-                                  ;;("spat5.viewer" "spat.pan~")
-                                  ;;("spat5.oper" "spat.spat~")
-                                  ;;("spat5.routing" "spat5.routing~")
                                   ))
+
+;; not work as spat-DSP objects
+;;("spat5.ircamverb" "spat5.ircamverb~")
+;;("spat5.viewer" "spat.pan~")
+;;("spat5.oper" "spat.spat~")
+;;("spat5.routing" "spat5.routing~")
+                               
 
 (defun spat-components () (mapcar 'car *spat-components*))
 
@@ -229,6 +232,7 @@
             (setf osc-b (make-instance 'osc-bundle :date date))
             (insert-timed-point-in-time-sequence obj osc-b)
             (om-invalidate-view (get-g-component (timeline-editor editor) :main-panel)))
+
           (setf (messages osc-b) current-state)
           (report-modifications editor)
           ))

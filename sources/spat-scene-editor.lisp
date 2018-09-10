@@ -51,7 +51,8 @@
     (spat-editor-remove-spat-component editor)
     (spat-editor-set-spat-component editor)
     (init-spat-viewer editor)
-    (update-spat-display editor))
+    (update-spat-display editor)
+    (activate-spat-callback editor))
     
   
   (call-next-method))
@@ -154,43 +155,51 @@
 (defmethod editor-window-init-size ((self spat-scene-editor)) (om-make-point 500 600))
 
 
-(defmethod set-spat-view ((self spat-scene-editor))
+(defmethod spat-view-init ((self spat-scene-editor))
   (when (spat-view self)
-    (call-next-method))
+    (spat-editor-set-spat-component self))
   (when (3D-view self)
     (om-init-3d-view (3D-view self))))
 
 
-(defmethod update-view-mode ((self spat-scene-editor) mode)
+(defmethod update-view-mode ((editor spat-scene-editor) mode)
   
-  (editor-set-edit-param self :view-mode mode)
+  (editor-set-edit-param editor :view-mode mode)
 
   (cond
-   ((equal mode :spat) (set-spat-view-mode self))
-   ((equal mode :3dc) (set-3D-view-mode self)))
+   ((equal mode :spat) 
+    
+    (setf (spat-view editor) (om-make-view 'spat-view :size (omp 200 200)))
+    (om-remove-all-subviews (get-g-component editor :spat-view-container))
+    (setf (3D-view editor) nil)
+    (om-add-subviews 
+     (get-g-component editor :spat-view-container)
+     (spat-view editor))
+    (spat-editor-set-spat-component editor)
+    (init-spat-viewer editor)
+    (update-spat-display editor)
+    (activate-spat-callback editor))
+   
+   ((equal mode :3dc) 
+    
+    (spat-editor-remove-spat-component editor)
+    (om-remove-all-subviews (get-g-component editor :spat-view-container))
+    (setf (spat-view editor) nil)
+    (setf (3D-view editor) (make-spat-scene-3D-view editor))
+    (om-add-subviews 
+     (get-g-component editor :spat-view-container)
+     (3D-view editor))
+    (om-init-3d-view (3D-view editor)))
+   )
         
-  (report-modifications self))
+  (report-modifications editor))
 
 
-
-(defun set-spat-view-mode (editor)
-  (setf (spat-view editor) (om-make-view 'spat-view :size (omp 200 200)))
-  (om-remove-all-subviews (get-g-component editor :spat-view-container))
-  (setf (3D-view editor) nil)
-  (om-add-subviews 
-   (get-g-component editor :spat-view-container)
-   (spat-view editor))
-  (spat-editor-set-spat-component editor)
-  (init-spat-viewer editor)
-  (update-spat-display editor))
-
-
-(defmethod init-spat-viewer ((editor spat-scene-editor))
-  (call-next-method)
-  (update-spat-view-sources editor))
+;;=========================
+;; 3D view / OpenGL
+;;=========================
 
 (defclass spat-scene-3D-view (om-opengl-view) ())
-
 
 (defun make-spat-scene-3D-view (editor)
   (om-make-view 'spat-scene-3D-view
@@ -200,17 +209,6 @@
                       :g-objects (create-GL-objects editor)
                       ))
 
-  
-(defun set-3D-view-mode (editor)
-  (spat-editor-remove-spat-component editor)
-  (om-remove-all-subviews (get-g-component editor :spat-view-container))
-  (setf (spat-view editor) nil)
-  (setf (3D-view editor) (make-spat-scene-3D-view editor))
-  (om-add-subviews 
-   (get-g-component editor :spat-view-container)
-   (3D-view editor))
-  (om-init-3d-view (3D-view editor))
-  )
 
 ;;; not at all optimized.. (recreates objects all he time, even if they don't change)
 (defmethod create-GL-objects ((self spat-scene-editor))
@@ -361,14 +359,15 @@
             ))
      (spat-view editor))
     
+    (update-spat-view-sources editor)
+
     (call-next-method)))
 
 (defmethod spat-object-init-GUI-messages ((editor spat-scene-editor)) 
-  (let ((ss (object-value editor)))
-    (append 
-     (call-next-method) 
-     '(("/layout" "single"))
-     )))
+  (append 
+   (call-next-method) 
+   '(("/layout" "single"))
+   ))
 
 ;;; UPDATE EVERYTHING FROM THE CURRENT STATE
 ;;; (not optimal !!)
@@ -383,27 +382,10 @@
            (spatgui (and spatview (spat-GUI-component spatview))))
 
       (when spatgui
-        
-        ;(spat-osc-command  
-        ; spatgui
-        ; (append 
-        ;  (list (list "/source/number" (length (audio-in ss)))
-        ;        (list "/speaker/number" (length (speakers ss)))
-        ;        (list "/set/format" "xyz"))
-        ;  (loop for spk in (speakers ss) for n = 1 then (1+ n) append
-        ;        (list (cons (format nil "/set/speaker/~D/xyz" n) spk)
-        ;              (list (format nil "/set/speaker/~D/editable" n) 1))
-        ;        ))
-        ; spatview)
-
-        ;;; not necessary here ?
-        ; (update-spat-view-sources self)
-        
+            
         (loop for traj in (trajectories ss)
-              for src in (audio-in ss)
               for n = 1 then (+ n 1) do 
-              (let ((col (or (color traj) (om-def-color :green)))
-                    (pt (time-sequence-get-active-timed-item-at ;;; here goes the interpolation
+              (let ((pt (time-sequence-get-active-timed-item-at ;;; here goes the interpolation
                                                                 traj 
                                                                 (or (get-cursor-time (timeline-editor self)) 0))))
                 (when pt
@@ -419,37 +401,36 @@
 ;; source selection
 (defmethod update-spat-view-sources ((self spat-scene-editor))
 
-  (when (window self)
-    (let* ((ss (object-value self))
-           (spatview (spat-view self))
-           (spatgui (and spatview (spat-GUI-component spatview)))
-           (ids (get-selected-timelines (timeline-editor self))))
+  (let* ((ss (object-value self))
+         (spatview (spat-view self))
+         (spatgui (and spatview (spat-GUI-component spatview)))
+         (ids (get-selected-timelines (timeline-editor self))))
       
-      (when (and spatgui ids)
+    (when spatgui
         
-        (spat-osc-command
-         spatgui 
-         (loop for traj in (trajectories ss)
-               for src in (audio-in ss)
-               for n = 1 then (+ n 1) do 
-               append
-               (list 
-                (list (format nil "/set/source/~D/select" n) (if (find (1- n) ids) 1 0))
-                (list (format nil "/set/source/~D/name" n) (format nil "~A" n))
+      (spat-osc-command
+       spatgui 
+       (loop for traj in (trajectories ss)
+             for src in (audio-in ss)
+             for n = 1 then (+ n 1)
+             append
+             (list 
+              (list (format nil "/set/source/~D/select" n) (if (find (1- n) ids) 1 0))
+              (list (format nil "/set/source/~D/name" n) (format nil "~A" n))
                 
-                (let ((col (or (color traj) (om-def-color :green))))
-                  (list (format nil "/set/source/~D/color" n) 
-                        (coerce (om-color-r col) 'single-float)
-                        (coerce (om-color-g col) 'single-float) 
-                        (coerce (om-color-b col) 'single-float) 
-                        (if (and src (mute src)) 0.2 1.0)))
-                )
+              (let ((col (or (color traj) (om-def-color :green))))
+                (list (format nil "/set/source/~D/color" n) 
+                      (coerce (om-color-r col) 'single-float)
+                      (coerce (om-color-g col) 'single-float) 
+                      (coerce (om-color-b col) 'single-float) 
+                      (if (and src (mute src)) 0.2 1.0)))
+              )
                 ;(list (format nil "/set/source/~D/visible" n) (if (find n (muted-sources self)) 0 1))
-               )
-         spatview)
-        )
+             )
+       spatview)
+      )
 
-      )))
+    ))
 
 
 ;;======================
@@ -468,6 +449,7 @@
          (traj (nth n (trajectories ss))))
     (update-position-at-time traj (make-3Dpoint :x (nth 0 pos) :y (nth 1 pos) :z (nth 2 pos))
                              (or (get-cursor-time (timeline-editor editor)) 0))
+    ;;(report-modifications editor)
     ))
 
 (defun source-selected-callback (editor n t-or-nil)
@@ -491,17 +473,10 @@
   (setf (car (controls (object-value editor)))
         (make-instance 'osc-bundle :date 0
                        :messages (filter-osc-messages (spat-get-state (spat-gui-component (spat-view editor)))
-                                    '("/source/number" 
-                                      "/speaker/number" 
-                                      "/format" 
-                                      "/layout"
-                                      "/source/.*/aed"
-                                      "/source/.*/xyz"
-                                      "/speaker/.*/aed"
-                                      "/speaker/.*/xyz"
-                                      "/speakers/xyz"
-                                      "/speakers/aed"
-                                      )))))
+                                    *excluded-spat-state-messages*)))
+  ;;(report-modifications editor)
+  )
+  
 
 
 
@@ -509,12 +484,14 @@
 ;;; MAIN CALLBACK HANDLER
 ;;;======================
 (defmethod spat-callback-to-front-editor ((editor spat-scene-editor) messages)
+  
   (let ((keypressed (find "/keypressed" messages :key 'car :test 'string-equal)))
     
     (if keypressed
         
         (let ((key (caddr keypressed))
-              (modifier (cadr keypressed)))
+              ; (modifier (cadr keypressed))
+              )
           (editor-key-action editor (code-char key)))
       
       (loop for mess in messages do 

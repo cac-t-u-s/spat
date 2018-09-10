@@ -76,17 +76,19 @@
     ))
 
 
-(defmethod set-spat-view ((self spat-editor))
+(defmethod spat-view-init ((self spat-editor))
   (spat-editor-set-spat-component self))
 
 (defmethod init-editor-window ((editor spat-editor))
   (call-next-method)
-  (set-spat-view editor)
+  (spat-view-init editor)
   (enable-play-controls editor t)
   (update-source-picts editor)
   (init-spat-viewer editor)
   (update-spat-display editor)
-  (update-timeline-display editor))
+  (update-timeline-display editor)
+  (activate-spat-callback editor)
+  t)
 
 (defmethod update-timeline-display ((self spat-editor)) 
   (editor-invalidate-views (timeline-editor self)))
@@ -113,6 +115,8 @@
         (om-close-window (window editor)))
       )))
 
+
+;;; => reactivate spat-callback ??
 (defmethod update-to-editor ((editor spat-editor) (from collection-editor))
   (unless (equal (spat-object (spat-view editor)) (object-value editor))
     (spat-editor-remove-spat-component editor)
@@ -159,7 +163,7 @@
                (spat-GUI-component view) 
                (spat::spat-get-view-pointer view))
 
-              (spat::spat-component-register-callback (spat-GUI-component view))
+              ;(spat::spat-component-register-callback (spat-GUI-component view))
               (setf (spat-object view) spat-object)
               )
           
@@ -168,6 +172,10 @@
         ))
     
     view))
+
+;;; sometimes we want to do this later (to avoid receive all initialization callbacks...)
+(defmethod activate-spat-callback ((editor spat-editor))
+  (spat::spat-component-register-callback (spat-GUI-component (spat-view editor))))
 
 (defmethod spat-editor-remove-spat-component ((editor spat-editor))
   

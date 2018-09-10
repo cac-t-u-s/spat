@@ -90,22 +90,27 @@
 ;;; INIT
 ;;;======================================================
 
+(defvar *excluded-spat-state-messages* 
+  '("/source/number" 
+    "/speaker/number" 
+    "/format" 
+    "/layout"
+    "/source/.*/aed"
+    "/source/.*/xyz"
+    "/source/.*/color"
+    "/source/.*/name"
+    "/speaker/.*/aed"
+    "/speaker/.*/xyz"
+    "/speakers/xyz"
+    "/speakers/aed"
+    ))
+
 (defmethod get-controller-state ((self spat-scene))
   (when (spat-controller self)
     (make-instance 
      'osc-bundle :date 0
      :messages (filter-osc-messages (spat-get-state (spat-controller self))
-                                    '("/source/number" 
-                                      "/speaker/number" 
-                                      "/format" 
-                                      "/layout"
-                                      "/source/.*/aed"
-                                      "/source/.*/xyz"
-                                      "/speaker/.*/aed"
-                                      "/speaker/.*/xyz"
-                                      "/speakers/xyz"
-                                      "/speakers/aed"
-                                      )))
+                                    *excluded-spat-state-messages*))
     ))
 
 
@@ -254,7 +259,7 @@
 
 ;;; showing all the traj as lists of x y and z
 (defun draw-spat-scene-curves (self box x y w h)
-  (declare (ignore box))
+  (declare (ignore box y))
   (let ((num-traj (length (trajectories self)))
         (x-col (om-def-color :red))
         (y-col (om-def-color :green))

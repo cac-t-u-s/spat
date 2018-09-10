@@ -472,6 +472,15 @@
              nil)
          (let ((smp1 (ms->samples t1 sr))
                (smp2 (1- (ms->samples t2 sr))))
+           
+           ;;; ???
+           ;(when (= t1 0) 
+           ;  (spat-osc-command (spat-processor self) '(("/dsp/clear")))
+           ;  (spat-osc-command (spat-processor self) (spat-object-init-DSP-messages self))
+           ;  ;;; messages from the first bundle (with "/set/...")
+           ;   ;(spat-osc-command (spat-processor object) (append-set-to-state-messages (spat-get-dsp-commands (spat-controller object))))
+           ;  (spat-osc-command (spat-processor self)  (spat-object-get-process-messages-at-time self 0)))
+    
            (loop for s0 from smp1 to smp2 by (buffer-size self) 
                  do
                  (when (spat-object-process-dsp self s0 (+ s0 (1- (buffer-size self)))))
@@ -491,11 +500,6 @@
     
     (unless (buffer-player object) (set-play-buffer object))
     
-    (spat-osc-command (spat-processor self) '(("/dsp/clear")))
-    (spat-osc-command (spat-processor self) (spat-object-init-DSP-messages self))
-    ;;; messages from the first bundle (with "/set/...")
-    (spat-osc-command (spat-processor self)  (spat-object-get-process-messages-at-time object (or (car interval) 0)))
-
     (when (buffer-player object)
       (jump-to-frame (buffer-player object) 0)
       (start-buffer-player (buffer-player object) 
