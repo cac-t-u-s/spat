@@ -230,7 +230,7 @@
                        (find date (time-sequence-get-timed-item-list obj) :key 'item-get-time :test '>= :from-end t))))
           (unless osc-b
             (setf osc-b (make-instance 'osc-bundle :date date))
-            (insert-timed-point-in-time-sequence obj osc-b)
+            (time-sequence-insert-timed-item-and-update obj osc-b)
             (om-invalidate-view (get-g-component (timeline-editor editor) :main-panel)))
 
           (setf (messages osc-b) current-state)

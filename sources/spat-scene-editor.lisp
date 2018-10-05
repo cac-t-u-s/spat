@@ -442,7 +442,7 @@
     (if p (om-point-set-values-from-point p new-p)
       (progn
         (om-point-set new-p :time time) 
-        (insert-timed-point-in-time-sequence self new-p)))))
+        (time-sequence-insert-timed-item-and-update self new-p)))))
 
 (defun source-moved-callback (editor n pos)
   (let* ((ss (object-value editor))
@@ -556,7 +556,7 @@
                                            (traj (nth id (trajectories ss)))
                                            (point (make-default-tpoint-at-time traj (get-obj-dur snd))))
                                       (setf (nth id (audio-in ss)) snd)
-                                      (insert-timed-point-in-time-sequence traj point))
+                                      (time-sequence-insert-timed-item-and-update traj point))
                                     (update-source-picts self)
                                     (om-enable-dialog-item cb t)
                                     (om-set-check-box cb t)
