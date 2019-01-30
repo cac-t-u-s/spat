@@ -3,14 +3,13 @@
 ;;; OM-Spat5 
 ;;;
 ;;; LIBRARY MAIN FILE
-;;; Author: Jean Bresson, Jérémie Garcia, Thibaut Carpentier
 ;;;
 ;;;===================================================
 
 (:om-lib
  (:author "J. Bresson, T. Carpentier, J. Garcia (2016-2017)")
  (:doc "Control sound processing and spatialization with Spat5")
- (:version 3.000400)
+ (:version 3.01)
  (:source-files
   (:pathname (:directory (:relative "sources")) (:name "omspat-lib"))
   (:pathname (:directory (:relative "sources")) (:name "omspat-api"))
