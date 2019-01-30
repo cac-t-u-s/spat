@@ -67,7 +67,6 @@
     (init-spat-viewer editor)
     (update-spat-display editor)
     (activate-spat-callback editor))
-    
   
   (call-next-method))
 
@@ -396,7 +395,11 @@
            (spatgui (and spatview (spat-GUI-component spatview))))
 
       (when spatgui
-            
+        
+        (spat-osc-command spatgui 
+                          `(("/set/source/number" ,(length (audio-in ss))))
+                          spatview)
+        
         (loop for traj in (trajectories ss)
               for n = 1 then (+ n 1) do 
               (let ((pt (time-sequence-get-active-timed-item-at ;;; here goes the interpolation
@@ -560,7 +563,7 @@
                              (update-spat-display self))))
          (folder-b (om-make-graphic-object 
                     'om-icon-button :size (omp 15 15) :position (omp 0 0)
-                    :icon 'folder :icon-pushed 'folder-pushed
+                    :icon :folder :icon-pushed :folder-pushed
                     :lock-push nil
                     :action #'(lambda (b)
                                 (declare (ignore b))
