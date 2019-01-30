@@ -41,7 +41,8 @@
                   (:windows ,(om-fi::om-foreign-library-pathname "omspat.dll"))
                   (t (:default "omspat"))))
           
-          (compile&load (merge-pathnames "omspat-api" *load-pathname*))
+          (when *load-pathname* ;; we are loading this...
+            (compile&load (merge-pathnames "omspat-api" *load-pathname*)))
 
           (spat::OmSpatInitialize)
           (spat::OmSpatSetVerbose nil)
@@ -59,8 +60,7 @@
 (om::add-preference-section :externals "om-Spat5" nil '(:spat5lib-path))
 
 ;; will load now and each time the preference is modified...
-(om::add-preference :externals :spat5lib-path "OMSpat dynamic library path" :file 'default-spatlib-path nil 'load-spat-lib) 
-
+(om::add-preference  :externals :spat5lib-path "OMSpat dynamic library path" :file (default-spatlib-path) nil 'load-spat-lib)
 
 
 (load-spat-lib)
