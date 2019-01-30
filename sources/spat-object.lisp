@@ -334,8 +334,8 @@
             
             (when messages 
               
-              ;(when (= time-ms 0)
-              ;  (setq messages (append-set-to-state-messages messages)))
+              (when (= time-ms 0)
+                (setq messages (append-set-to-state-messages messages)))
               
               (unless (spat-osc-command (spat-processor self) messages)
                 (error "ERROR IN SPAT CONTROL-MESSAGE PROCESSING"))
