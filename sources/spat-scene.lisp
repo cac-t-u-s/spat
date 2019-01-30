@@ -1,4 +1,20 @@
+;============================================================================
+; OM-spat5
+;============================================================================
+;
+;   This program is free software. For information on usage 
+;   and redistribution, see the "LICENSE" file in this distribution.
+;
+;   This program is distributed in the hope that it will be useful,
+;   but WITHOUT ANY WARRANTY; without even the implied warranty of
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;
+;============================================================================
 
+;================================================
+; SPAT-SCENE : a polyphonic spat controleur
+; @author: J. Bresson, J. Garcia
+;================================================
 
 (in-package :om)
 

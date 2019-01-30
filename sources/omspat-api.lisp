@@ -1,13 +1,22 @@
+;============================================================================
+; OM-spat5
+;============================================================================
+;
+;   This program is free software. For information on usage 
+;   and redistribution, see the "LICENSE" file in this distribution.
+;
+;   This program is distributed in the hope that it will be useful,
+;   but WITHOUT ANY WARRANTY; without even the implied warranty of
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;
+;============================================================================
+
 ;/************************************************************************************/
 ;/*  FILE DESCRIPTION							             */
 ;/*----------------------------------------------------------------------------------*/
-;/*!
-; *   @file       omspat-utils.lisp
 ; *   @brief      lisp-interface to OMSpat.framework Utilities
-; *   @author     Thibaut Carpentier
+; *   @author     Thibaut Carpentier / Jean Bresson
 ; *   @version    $(PRODUCT_VERSION)
-; *   @date       05/11/2013
-; *
 ; */
 ;/************************************************************************************/
 

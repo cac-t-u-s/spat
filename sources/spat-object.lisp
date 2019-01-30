@@ -1,3 +1,20 @@
+;============================================================================
+; OM-spat5
+;============================================================================
+;
+;   This program is free software. For information on usage 
+;   and redistribution, see the "LICENSE" file in this distribution.
+;
+;   This program is distributed in the hope that it will be useful,
+;   but WITHOUT ANY WARRANTY; without even the implied warranty of
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;
+;============================================================================
+
+;==============================================================
+; SPAT-OBJECT : abstract superclass for SPAT-DSP and SPAT-SCENE
+; @author: J. Bresson
+;==============================================================
 
 (in-package :om)
 
@@ -141,7 +158,7 @@
 
 (defmethod spat-object-free-audio-dsp ((self spat-object))
   (when (spat-processor self)
-    (om-print-dbg "~A: Free SPAT-Processor ~A in ~A" (list (type-of self) (spat-processor self) self) "OM-SPAT") 
+    (om-print-dbg "~A: Free SPAT-Processor ~A in ~A" (list (type-of self) (spat-processor self) self) "OM-SPAT-DEBUG") 
     (spat::OmSpatFreeComponent (spat-processor self)))
   (when (in-buffer self) 
     (spat::OmSpatFreeAudioBuffer (in-buffer self))
@@ -156,7 +173,7 @@
 
 (defmethod spat-object-free-spat-controller ((self spat-object))
   (when (spat-controller self)
-    (om-print-dbg "~A: Free SPAT-Controller ~A in ~A" (list (type-of self) (spat-controller self) self) "OM-SPAT")
+    (om-print-dbg "~A: Free SPAT-Controller ~A in ~A" (list (type-of self) (spat-controller self) self) "OM-SPAT-DEBUG")
     (spat::OmSpatFreeComponent (spat-controller self))
     ))
 
@@ -172,7 +189,7 @@
     (when ctrl-comp-name
       (if (spat::omspatisvalidcomponenttype ctrl-comp-name)
           (let ((comp (spat::OmSpatCreateComponentWithType ctrl-comp-name)))
-            (om-print-dbg "~A: Create spat-controller ~A [~A] in ~A" (list (type-of self) comp (remove #\~ ctrl-comp-name) self) "OM-SPAT")
+            (om-print-dbg "~A: Create spat-controller ~A [~A] in ~A" (list (type-of self) comp (remove #\~ ctrl-comp-name) self) "OM-SPAT-DEBUG")
             (setf (spat-controller self) comp))
         (om-beep-msg "OM-SPAT: Wrong GUI component: ~A" ctrl-comp-name)) 
       )))
@@ -186,7 +203,7 @@
       (if (spat::omspatisvalidcomponenttype dsp-comp-name)
           (progn 
             (om-print-dbg "~A: Create spat-processor ~A [~A] in ~A" 
-                          (list (type-of self) (spat-processor self) (remove #\~ dsp-comp-name) self) "OM-SPAT")
+                          (list (type-of self) (spat-processor self) (remove #\~ dsp-comp-name) self) "OM-SPAT-DEBUG")
             (setf (spat-processor self) (spat::OmSpatCreateDspComponentWithType dsp-comp-name n-in n-out))
             )
         (om-beep-msg "OM-SPAT: Wrong DSP component: ~A" dsp-comp-name)) 
@@ -201,7 +218,7 @@
    (when (> nsrc 0)
 
      (let ((inptr (fli:allocate-foreign-object :type :pointer :nelems nsrc)))
-       (om-print (format nil "Initializing Spat input buffers (~Ax~A)." nsrc buffersize) "OM-SPAT")    
+       (om-print-dbg "Initializing Spat input buffers (~Ax~A)." (list nsrc buffersize) "OM-SPAT-DEBUG")    
         
         (dotimes (src nsrc)
           (setf (fli:dereference inptr :index src :type :pointer);(cffi::mem-aref inptr :pointer src) 
@@ -211,7 +228,7 @@
     
     (when (> nch 0)
       (let ((outptr (fli:allocate-foreign-object :type :pointer :nelems nch)))
-        (om-print (format nil "Initializing Spat output buffers (~Ax~A)." nch buffersize) "OM-SPAT")
+        (om-print-dbg "Initializing Spat output buffers (~Ax~A)." (list nch buffersize) "OM-SPAT-DEBUG")
         
         (dotimes (ch nch)
           (setf (fli:dereference outptr :index ch :type :pointer);(cffi::mem-aref outptr :pointer ch) 
@@ -231,7 +248,7 @@
   (let* ((nch (n-channels-out self)) ;; depends on n-speakers / binaural mode
          (size (ms->samples (+ (get-obj-dur self) 1000) (audio-sr self))))
     
-    (om-print-dbg "Initializing player buffer (~Ax~A)." (list nch size) "OM-SPAT")
+    (om-print-dbg "Initializing player buffer (~Ax~A)." (list nch size) "OM-SPAT-DEBUG")
 
     (when (> nch 0)
       (let ((audio-buffer 
@@ -369,7 +386,7 @@
 
           (let ((smp2 (min total-size (1- (+ smp buffer-size)))))
             
-            (om-print-format "Processing samples ~A to ~A" (list smp smp2) "OM-SPAT")  
+            (om-print-dbg "Processing samples ~A to ~A" (list smp smp2) "OM-SPAT")  
             (spat-object-process-dsp sp smp smp2)
             
             (spat-object-copy-output-to-buffer 
@@ -377,7 +394,7 @@
              (1+ (- smp2 smp)) smp)
             ))
   
-    (om-print-format "Done! (~A channels)" (list (n-channels-out sp)) "OM-SPAT")
+    (om-print-dbg "Done! (~A channels)" (list (n-channels-out sp)) "OM-SPAT")
     
     (let ((sound (make-instance 'sound :buffer out-buffer
                                 :n-samples total-size

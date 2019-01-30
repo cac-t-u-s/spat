@@ -1,3 +1,20 @@
+;============================================================================
+; OM-spat5
+;============================================================================
+;
+;   This program is free software. For information on usage 
+;   and redistribution, see the "LICENSE" file in this distribution.
+;
+;   This program is distributed in the hope that it will be useful,
+;   but WITHOUT ANY WARRANTY; without even the implied warranty of
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;
+;============================================================================
+
+;================================================
+; Export SPAT-SCENE to SDIF format
+; @author: J. Bresson
+;================================================
 
 (in-package :om)
 
@@ -54,7 +71,7 @@
                                 collect (make-instance 'SDIFFrame :date tim :streamid i 
                                                          :frametype "XSRC"
                                                          :lmatrices (make-instance 'SDIFMatrix :matrixtype "XCAR"
-                                                                                   :elts 1 :fields 3
+                                                                                   ;; :elts 1 :fields 3
                                                                                    :data 3Dp))
                                 into list
                                 finally (return (values list xn xx yn yx zn zx )))
@@ -82,20 +99,18 @@
 - If <export-sounds> is T, the source files (if provided in the SPAT-MATRIX) are copied and exported to the SDIF file location.
   If <export-sound> is :temp, they are exported and registered as 'temporary files' to delete after synthesis.
 "
-            (let* ((error nil) time
-                   (filepath (or (and out-filename (handle-new-file-exists out-filename))
-                                 (om-choose-new-file-dialog :name "spat-scene" :types (list (format nil (om-str :file-format) "SDIF") "*.sdif" ))))
-                   (spat-descriptors '("trajecories"))
-                   (nstreams (length spat-descriptors)))
+            (let* ((filepath (or (and out-filename (handle-new-file-exists out-filename))
+                                 (om-choose-new-file-dialog :name "spat-scene" :types (list (format nil (om-str :file-format) "SDIF") "*.sdif" )))))
+              ; (spat-descriptors '("trajecories"))
+              ; (nstreams (length spat-descriptors))
               (when filepath
-                (let* ((sources (loop for src in (audio-in self) collect (get-sound src)))
-                       (srcnames (loop for src in (audio-in self) collect (get-sound-name src)))
+                (let* ((srcnames (loop for src in (audio-in self) collect (get-sound-name src)))
                        (srcfiles (loop for src in (audio-in self) collect (get-sound-file src)))
                        (sndtable (loop for file in srcfiles 
                                        for i = 1 then (+ i 1) do 
                                        (when (and file export-sounds)
-                                         (let ((tempfile (unique-pathname filepath (pathname-name soundpath) (pathname-type soundpath))))
-                                           (om-copy-file soundpath tempfile)
+                                         (let ((tempfile (unique-pathname filepath (pathname-name file) (pathname-type file))))
+                                           (om-copy-file file tempfile)
                                            (when (equal export-sounds :temp) (add-tmp-file tempfile))
                                            ))
                                        collect  
@@ -123,8 +138,8 @@
                                                                       (list "Zmax" (format nil "~D" zmax))
                                                                       ))
                                        (make-instance 'SDIFNVT :tablename "SourceNames" :ID 0 :NV-pairs nametable)))
-                           (sdiff (sdif::SDIFFOpen (namestring filepath) sdif::eWriteFile))
-                           (datatype 4))
+                           (sdiff (sdif::SDIFFOpen (namestring filepath) sdif::eWriteFile)))
+                      
                       (sdif::SdifFWriteGeneralHeader sdiff)
                       (sdif-write nvts sdiff)   
                       (sdif-write-types-string sdiff *spat-sdiftypes*)

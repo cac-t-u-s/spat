@@ -1,3 +1,22 @@
+;============================================================================
+; OM-spat5
+;============================================================================
+;
+;   This program is free software. For information on usage 
+;   and redistribution, see the "LICENSE" file in this distribution.
+;
+;   This program is distributed in the hope that it will be useful,
+;   but WITHOUT ANY WARRANTY; without even the implied warranty of
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;
+;============================================================================
+
+;===========================
+; SPAT-DSP objects 
+; @author: J. Bresson
+;===========================
+
+
 
 (in-package :om)
 
@@ -218,16 +237,17 @@
 (defmethod spat-callback-to-front-editor ((editor spat-dsp-editor) messages)
   (let ((keypressed (find "/keypressed" messages :key 'car :test 'string-equal)))
     (if keypressed
-        (let ((key (caddr keypressed))
-              (modifier (cadr keypressed)))
+        
+        (let ((key (caddr keypressed)))  ;; (modifier (cadr keypressed))
           (editor-key-action editor (code-char key)))
+      
       (let* ((obj (object-value editor))
              (spatguicomponent (spat-GUI-component (spat-view editor)))
              (current-state (spat-get-state spatguicomponent))
-             (date (or (get-cursor-time (timeline-editor editor)) 0)))
-        (let ((osc-b (if (editor-get-edit-param editor :dynamic-edit)
-                         (find date (time-sequence-get-timed-item-list obj) :key 'item-get-time :test '=)
-                       (find date (time-sequence-get-timed-item-list obj) :key 'item-get-time :test '>= :from-end t))))
+             (date (or (get-cursor-time (timeline-editor editor)) 0))
+             (osc-b (if (editor-get-edit-param editor :dynamic-edit)
+                        (find date (time-sequence-get-timed-item-list obj) :key 'item-get-time :test '=)
+                      (find date (time-sequence-get-timed-item-list obj) :key 'item-get-time :test '>= :from-end t))))
           (unless osc-b
             (setf osc-b (make-instance 'osc-bundle :date date))
             (time-sequence-insert-timed-item-and-update obj osc-b)
@@ -235,7 +255,7 @@
 
           (setf (messages osc-b) current-state)
           (report-modifications editor)
-          ))
+          )
       )))
 
 

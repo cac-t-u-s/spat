@@ -1,7 +1,20 @@
+;============================================================================
+; OM-spat5
+;============================================================================
+;
+;   This program is free software. For information on usage 
+;   and redistribution, see the "LICENSE" file in this distribution.
+;
+;   This program is distributed in the hope that it will be useful,
+;   but WITHOUT ANY WARRANTY; without even the implied warranty of
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;
+;============================================================================
 
-;;;================================================
-;;; spat-editor : a spat controleur + time control
-;;;================================================
+;================================================
+; spat-editor : a spat controleur + time control
+; @author: J. Bresson, J. Garcia
+;================================================
 
 (in-package :om)
 
@@ -108,12 +121,10 @@
 (defmethod update-to-editor ((editor spat-editor) (from OMBox)) 
   (call-next-method)
   (when (and (window editor) (spat-view editor)) 
-    (let ((spatcomponent (spat-GUI-component (spat-view editor))))
-      (if (equal (spat-object (spat-view editor)) (object-value editor))
-          (call-next-method)
-        ;;; it's a new new object => reinitialize the spat-view
-        (om-close-window (window editor)))
-      )))
+    (if (equal (spat-object (spat-view editor)) (object-value editor))
+        (call-next-method)
+      ;;; it's a new new object => reinitialize the spat-view
+      (om-close-window (window editor)))))
 
 
 ;;; => reactivate spat-callback ??
@@ -203,17 +214,24 @@
 (defmethod spat-callback-to-front-editor ((editor collection-editor) bundle-ptr) 
   (spat-callback-to-front-editor (internal-editor editor) bundle-ptr))
 
-(defun spat::spat-component-handle-callback (component-ptr bundle-ptr)
-  (let ((frontwin (om-front-window))) ;;; mmpf..
-    (unwind-protect
-        (let ((messages (decode-bundle-s-pointer-data bundle-ptr)))
-          (om-print-dbg 
-           "Received from SPAT: ~{~%                         => ~A ~}" 
-           (list messages)
-           "OM-SPAT")
-          (spat-callback-to-front-editor (editor frontwin) 
-                                         messages))
-      (odot::osc_bundle_s_deepFree bundle-ptr))))
+
+(om-with-redefinitions ;; a default version is defined in the om-spat API
+
+  (defun spat::spat-component-handle-callback (component-ptr bundle-ptr)
+  
+    (declare (ignore component-ptr))
+
+    (let ((frontwin (om-front-window))) ;;; mmpf..
+      (unwind-protect
+          (let ((messages (decode-bundle-s-pointer-data bundle-ptr)))
+            (om-print-dbg 
+             "Received from SPAT: ~{~%                         => ~A ~}" 
+             (list messages) "OM-SPAT")
+            (spat-callback-to-front-editor (editor frontwin) messages)
+            )
+        (odot::osc_bundle_s_deepFree bundle-ptr))
+      ))
+  )
 
 (defmethod spat-object-init-GUI-messages ((editor spat-editor)) 
   (messages (car (controls (object-value editor)))))
