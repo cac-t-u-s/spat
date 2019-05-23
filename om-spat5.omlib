@@ -22,7 +22,7 @@
   (:pathname (:directory (:relative "sources")) (:name "spat-sdif"))
   )
  (:symbols 
-  (:functions spat-synth spat-process-sound sdif-export) 
+  (:functions spat-process spat-synth sdif-export) 
   (:classes spat-dsp spat-scene) 
   )
 )

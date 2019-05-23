@@ -61,24 +61,35 @@
 ;; (spat-osc-command spat '(("/panning/type" "binaural")))
 
 
-;;; TEST FUNCTION (not used anywhere eslse)
+
+
+
 ;;; in-buffer and out-buffer come from / is returned to the environment
 ;;; all the rest is freed 
-(defmethod spat-process-sound ((self sound) spat-comp n-speakers (oscb osc-bundle))
+(defmethod! spat-process ((input sound) spat-comp n-speakers (oscb osc-bundle) &optional to-file)
+  :icon :spat
+  :initvals '(nil "spat5.pan~" 2 nil nil)
+  :indoc '("a sound object" "the string designating a spat DSP component" "number of output channels" "an OSC-bundle")
+  :doc "Processes <input> with <spat-comp> and the spat control messages in <oscb>.
+
+<spat-comp> can be any valid spat5.*~ DSP object name: spat5.cascade~, spat5.pan~, spat5.compressor~, etc.
+
+If input is a multi-channel audio file, is channel is treated as a source for the spat DSP object.
+"
   (if (spat::omspatisvalidcomponenttype spat-comp)
-    (with-audio-buffer (in-buffer self)
+    (with-audio-buffer (in-buffer input)
       (when in-buffer ;;; guarantees that the audio samples are temporaily loaded in b
         
-        (let ((spat (spat::OmSpatCreateDspComponentWithType spat-comp (n-channels self) n-speakers))
+        (let ((spat (spat::OmSpatCreateDspComponentWithType spat-comp (n-channels input) n-speakers))
               (out-buffer (fli:allocate-foreign-object :type :pointer :nelems n-speakers)))
           
           ;;; allocate the out buffer channels
           (dotimes (ch n-speakers)
             (setf (fli:dereference out-buffer :index ch :type :pointer)
-                  (fli:allocate-foreign-object :type :float :nelems (n-samples self) :initial-element 0.0)))
+                  (fli:allocate-foreign-object :type :float :nelems (n-samples input) :initial-element 0.0)))
     
-          (let ((spat-in (spat::allocate-spat-audiobuffer :channels (n-channels self) :size (n-samples self) :data (om-sound-buffer-ptr in-buffer)))
-                (spat-out (spat::allocate-spat-audiobuffer :channels n-speakers :size (n-samples self) :data out-buffer)))
+          (let ((spat-in (spat::allocate-spat-audiobuffer :channels (n-channels input) :size (n-samples input) :data (om-sound-buffer-ptr in-buffer)))
+                (spat-out (spat::allocate-spat-audiobuffer :channels n-speakers :size (n-samples input) :data out-buffer)))
           
             (unwind-protect 
                 (handler-bind ((error #'(lambda (e) 
@@ -93,14 +104,23 @@
                 ;(print (spat::OmSpatGetComponentType spat))
                 ;(print (spat-get-state spat))
       
-                  (unless (spat::OmSpatProcessAudio spat spat-out spat-in (n-samples self))
+                  (unless (spat::OmSpatProcessAudio spat spat-out spat-in (n-samples input))
                     (error "ERROR IN SPAT DSP"))
                 
                   (when out-buffer ;;; now contains spatialized audio tracks
-                    (let ((out-snd (make-instance 'om-internal-sound
-                                                  :n-samples (n-samples self) :sample-rate (sample-rate self)
-                                                  :n-channels n-speakers)))
-                      (setf (buffer out-snd) (make-om-sound-buffer :ptr out-buffer :count 1 :nch n-speakers))
+                    (let ((out-snd (make-instance 'sound :buffer (make-om-sound-buffer :ptr out-buffer :count 1 :nch n-speakers)
+                                                  :n-samples (n-samples input)
+                                                  :n-channels n-speakers
+                                                  :sample-rate (sample-rate input))
+                                   ))
+
+                      
+                      (when to-file 
+                        (unless (pathname-directory to-file) 
+                          (setf to-file (outfile to-file)))
+                        (setf (file-pathname out-snd) (handle-new-file-exists to-file))
+                        (setf (access-from-file out-snd) t))
+                      
                       out-snd))
                   )
               ;;; cleanup forms

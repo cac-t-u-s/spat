@@ -366,8 +366,10 @@
 ;;; OFFLINE SYNTHESIS
 ;;;================
 
-(defmethod* spat-synth ((self spat-object) &optional to-file)  
-  
+(defmethod! spat-synth ((self spat-object) &optional to-file)  
+  :icon :spat
+  :indoc '("a spat object" "an output pathname")
+  :doc "Processes the sources and DSP parameters as specified in <self> using Spat." 
   (let* ((sp (om-copy self))
          (buffer-size (buffer-size sp))
          (total-size (ms->samples (get-obj-dur sp) (audio-sr sp)))
