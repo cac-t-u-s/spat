@@ -63,7 +63,11 @@
 
 (defmethod init-editor ((self spat-editor))
   (call-next-method)
-  (setf (timeline-editor self) (make-instance 'timeline-editor :object (object self) :container-editor self)))
+  (setf (timeline-editor self) (make-instance 'timeline-editor :object (object self) :container-editor self))
+  (spat-init-editor self))
+
+
+(defmethod spat-init-editor ((self spat-editor)) nil)
 
 (defmethod make-editor-window-contents ((editor spat-editor))
 
@@ -92,40 +96,48 @@
 (defmethod spat-view-init ((self spat-editor))
   (spat-editor-set-spat-component self))
 
+
 (defmethod init-editor-window ((editor spat-editor))
   (call-next-method)
   (spat-view-init editor)
+  (init-messages-to-spat-viewer editor)
   (enable-play-controls editor t)
   (update-source-picts editor)
-  (init-spat-viewer editor)
   (update-spat-display editor)
   (update-timeline-display editor)
   (activate-spat-callback editor)
   t)
 
+
 (defmethod update-timeline-display ((self spat-editor)) 
   (editor-invalidate-views (timeline-editor self)))
 
-(defmethod update-spat-display ((self spat-editor)) 
-  (when (window self)
-    (om-invalidate-view (get-g-component (timeline-editor self) :main-panel))))
+;;;=========================================================
+
+(defmethod update-spat-display ((self spat-editor)) nil)
 
 (defmethod editor-invalidate-views ((self spat-editor))
   (update-timeline-display self)
   (when (spat-view self) (update-spat-display self)))
 
+;;;=========================================================
+
+;;; add stuff for spat-scene (and other sub-classes)
+(defmethod spat-update-to-editor ((editor spat-editor) from) nil)
+
 (defmethod update-to-editor ((editor spat-editor) (from t)) 
   (call-next-method)
+  (time-sequence-update-internal-times (object-value editor))
+  (enable-play-controls editor t)
+  (spat-update-to-editor editor from)
   (when (window editor) (editor-invalidate-views editor)))
 
 (defmethod update-to-editor ((editor spat-editor) (from OMBox)) 
-  (call-next-method)
   (when (and (window editor) (spat-view editor)) 
     (if (equal (spat-object (spat-view editor)) (object-value editor))
         (call-next-method)
-      ;;; it's a new new object => reinitialize the spat-view
+      ;;; it's a new object => reinitialize the spat-view
       (om-close-window (window editor)))))
-
 
 ;;; => reactivate spat-callback ??
 (defmethod update-to-editor ((editor spat-editor) (from collection-editor))
@@ -134,6 +146,7 @@
     (spat-editor-set-spat-component editor))
   (call-next-method))
 
+;;;=========================================================
 
 (defmethod select-all-command ((self spat-editor))
   #'(lambda () 
@@ -186,7 +199,8 @@
 
 ;;; sometimes we want to do this later (to avoid receive all initialization callbacks...)
 (defmethod activate-spat-callback ((editor spat-editor))
-  (spat::spat-component-register-callback (spat-GUI-component (spat-view editor))))
+  (when (spat-view editor)
+    (spat::spat-component-register-callback (spat-GUI-component (spat-view editor)))))
 
 (defmethod spat-editor-remove-spat-component ((editor spat-editor))
   
@@ -205,12 +219,14 @@
     (setf (spat-object (spat-view editor)) nil)
     ))
 
+
 (defmethod editor-close ((self spat-editor))
   (spat-editor-remove-spat-component self)
   (call-next-method))
 
   
 (defmethod spat-callback-to-front-editor ((editor t) bundle-ptr) nil)
+
 (defmethod spat-callback-to-front-editor ((editor collection-editor) bundle-ptr) 
   (spat-callback-to-front-editor (internal-editor editor) bundle-ptr))
 
@@ -236,7 +252,7 @@
 (defmethod spat-object-init-GUI-messages ((editor spat-editor)) 
   (messages (car (controls (object-value editor)))))
             
-(defmethod init-spat-viewer ((editor spat-editor))
+(defmethod init-messages-to-spat-viewer ((editor spat-editor))
   (when (and (spat-view editor) (spat-GUI-component (spat-view editor)))
     (spat-osc-command 
      (spat-GUI-component (spat-view editor))
@@ -322,9 +338,9 @@
       (om-draw-picture pict :x 0 :y 0 :w (w view) :h (h view)
                        :src-x x :src-w w))))
 
+
 #|
-;tentative de mettre un prgress bar mais ne se met pas bien à jour...
-; Besoin à mon avis car charger les waverform est long...
+; attempt to add a progress bar
 
 (capi:define-interface progress-bar-spat ()
   ()

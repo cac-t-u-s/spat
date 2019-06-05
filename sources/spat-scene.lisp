@@ -32,7 +32,7 @@
   `(("" 
      (:name "Name" :text name)
      (:action "Action" :action action-accessor)
-     (:interpol "Interpolation" ,(make-number-or-nil :min 20 :max 1000) interpol)
+     (:interpol "Interpolation" ,(make-number-or-nil :min 20 :max 1000) interpol-accessor)
      (:panning "Panning type" ("angular" "binaural" "vbap3d" "hoa3d") panning-type-accessor "angular")
      (:reverb "Reverb" :bool reverb-accessor nil)
      (:buffer-size "Buffer size" :number buffer-size-accessor))))
@@ -49,6 +49,17 @@
     (spat-object-set-audio-dsp self)
     (spat-object-set-spat-controller self))
   (reverb self))
+
+
+(defmethod update-interpol-settings-for-trajs ((self spat-scene))
+  (loop for 3dc in (trajectories self) do 
+        (setf (interpol 3dc) (interpol self))))
+
+(defmethod interpol-accessor ((self spat-scene) &optional (value nil value-supplied-p))
+  (when value-supplied-p
+    (setf (interpol self) value)
+    (update-interpol-settings-for-trajs self))
+  (interpol self))
 
 
 (defmethod additional-class-attributes ((self spat-scene)) 
@@ -171,6 +182,8 @@
             into trajects
             finally (setf (audio-in self) sounds
                           (trajectories self) trajects))
+
+      (update-interpol-settings-for-trajs (object-value editor))
                             
       (loop for sr in (audio-in self)
             for tr in (trajectories self) do
@@ -178,8 +191,7 @@
               (when (< (get-obj-dur tr) dur)
                 (time-sequence-insert-timed-item tr (time-sequence-make-timed-item-at tr dur))))) 
 
-      ;; will be called by om-init-instance (?)
-      ;; (time-sequence-update-internal-times self)
+      ; (time-sequence-update-internal-times self)
       )
     )
   self)
@@ -218,11 +230,6 @@
 
 (defmethod get-last-time-point ((self spat-scene))
   (or (car (last (get-all-sorted-times self))) 0))
-
-(defmethod update-interpol-settings-for-trajs ((self spat-scene))
-  (loop for 3dc in (trajectories self) do 
-        (setf (interpol 3dc) (interpol self))))
-  
 
 (defmethod time-sequence-update-internal-times ((self spat-scene) 
                                                 &optional (interpol-mode :constant-speed) 

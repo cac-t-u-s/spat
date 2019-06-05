@@ -280,7 +280,6 @@
                               spatview)
             ))
         ))
-    (call-next-method) ;;; will invalidate the timeline(s)
     ))
       
 
