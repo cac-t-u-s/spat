@@ -493,12 +493,6 @@
 
 ;to improve to adapt to the size
 (defmethod export-keyframe-as-svg ((self spat-scene) file-path &key  (time 0) (w 300) (h 300) (margins 20) (speakers t))
-  :icon 908
-  :indoc '("a spat-scene object" "a pathname" "time to draw" "image width" "image height" "margins size" "show speakers" )
-  :initvals '(nil nil 0 300 300 20 1)
-  :doc "
-Exports <self> to SVG format.
-"
   (let* ((pathname (or file-path (om-choose-new-file-dialog :directory (def-save-directory) 
                                                        :prompt "New SVG file"
                                                        :types '("SVG Files" "*.svg")))))
