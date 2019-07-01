@@ -18,9 +18,7 @@
 
 (in-package :om)
 
-(add-lib-alias "om-spat5" "om-spat")
-
-(defpackage :spat)
+(add-lib-alias "om-spat" "om-spat5")
 
 ;;; if the library is included in teh lib release, taht would be here:
 ;;; (merge-pathnames "lib/mac/OmSpat.framework/OmSpat" (om::mypathname (om::find-library "om-spat5")))
@@ -45,9 +43,11 @@
             (compile&load (merge-pathnames "omspat-api" *load-pathname*)))
 
           (spat::OmSpatInitialize)
-          (spat::OmSpatSetVerbose nil)
-          (om-print (spat::OmSpatGetVersion) "SPAT")
-          (push :spat *features*)
+          (spat::OmSpatSetVerbose t)
+              (om-print (spat::OmSpatGetVersion) "SPAT")
+          (if (spat::OmSpatIsInitialized)
+              (push :spat *features*)
+            (om-print "Initialization Error." "SPAT"))
           )
     
      (om::om-beep-msg "Library OMSpat not found:~A. See Preferences/Externals" sharedlibpath))

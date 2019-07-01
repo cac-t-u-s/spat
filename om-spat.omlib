@@ -11,15 +11,16 @@
  (:doc "Control sound processing and spatialization in OM7 with Spat5")
  (:version 3.1)
  (:source-files
-  (:pathname (:directory (:relative "sources")) (:name "omspat-lib"))
-  (:pathname (:directory (:relative "sources")) (:name "omspat-api"))
-  (:pathname (:directory (:relative "sources")) (:name "spatialize"))
-  (:pathname (:directory (:relative "sources")) (:name "spat-object"))
-  (:pathname (:directory (:relative "sources")) (:name "spat-dsp"))
-  (:pathname (:directory (:relative "sources")) (:name "spat-editor"))
-  (:pathname (:directory (:relative "sources")) (:name "spat-scene"))
-  (:pathname (:directory (:relative "sources")) (:name "spat-scene-editor"))
-  (:pathname (:directory (:relative "sources")) (:name "spat-sdif"))
+  "sources/omspat-api"
+  "sources/spatialize"
+  "sources/spat-object"
+  "sources/spat-object-classes"
+  "sources/spat-editor"
+  "sources/spat-dsp"
+  "sources/spat-scene"
+  "sources/spat-scene-editor"
+  "sources/spat-sdif"
+  "sources/omspat-lib"
   )
  (:symbols 
   (:functions spat-process spat-synth sdif-export) 

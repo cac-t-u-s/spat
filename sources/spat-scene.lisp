@@ -19,15 +19,6 @@
 (in-package :om)
 
 
-(defclass! spat-scene (spat-object time-sequence)
-  ((audio-in :accessor audio-in :initform nil :initarg :audio-in :documentation "audio source file(s)") ;;; repeated slot to make it appear on the box
-   (trajectories :accessor trajectories :initform nil :initarg :trajectories) ;list of 3DC
-   (speakers :accessor speakers :initform '((-1 1 0) (1 1 0)) :initarg :speakers)    ;  (1 -1 0) (-1 -1 0)
-   (controls :initarg :controls :accessor controls :initform nil :documentation "list of timed OSC-bundles")
-   (panning-type :accessor panning-type :initform "angular")
-   (reverb :accessor reverb :initform nil)
-   ))
-
 (defmethod get-properties-list ((self spat-scene))
   `(("" 
      (:name "Name" :text name)
@@ -37,11 +28,13 @@
      (:reverb "Reverb" :bool reverb-accessor nil)
      (:buffer-size "Buffer size" :number buffer-size-accessor))))
 
+
 (defmethod panning-type-accessor ((self spat-scene) &optional (value nil value-supplied-p))
   (if value-supplied-p
       (progn (setf (panning-type self) value)
         (spat-object-set-audio-dsp self))
     (panning-type self)))
+
 
 (defmethod reverb-accessor ((self spat-scene) &optional (value nil value-supplied-p))
   (when value-supplied-p
@@ -54,6 +47,7 @@
 (defmethod update-interpol-settings-for-trajs ((self spat-scene))
   (loop for 3dc in (trajectories self) do 
         (setf (interpol 3dc) (interpol self))))
+
 
 (defmethod interpol-accessor ((self spat-scene) &optional (value nil value-supplied-p))
   (when value-supplied-p
@@ -92,6 +86,7 @@
 (defmethod SpatControllerComponent-name ((self spat-scene)) 
   (if (reverb self) "spat5.oper" "spat5.viewer"))
 
+
 (defmethod n-channels-in ((self spat-scene)) 
   (length (list! (audio-in self))))
 
@@ -99,6 +94,7 @@
   (if (string-equal (panning-type self) "binaural")
       2 
     (length (speakers self))))
+
 
 (defmethod get-obj-dur ((self spat-scene)) 
   (reduce 'max 
@@ -111,7 +107,6 @@
           `(("/panning/type" ,(panning-type self))
             ("/speakers/xyz" ,.(apply 'append (speakers self))))))
           
-
 
 ;;;======================================================
 ;;; INIT
@@ -132,6 +127,7 @@
     "/speakers/aed"
     ))
 
+
 (defmethod get-controller-state ((self spat-scene))
   (when (spat-controller self)
     (make-instance 
@@ -139,7 +135,6 @@
      :messages (filter-osc-messages (spat-get-state (spat-controller self))
                                     *excluded-spat-state-messages*))
     ))
-
 
 
 (defmethod ensure-init-state ((self spat-scene))
@@ -160,11 +155,11 @@
 ;; do this with om-init-instance ??
 ;(defmethod initialize-instance :after ((self spat-scene) &rest args)
 (defmethod om-init-instance ((self spat-scene) &optional initargs)
-  
+ 
   (call-next-method)
-
+ 
   (when initargs 
-  
+    
     (when (find :speakers initargs :key 'car) 
       (setf (speakers self) (copy-list (cadr (find :speakers initargs :key 'car)))))
 
@@ -183,17 +178,16 @@
             finally (setf (audio-in self) sounds
                           (trajectories self) trajects))
 
-      (update-interpol-settings-for-trajs (object-value editor))
-                            
+      (update-interpol-settings-for-trajs self)
+
       (loop for sr in (audio-in self)
             for tr in (trajectories self) do
+   
             (let ((dur (if sr (sound-dur-ms sr) 0)))
               (when (< (get-obj-dur tr) dur)
-                (time-sequence-insert-timed-item tr (time-sequence-make-timed-item-at tr dur))))) 
-
-      ; (time-sequence-update-internal-times self)
-      )
-    )
+                (time-sequence-insert-timed-item tr (time-sequence-make-timed-item-at tr dur)))))    
+      ))
+  
   self)
 
 (defmethod format-traj-as-3DC ((self list))
@@ -271,13 +265,13 @@
 (defmethod display-modes-for-object ((self spat-scene))
   '(:hidden :text :mini-view))
 
+
 ;;; to be redefined by objects if they have a specific draw/cache strategy
 (defmethod get-cache-display-for-draw ((self spat-scene)) 
   (list 
    ;;; just record a zoom factor for drawing
    (loop for p in (append (get-all-traj-points self) (speakers self))
          maximize (if p (sqrt (+ (* (car p) (car p)) (* (cadr p) (cadr p)))) 0))))
-   
 
 
 ;;; showing all the traj as lists of x y and z
@@ -308,7 +302,6 @@
               (draw-bpf-points-in-rect x-t-list
                                        x-col
                                        x-t-ranges
-                             ;(+ x 7) (+ y 10) (- w 14) (- h 20)
                                        x (+ y-new 5) w (- h-new 5)
                                        )
               ;draw y = f(t)
@@ -332,8 +325,10 @@
 
 (defmethod draw-spat-scene ((self spat-scene) x y w h max at)
   (flet ((relpos (coord ref) (+ ref (* coord (/ (- ref 15) max)))))
+   
     (let ((x0 (/ w 2))
           (y0 (/ h 2)))
+
       (om-with-fg-color (om-def-color :gray)
         (om-with-line '(2 2)
           (om-draw-ellipse (+ x x0) (+ y y0) (- x0 5) (- y0 10))
@@ -372,11 +367,10 @@
                                 )
                               )))))
                 )))
-            )))
+      )))
 
 
    
-
 ;;; second version using keyframes
 ;;need to add the time parameters and it should animate the good keyframe...
 (defun draw-spat-scene-frames (self box x y w h frame-w)
@@ -402,7 +396,7 @@
   (let ((time (or time 0))
         (max (car (get-display-draw box))))
     (case (get-edit-param box :view-mode)
-      (:3dc (draw-spat-scene-curves self box x y w h))
+      ;; (:3dc (draw-spat-scene-curves self box x y w h))
       (otherwise (draw-spat-scene self x y w h max time)))
     ))
       

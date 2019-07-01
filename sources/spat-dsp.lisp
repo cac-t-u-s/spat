@@ -12,21 +12,13 @@
 ;============================================================================
 
 ;===========================
-; SPAT-DSP objects 
+; SPAT-DSP code 
 ; @author: J. Bresson
 ;===========================
 
 
 
 (in-package :om)
-
-
-(defclass! spat-dsp (spat-object data-stream)
-  ((audio-in :accessor audio-in :initform nil :initarg :audio-in :documentation "audio source")
-   (dsp-type :initarg :dsp-type :accessor dsp-type :initform "spat5.filterdesign")
-   (controls :initarg :controls :accessor controls :initform nil :documentation "list of timed OSC-bundles"))
-  (:default-initargs :default-frame-type 'osc-bundle :action 'render-audio))
-
 
 (defmethod get-properties-list ((self spat-dsp))
   `((""  
@@ -189,12 +181,6 @@
 
 (defmethod object-has-editor ((self spat-dsp)) t)
 (defmethod get-editor-class ((self spat-dsp)) 'spat-dsp-editor)
-
-;(defmethod SpatComponent-name ((self spat-dsp-editor)) 
-;  (spat-gui-component-name (dsp-type (object-value self))))
-
-(defmethod get-info-command ((self spat-dsp-editor)) 
-  #'(lambda () (show-inspector nil nil)))
 
 ;;; called by the previous / next buttons
 (defmethod get-all-sorted-times ((self spat-dsp))

@@ -27,10 +27,6 @@
    (id :accessor id :initform nil :initarg :id)))
 
 (defmethod get-spat-view-id ((self t)) -1)
-(defmethod get-spat-view-id ((self spat-editor)) 
-  (if (spat-view self)
-      (id (spat-view self))
-    -2))
 
 (defun find-window-with-spat-view (id)
   (find id (capi::collect-interfaces 'OMEditorWindow)
@@ -52,6 +48,14 @@
    (source-picts :accessor source-picts :initform nil)))
 
 (defmethod SpatComponent-name ((self spat-editor)) nil)
+
+(defmethod get-spat-view-id ((self spat-editor)) 
+  (if (spat-view self)
+      (id (spat-view self))
+    -2))
+
+(defmethod spat-editor-bg-color ((self spat-editor))
+  (om-make-color .55 .6 .6))
 
 ;; from play-editor-mixin
 (defmethod cursor-panes ((self spat-editor)) (cursor-panes (timeline-editor self)))
@@ -82,14 +86,24 @@
       (make-timeline-view (timeline-editor editor)))
     
     (om-make-layout 
-     'om-column-layout
-     :ratios '(0.9 0.1)
-     :subviews (list (om-make-layout 'om-row-layout
-                                     :ratios '(98 1)
-                                     :subviews (list (om-make-layout 'om-simple-layout :subviews (list spat-view))
-                                                     attributes-view))
-                     timeline-container
-                     ))
+     'om-row-layout 
+     :bg-color (spat-editor-bg-color editor) 
+     :align :center
+     :ratios '(1 50 1)
+     :subviews (list 
+                nil
+                (om-make-layout 
+                 'om-column-layout
+                 :ratios '(9 1 nil)
+                 :subviews (list (om-make-layout 
+                                  'om-row-layout
+                                  :ratios '(98 1)
+                                  :subviews (list (om-make-layout 'om-simple-layout :subviews (list spat-view))
+                                                  attributes-view))
+                                 timeline-container
+                                 nil
+                                 ))
+                nil))
     ))
 
 
@@ -318,13 +332,15 @@
 
 
 (defmethod update-source-picts ((editor spat-editor))
+  
   (setf (source-picts editor)
         (loop for src in (list! (audio-in (object-value editor)))
               collect (when (subtypep (type-of src) 'sound)
-                        (let ((*def-sound-color* (om-gray-color 0.7)))
+
                           (list (get-cache-display-for-draw src)
                                 (get-obj-dur src))
-                          )))))
+                          )
+              )))
 
 ;;; from time-sequence
 (defmethod draw-timeline-background ((self spat-editor) view id)

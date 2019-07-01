@@ -91,21 +91,26 @@
 
   (set-selection editor (car (get-selected-timelines (timeline-editor editor))))
   
-  (update-default-view (3DC-editor editor))
-  (update-to-editor (3DC-editor editor) editor)
-  
-  ;;; update the viewer if switch from pan to spat
-  (when (and (spat-view editor)
-             (spat-gui-component (spat-view editor))
-             (not (string-equal (spat::omspatgetcomponenttype (spat-gui-component (spat-view editor)))
-                                (if (reverb (object-value editor)) "spat5.oper" "spat5.viewer"))))
-    
-    (spat-editor-remove-spat-component editor)
-    (spat-editor-set-spat-component editor)
-    (init-messages-to-spat-viewer editor)
-    (update-display-contents editor)
-    (activate-spat-callback editor))
+  (case (editor-get-edit-param editor :view-mode) 
 
+    (:3DC
+     (update-default-view (3DC-editor editor))
+     (update-to-editor (3DC-editor editor) editor)
+     )
+
+    (:spat 
+     ;;; update the viewer if switch from pan to spat
+     (when (and (spat-view editor)
+                (spat-gui-component (spat-view editor))
+                (not (string-equal (spat::omspatgetcomponenttype (spat-gui-component (spat-view editor)))
+                                   (if (reverb (object-value editor)) "spat5.oper" "spat5.viewer"))))
+       
+       (spat-editor-remove-spat-component editor)
+       (spat-editor-set-spat-component editor)
+       (init-messages-to-spat-viewer editor)
+       (update-display-contents editor)
+       (activate-spat-callback editor))
+     ))
   )
 
 
@@ -244,7 +249,8 @@
    
     (om-make-layout 
      'om-row-layout 
-     :bg-color (om-def-color :gray) :align :center
+     :bg-color (spat-editor-bg-color editor) 
+     :align :center
      :ratios '(1 50 1)
      :subviews
      (list nil
@@ -558,7 +564,7 @@
                             )
     ))
 
-(defun source-dbclick-callback (editor n) nil)
+(defun source-dbclick-callback (editor n) (declare (ignore editor n)) nil)
 
 (defun speaker-moved-callback (editor n pos)
   (setf (nth n (speakers (object-value editor))) pos)
