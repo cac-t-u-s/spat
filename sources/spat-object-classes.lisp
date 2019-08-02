@@ -25,7 +25,12 @@
   ((audio-in :accessor audio-in :initform nil :initarg :audio-in :documentation "audio source")
    (dsp-type :initarg :dsp-type :accessor dsp-type :initform "spat5.filterdesign")
    (controls :initarg :controls :accessor controls :initform nil :documentation "list of timed OSC-bundles"))
-  (:default-initargs :default-frame-type 'osc-bundle :action 'render-audio))
+  (:default-initargs :default-frame-type 'osc-bundle :action 'render-audio)
+  (:documentation "A Spat sound processor. 
+
+Controls the transformation of a sound source using OSC bundles. 
+
+Offline rendering with SPAT-SYNTH."))
 
 
 
@@ -36,4 +41,9 @@
    (controls :initarg :controls :accessor controls :initform nil :type list :documentation "list of timed OSC-bundles")
    (panning-type :accessor panning-type :initform "angular")
    (reverb :accessor reverb :initform nil)
-   ))
+   )
+  (:documentation "A Spat spatialization processor. 
+
+Controls the spatialization of a set of sound sources using 3D-trajectories and other controllers formatted as OSC bundles. 
+
+Offline rendering with SPAT-SYNTH."))
