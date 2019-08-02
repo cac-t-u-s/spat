@@ -267,7 +267,7 @@
 
 
 ;;; to be redefined by objects if they have a specific draw/cache strategy
-(defmethod get-cache-display-for-draw ((self spat-scene)) 
+(defmethod get-cache-display-for-draw ((self spat-scene) box) 
   (list 
    ;;; just record a zoom factor for drawing
    (loop for p in (append (get-all-traj-points self) (speakers self))
