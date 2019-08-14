@@ -192,8 +192,8 @@
     (spat-component-handle-callback component bundle)))
 
 ;;; to be redefined
-(defun spat-component-handle-callback (component-ptr bundle-ptr) 
-  (declare (ignore component-ptr bundle-ptr))
-  (print "Callback undefined"))
+;(defun spat-component-handle-callback (component-ptr bundle-ptr) 
+;  (declare (ignore component-ptr bundle-ptr))
+;  (print "Callback undefined"))
 
 

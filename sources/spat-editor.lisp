@@ -245,9 +245,7 @@
   (spat-callback-to-front-editor (internal-editor editor) bundle-ptr))
 
 
-(om-with-redefinitions ;; a default version is defined in the om-spat API
-
-  (defun spat::spat-component-handle-callback (component-ptr bundle-ptr)
+(defun spat::spat-component-handle-callback (component-ptr bundle-ptr)
   
     (declare (ignore component-ptr))
 
@@ -260,8 +258,8 @@
             (spat-callback-to-front-editor (editor frontwin) messages)
             )
         (odot::osc_bundle_s_deepFree bundle-ptr))
-      ))
-  )
+      )
+    )
 
 (defmethod spat-object-init-GUI-messages ((editor spat-editor)) 
   (messages (car (controls (object-value editor)))))
@@ -314,7 +312,7 @@
                (list  
                 (om-make-graphic-object 
                  'om-icon-button :size (omp 15 15) :position (omp 0 0)
-                 :icon 'folder :icon-pushed 'folder-pushed
+                 :icon :folder :icon-pushed :folder-pushed
                  :lock-push nil
                  :action #'(lambda (b)
                              (declare (ignore b))
@@ -337,7 +335,7 @@
         (loop for src in (list! (audio-in (object-value editor)))
               collect (when (subtypep (type-of src) 'sound)
 
-                          (list (get-cache-display-for-draw src)
+                          (list (get-cache-display-for-draw src (object editor))
                                 (get-obj-dur src))
                           )
               )))
