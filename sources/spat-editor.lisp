@@ -164,8 +164,8 @@
 
 (defmethod select-all-command ((self spat-editor))
   #'(lambda () 
-      (setf (selection (timeline-editor self)) 
-            (time-sequence-get-timed-item-list (object-value self)))
+      (set-selection (timeline-editor self)
+                     (time-sequence-get-timed-item-list (object-value self)))
       (editor-invalidate-views self)))
 
 (defmethod editor-key-action ((self spat-editor) key)
@@ -298,6 +298,7 @@
 (defmethod play-editor-callback ((self spat-editor) time)
   (update-spat-display self)
   (call-next-method))
+
 
 
 ;;;===============================

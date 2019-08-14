@@ -25,6 +25,7 @@
 (defclass spat-scene-editor (spat-editor) 
   ((active-items :accessor active-items :initform nil)
    (3DC-editor :accessor 3DC-editor :initform nil)
+   (selected-sources :accessor selected-sources :initform nil)
    ))
 
 (defmethod object-default-edition-params ((self spat-scene))
@@ -45,7 +46,7 @@
   
   (set-cursor-time (timeline-editor self) (spat-scene-min-time (object-value self)))
   
-  (let* ((main-src (or (car (selection self)) 0))
+  (let* ((main-src (or (car (selected-sources self)) 0))
          (3D-ed (make-instance '3DC-editor
                        :container-editor self 
                        :object (make-instance 'OMAbstractContainer 
@@ -65,38 +66,30 @@
 
 
 
-(defmethod set-selection ((editor spat-scene-editor) (n number))
-  
-  (setf (selection editor) (list n))
 
-  ;;; update the 3DC-editor
-  (enable-multi-display (3DC-editor editor) (trajectories (object-value editor)))
-  (setf (selection (3DC-editor editor)) nil)
-  
-  (let ((abs-container (object (3DC-editor editor)))) ;; in principle this is an OMAbstractContainer
-    (setf (contents abs-container) 
-          (nth (car (selection editor)) (trajectories (object-value editor)))))
-  
-  
-  (om-remove-all-subviews (get-g-component editor :selection-params))
-  (apply #'om-add-subviews (cons (get-g-component editor :selection-params) 
-                                 (build-selected-source-items editor)))
-  
-  (editor-invalidate-views (3DC-editor editor)))
   
 
   
 ; called from a child-editor (2D-views or timeline-views) when the value is edited
 (defmethod spat-update-to-editor ((editor spat-scene-editor) from) 
-
-  (set-selection editor (car (get-selected-timelines (timeline-editor editor))))
   
-  (case (editor-get-edit-param editor :view-mode) 
+  (let ((selected-timelines (get-selected-timelines (timeline-editor editor))))
+    
+    (unless (or (null selected-timelines) 
+                (equal (selected-sources editor) selected-timelines))
+      ;;; select only the first one (for BPC editing etc.)
+      (select-source editor (car selected-timelines)))
+    
+    (case (editor-get-edit-param editor :view-mode) 
 
-    (:3DC
-     (update-default-view (3DC-editor editor))
-     (update-to-editor (3DC-editor editor) editor)
-     )
+    (:3DC 
+     (let ((3Ded (3DC-editor editor)))
+     (unless (equal from 3Ded)
+       (setf (selection 3Ded) (get-indices-from-points (object-value 3Ded) (selection (timeline-editor editor))))
+       (update-default-view 3Ded)
+       (update-sub-editors 3Ded)
+       ;(update-to-editor 3Ded editor)
+       )))
 
     (:spat 
      ;;; update the viewer if switch from pan to spat
@@ -111,8 +104,7 @@
        (update-display-contents editor)
        (activate-spat-callback editor))
      ))
-  )
-
+    ))
 
 (defmethod editor-invalidate-views ((self spat-scene-editor))
   (call-next-method)
@@ -120,25 +112,19 @@
     (editor-invalidate-views (3dc-editor self))))
 
 
+(defmethod update-to-editor ((editor spat-scene-editor) (from 3dc-editor)) 
+  (call-next-method)
+  (update-to-editor (timeline-editor editor) from))
+
+(defmethod update-to-editor ((editor spat-scene-editor) (from timeline-editor)) 
+  (call-next-method)
+  (update-to-editor (3dc-editor editor) from))
 
 
 
 (defmethod editor-close :before ((editor spat-scene-editor)) 
   (editor-close (3dc-editor editor)))
 
-;;; called when the box updates its value
-;(defmethod update-to-editor ((editor spat-scene-editor) (from OMBoxEditCall)) 
-;  (close-source-editors editor)
-;  (call-next-method)
-;  (update-source-picts editor)
-;  (make-timeline-view (timeline-editor editor))
-;  (enable-play-controls editor t))
-
-
-;(defmethod editor-invalidate-views ((self spat-scene-editor))
-;  (when (spat-view self)
-;    (update-spat-view-sources self))
-;  (call-next-method))
 
 
 ;;=========================
@@ -324,8 +310,8 @@
      (make-editor-window-contents (3dc-editor editor)))
     
     (setf (contents (object (3DC-editor editor)))
-           (if (selection editor)
-               (nth (car (selection editor)) (trajectories (object-value editor)))
+           (if (selected-sources editor)
+               (nth (car (selected-sources editor)) (trajectories (object-value editor)))
              (car (trajectories (object-value editor)))))
     
     (enable-multi-display (3DC-editor editor) (trajectories (object-value editor)))
@@ -369,7 +355,7 @@
          (append (spat-scene-speakers-messages (object-value editor))
                  (spat-scene-sources-messages (object-value editor) 
                                               (or (get-cursor-time (timeline-editor editor)) 0)
-                                              (selection editor))
+                                              (selected-sources editor))
                  ))
         (spat-view editor))
        ))
@@ -406,9 +392,8 @@
     ;;; select last-created timeline
     (let ((sel (list (1- (length (trajectories ss))))))
       (set-selected-timelines (timeline-editor self) sel)
-      (setf (selection self) sel))
-    ;(update-to-editor (3dc-editor self) self)
- 
+      (select-source self (car sel)))
+
     (enable-play-controls self t)
     (update-source-picts self)
     (spat-object-set-audio-dsp ss)
@@ -430,12 +415,33 @@
       (make-timeline-view (timeline-editor self))
       (enable-play-controls self t)
       (set-selected-timelines (timeline-editor self) nil)
-      (om-set-layout-ratios (main-view self) '(1 9 1))
+      ;(om-set-layout-ratios (main-view self) '(1 9 1))
       (update-display-contents self)
       (update-source-picts self)
       (spat-object-set-audio-dsp ss)
       (report-modifications self)
       )))
+
+
+
+(defmethod select-source ((editor spat-scene-editor) (n number))
+  
+  (setf (selected-sources editor) (list n))
+
+  (setf (selection (3DC-editor editor)) nil)
+  
+  (let ((abs-container (object (3DC-editor editor)))) ;; in principle this is an OMAbstractContainer
+    (setf (contents abs-container) 
+          (nth (car (selected-sources editor)) (trajectories (object-value editor)))))
+  
+    ;;; update the 3DC-editor
+  (enable-multi-display (3DC-editor editor) (trajectories (object-value editor)))
+
+  (om-remove-all-subviews (get-g-component editor :selection-params))
+  (apply #'om-add-subviews (cons (get-g-component editor :selection-params) 
+                                 (build-selected-source-items editor)))
+  
+  (editor-invalidate-views (3DC-editor editor)))
 
 
 
@@ -631,7 +637,34 @@
 
 
 
+;;===================
+;; PLAY 
+;;===================
 
+(defmethod play-editor-callback ((self spat-scene-editor) time)
+  (play-editor-callback (3dc-editor self) time)
+  (call-next-method))
+
+(defmethod editor-play ((self spat-scene-editor)) 
+  (call-next-method)
+  (loop for tr in (trajectories (object-value self))
+        do 
+        (setf (state tr) :play) ;; for display
+        (setf (ref-time tr) (ref-time (object-value self)))
+        ))
+
+
+(defmethod editor-stop ((self spat-scene-editor))
+  (call-next-method)
+  (loop for tr in (trajectories (object-value self))
+        do (setf (state tr) :stop))
+  (update-display-contents self)
+  (update-timeline-display self))
+
+(defmethod editor-reset-interval ((self spat-scene-editor))
+  (call-next-method)
+  (update-display-contents self)
+  (update-timeline-display self))
 
 
 ;;===================
@@ -644,16 +677,12 @@
      (set-selected-timelines (timeline-editor editor) nil))
     (otherwise nil)
     )
-  (call-next-method))
+  (or (editor-key-action (3dc-editor editor) key)
+      (call-next-method)
+      )
+  )
+  
 
-(defmethod editor-stop ((self spat-scene-editor))
-  (call-next-method)
-  (update-display-contents self)
-  (update-timeline-display self))
 
-(defmethod editor-reset-interval ((self spat-scene-editor))
-  (call-next-method)
-  (update-display-contents self)
-  (update-timeline-display self))
 
 
