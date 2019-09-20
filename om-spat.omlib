@@ -12,6 +12,7 @@
  (:version 3.2)
  (:source-files
   "sources/omspat-api"
+  "sources/omspat-lib"
   "sources/spatialize"
   "sources/spat-object"
   "sources/spat-object-classes"
@@ -20,7 +21,6 @@
   "sources/spat-scene"
   "sources/spat-scene-editor"
   "sources/spat-sdif"
-  "sources/omspat-lib"
   )
  (:symbols 
   (:functions spat-process spat-synth sdif-export) 

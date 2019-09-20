@@ -39,8 +39,8 @@
                   (:windows ,(om-fi::om-foreign-library-pathname "omspat.dll"))
                   (t (:default "omspat"))))
           
-          (when *load-pathname* ;; we are loading this...
-            (compile&load (merge-pathnames "omspat-api" *load-pathname*)))
+          ;(when *load-pathname* ;; we are loading this...
+          ;  (compile&load (merge-pathnames "omspat-api" *load-pathname*)))
 
           (spat::OmSpatInitialize)
           (spat::OmSpatSetVerbose t)
