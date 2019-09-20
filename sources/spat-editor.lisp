@@ -244,14 +244,14 @@
 (defmethod spat-callback-to-front-editor ((editor collection-editor) bundle-ptr) 
   (spat-callback-to-front-editor (internal-editor editor) bundle-ptr))
 
-
+;;; uses odot to decode OSC data
 (defun spat::spat-component-handle-callback (component-ptr bundle-ptr)
   
     (declare (ignore component-ptr))
 
     (let ((frontwin (om-front-window))) ;;; mmpf..
       (unwind-protect
-          (let ((messages (decode-bundle-s-pointer-data bundle-ptr)))
+          (let ((messages (odot::osc_decode_bundle_s_data bundle-ptr)))
             (om-print-dbg 
              "Received from SPAT: ~{~%                         => ~A ~}" 
              (list messages) "OM-SPAT")

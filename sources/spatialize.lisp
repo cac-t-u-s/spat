@@ -19,6 +19,7 @@
 (in-package :om)
 
 (require-om-package "sound")
+(require-library "odot")
 
 ;;;===============================
 ;;; OSC binding for Spat Component
@@ -32,7 +33,7 @@
         ;;; call itself again, but in another thread
         (capi:apply-in-pane-process apply-in-view 'spat-osc-command component-ptr messages) 
       
-      (let ((osc-ptr (make-foreign-bundle-s-pointer messages))) ;; (ob (make-o.bundle messages))
+      (let ((osc-ptr (odot::osc_make_foreign_bundle_s messages))) ;; (ob (make-o.bundle messages))
         
         (om-print-dbg 
          "[~A] ~A/~A ~{~%                         <= ~A ~}" 
@@ -49,13 +50,13 @@
 (defun spat-get-state (component-ptr)
   (let ((state-bundle (spat::OmSpatGetCurrentStateAsOscBundle component-ptr)))
     (unwind-protect 
-        (om::decode-bundle-s-pointer-data state-bundle)
+        (odot::osc_decode_bundle_s_data state-bundle)
       (odot::osc_bundle_s_deepFree state-bundle))))
 
 (defun spat-get-dsp-commands (component-ptr)
   (let ((state-bundle (spat::OmSpatGetBundleFromGuiToDsp component-ptr)))
     (unwind-protect 
-        (om::decode-bundle-s-pointer-data state-bundle)
+        (odot::osc_decode_bundle_s_data state-bundle)
       (odot::osc_bundle_s_deepFree state-bundle))))
 
 ;; (spat-osc-command spat '(("/panning/type" "binaural")))
