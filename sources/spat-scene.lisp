@@ -58,7 +58,7 @@
 
 (defmethod additional-class-attributes ((self spat-scene)) 
   (append (call-next-method)
-          '(action panning-type reverb buffer-size interpol)))
+          '(action panning-type reverb interpol)))
 
 
 ;;; we have to do this because :panning-type is not a class initarg

@@ -28,6 +28,10 @@
      (:buffer-size "Buffer size" :number buffer-size-accessor)
      )))
 
+(defmethod additional-class-attributes ((self spat-dsp)) 
+  (append (call-next-method)
+          '(interpol)))
+
 ;;; DATA-STREAM API
 (defmethod data-stream-frames-slot ((self spat-dsp)) 'controls)
 
