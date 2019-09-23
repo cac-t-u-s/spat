@@ -35,10 +35,11 @@
       
       (let ((osc-ptr (odot::osc_make_foreign_bundle_s messages))) ;; (ob (make-o.bundle messages))
         
-        (om-print-dbg 
-         "[~A] ~A/~A ~{~%                         <= ~A ~}" 
-         (list (remove #\~ (spat::OmSpatGetComponentType component-ptr)) component-ptr apply-in-view messages)
-         "OM-SPAT-DEBUG")
+        ; for real-real debug !
+        ;(om-print-dbg 
+        ; "[~A] ~A/~A ~{~%                         <= ~A ~}" 
+        ; (list (remove #\~ (spat::OmSpatGetComponentType component-ptr)) component-ptr apply-in-view messages)
+        ; "OM-SPAT-DEBUG")
         
         (unwind-protect
             (spat::OmSpatProcessOscCommands component-ptr osc-ptr)
