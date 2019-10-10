@@ -20,6 +20,11 @@
 
 (add-lib-alias "om-spat" "om-spat5")
 
+(require-om-package "sound")
+
+(require-library "odot")
+
+
 ;;; if the library is included in teh lib release, taht would be here:
 ;;; (merge-pathnames "lib/mac/OmSpat.framework/OmSpat" (om::mypathname (om::find-library "om-spat5")))
 

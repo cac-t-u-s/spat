@@ -18,9 +18,6 @@
 
 (in-package :om)
 
-(require-om-package "sound")
-(require-library "odot")
-
 ;;;===============================
 ;;; OSC binding for Spat Component
 ;;;===============================
@@ -63,12 +60,11 @@
 ;; (spat-osc-command spat '(("/panning/type" "binaural")))
 
 
-
-
+;; (spat::omspatisvalidcomponenttype "spat.decoder~")
 
 ;;; in-buffer and out-buffer come from / is returned to the environment
 ;;; all the rest is freed 
-(defmethod! spat-process ((input sound) spat-comp n-speakers (oscb osc-bundle) &optional to-file)
+(defmethod! spat-process ((input sound) (spat-comp string) (n-outputs integer) (oscb osc-bundle) &optional to-file)
   :icon :spat
   :initvals '(nil "spat5.pan~" 2 nil nil)
   :indoc '("a sound object" "the string designating a spat DSP component" "number of output channels" "an OSC-bundle")
