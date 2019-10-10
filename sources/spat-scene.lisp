@@ -21,7 +21,7 @@
 
 (defmethod get-properties-list ((self spat-scene))
   `(("" 
-     (:name "Name" :text name)
+     (:name "Name" :string name)
      (:action "Action" :action action-accessor)
      (:interpol "Interpolation" ,(make-number-or-nil :min 20 :max 1000) interpol-accessor)
      (:panning "Panning type" ("angular" "binaural" "vbap3d" "hoa3d") panning-type-accessor "angular")

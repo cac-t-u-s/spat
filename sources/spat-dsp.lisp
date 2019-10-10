@@ -22,7 +22,7 @@
 
 (defmethod get-properties-list ((self spat-dsp))
   `((""  
-     (:name "Name" :text name)
+     (:name "Name" :string name)
      (:action "Action" :action action-accessor)
      (:interpol "Interpolation" ,(make-number-or-nil :min 20 :max 1000) interpol)
      (:buffer-size "Buffer size" :number buffer-size-accessor)
