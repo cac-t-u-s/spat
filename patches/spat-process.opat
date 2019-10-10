@@ -5,8 +5,8 @@
  (:doc "")
  (:info
   (:created "2016/12/21 11:20:58")
-  (:modified "2019/09/21 23:47:49"))
- (:window (:size (1398 496)) (:position (261 165)))
+  (:modified "2019/10/10 9:32:37"))
+ (:window (:size (1398 496)) (:position (501 335)))
  (:grid nil)
  (:lock nil)
  (:boxes
@@ -45,11 +45,7 @@
      (:class sound)
      (:slots
       ((:onset 0)
-       (:duration 0)
-       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
-       (:default-frame-type marker-frame)
-       (:frames nil)
-       (:buffer nil)
+       (:duration 3202.9375)
        (:n-samples 153741)
        (:n-channels 1)
        (:sample-rate 48000)
@@ -57,24 +53,25 @@
        (:sample-size 24)))
      (:add-slots
       ((:markers nil)
+       (:gain 1.0)
+       (:access-from-file nil)
        (:file-pathname
         (:pathname
          (:directory
-          (:absolute
-           "Users"
-           "bresson"
+          (:relative
+           :up
+           :up
+           :up
+           :up
+           :up
+           :up
            "_SHARED-FILES"
            "IN-FILES"
            "SOUNDFILES"))
          (:device :unspecific)
-         (:host nil)
+         (:host :unspecific)
          (:name "basmba")
-         (:type "aiff")))
-       (:sample-rate 48000)
-       (:n-channels 1)
-       (:n-samples 153741)
-       (:gain 1.0)
-       (:access-from-file nil)))))
+         (:type "aiff")))))))
    (:id 0))
   (:box
    (:type :object)
@@ -171,11 +168,7 @@
      (:class sound)
      (:slots
       ((:onset 0)
-       (:duration 0)
-       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
-       (:default-frame-type marker-frame)
-       (:frames nil)
-       (:buffer nil)
+       (:duration 3202.9375)
        (:n-samples 153741)
        (:n-channels 4)
        (:sample-rate 48000)
@@ -183,12 +176,9 @@
        (:sample-size 16)))
      (:add-slots
       ((:markers nil)
-       (:file-pathname nil)
-       (:sample-rate 48000)
-       (:n-channels 4)
-       (:n-samples 153741)
        (:gain 1.0)
-       (:access-from-file nil)))))
+       (:access-from-file nil)
+       (:file-pathname nil)))))
    (:id 2))
   (:box
    (:type :value)
@@ -263,11 +253,7 @@
      (:class sound)
      (:slots
       ((:onset 0)
-       (:duration 0)
-       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
-       (:default-frame-type marker-frame)
-       (:frames nil)
-       (:buffer nil)
+       (:duration 31129.418)
        (:n-samples 1494212)
        (:n-channels 2)
        (:sample-rate 48000)
@@ -275,12 +261,9 @@
        (:sample-size 16)))
      (:add-slots
       ((:markers nil)
-       (:file-pathname nil)
-       (:sample-rate 48000)
-       (:n-channels 2)
-       (:n-samples 1494212)
        (:gain 1.0)
-       (:access-from-file nil)))))
+       (:access-from-file nil)
+       (:file-pathname nil)))))
    (:id 5))
   (:box
    (:type :object)
@@ -371,31 +354,24 @@
      (:value :choose-file)
      (:reactive nil)))
    (:outputs (:output (:name "SELF") (:reactive nil)))
-   (:window (:size (nil nil)) (:position (nil nil)))
+   (:window (:size (962 929)) (:position (84 69)))
    (:edition-params)
    (:value
     (:object
      (:class sound)
      (:slots
       ((:onset 0)
-       (:duration 0)
-       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
-       (:default-frame-type marker-frame)
-       (:frames nil)
-       (:buffer nil)
+       (:duration 31129.418)
        (:n-samples 1494212)
-       (:n-channels 2)
+       (:n-channels 21)
        (:sample-rate 48000)
        (:smpl-type :float)
        (:sample-size 16)))
      (:add-slots
       ((:markers nil)
-       (:file-pathname nil)
-       (:sample-rate 48000)
-       (:n-channels 2)
-       (:n-samples 1494212)
        (:gain 1.0)
-       (:access-from-file nil)))))
+       (:access-from-file nil)
+       (:file-pathname nil)))))
    (:id 7))
   (:box
    (:type :value)
@@ -433,7 +409,7 @@
    (:lock nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
-   (:value 2)
+   (:value 4)
    (:id 9))
   (:box
    (:type :object)
@@ -470,11 +446,7 @@
      (:class sound)
      (:slots
       ((:onset 0)
-       (:duration 0)
-       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
-       (:default-frame-type marker-frame)
-       (:frames nil)
-       (:buffer nil)
+       (:duration 3202.9375)
        (:n-samples 153741)
        (:n-channels 1)
        (:sample-rate 48000)
@@ -482,24 +454,25 @@
        (:sample-size 24)))
      (:add-slots
       ((:markers nil)
+       (:gain 1.0)
+       (:access-from-file nil)
        (:file-pathname
         (:pathname
          (:directory
-          (:absolute
-           "Users"
-           "bresson"
+          (:relative
+           :up
+           :up
+           :up
+           :up
+           :up
+           :up
            "_SHARED-FILES"
            "IN-FILES"
            "SOUNDFILES"))
          (:device :unspecific)
-         (:host nil)
+         (:host :unspecific)
          (:name "basmba")
-         (:type "aiff")))
-       (:sample-rate 48000)
-       (:n-channels 1)
-       (:n-samples 153741)
-       (:gain 1.0)
-       (:access-from-file nil)))))
+         (:type "aiff")))))))
    (:id 10))
   (:box
    (:type :object)
@@ -536,11 +509,7 @@
      (:class sound)
      (:slots
       ((:onset 0)
-       (:duration 0)
-       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
-       (:default-frame-type marker-frame)
-       (:frames nil)
-       (:buffer nil)
+       (:duration 33882.36)
        (:n-samples 1494212)
        (:n-channels 1)
        (:sample-rate 44100)
@@ -548,24 +517,25 @@
        (:sample-size 16)))
      (:add-slots
       ((:markers nil)
+       (:gain 1.0)
+       (:access-from-file nil)
        (:file-pathname
         (:pathname
          (:directory
-          (:absolute
-           "Users"
-           "bresson"
+          (:relative
+           :up
+           :up
+           :up
+           :up
+           :up
+           :up
            "_SHARED-FILES"
            "IN-FILES"
            "SOUNDFILES"))
          (:device :unspecific)
-         (:host nil)
+         (:host :unspecific)
          (:name "cowbell")
-         (:type "aif")))
-       (:sample-rate 44100)
-       (:n-channels 1)
-       (:n-samples 1494212)
-       (:gain 1.0)
-       (:access-from-file nil)))))
+         (:type "aif")))))))
    (:id 11))
   (:box
    (:type :function)
@@ -646,8 +616,8 @@
      (:reactive nil))
     (:input
      (:type :standard)
-     (:name "N-SPEAKERS")
-     (:value nil)
+     (:name "N-OUTPUTS")
+     (:value 2)
      (:reactive nil))
     (:input
      (:type :standard)
@@ -686,8 +656,8 @@
      (:reactive nil))
     (:input
      (:type :standard)
-     (:name "N-SPEAKERS")
-     (:value nil)
+     (:name "N-OUTPUTS")
+     (:value 2)
      (:reactive nil))
     (:input
      (:type :standard)
@@ -817,7 +787,7 @@
          (:list "/speaker/22/aed" -144 57 1)
          (:list "/speaker/23/aed" -72 57 1)
          (:list "/speaker/24/aed" -90 90 1)
-         (:list "/panning/type" vbap3d)))))))
+         (:list "/panning/type" "vbap3d")))))))
    (:id 19)))
  (:connections
   (:connection
