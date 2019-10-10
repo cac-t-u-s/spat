@@ -68,9 +68,9 @@
                                 maximize (cadr 3Dp) into yx
                                 minimize (caddr 3Dp) into zn
                                 maximize (caddr 3Dp) into zx
-                                collect (make-instance 'SDIFFrame :date tim :streamid i 
+                                collect (make-instance 'SDIFFrame :onset tim :streamid i 
                                                          :frametype "XSRC"
-                                                         :lmatrices (make-instance 'SDIFMatrix :matrixtype "XCAR"
+                                                         :lmatrix (make-instance 'SDIFMatrix :matrixtype "XCAR"
                                                                                    ;; :elts 1 :fields 3
                                                                                    :data 3Dp))
                                 into list
