@@ -1,14 +1,12 @@
 ;;;===================================================
 ;;;
-;;; OM-Spat / OM7
-;;;
-;;; LIBRARY MAIN FILE
+;;; Spat lib for om#
 ;;;
 ;;;===================================================
 
 (:om-lib
  (:author "J. Bresson, T. Carpentier, J. Garcia (2016-2017)")
- (:doc "Control sound processing and spatialization in OM7 with Spat5")
+ (:doc "Control sound processing and spatialization in om# with Spat")
  (:version 3.3)
  (:source-files
   "sources/omspat-api"
