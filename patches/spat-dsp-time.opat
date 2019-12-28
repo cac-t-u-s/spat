@@ -1,11 +1,12 @@
 
 (:patch
- (:om-version 0.03)
  (:name "spat-dsp-time")
  (:doc "")
  (:info
   (:created "2019/09/23 17:17:53")
-  (:modified "2019/09/23 17:18:17"))
+  (:modified "2019/12/28 22:57:12")
+  (:by "om-sharp")
+  (:version 1.0))
  (:window (:size (762 620)) (:position (373 91)))
  (:grid nil)
  (:lock nil)
@@ -15,8 +16,8 @@
    (:reference sound)
    (:group-id nil)
    (:name "input sound")
-   (:x 78)
-   (:y 241)
+   (:x 5)
+   (:y 258)
    (:w 172)
    (:h 59)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -24,11 +25,9 @@
    (:roundness nil)
    (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
    (:align :center)
-   (:name "input sound")
    (:display :mini-view)
    (:showname t)
    (:show-markers t)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -45,11 +44,7 @@
      (:class sound)
      (:slots
       ((:onset 0)
-       (:duration 0)
-       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
-       (:default-frame-type marker-frame)
-       (:frames nil)
-       (:buffer nil)
+       (:duration 3202.9375)
        (:n-samples 153741)
        (:n-channels 1)
        (:sample-rate 48000)
@@ -57,27 +52,26 @@
        (:sample-size 24)))
      (:add-slots
       ((:markers nil)
+       (:gain 1.0)
+       (:access-from-file nil)
        (:file-pathname
         (:pathname
          (:directory
-          (:absolute
-           "Users"
-           "bresson"
+          (:relative
+           :up
+           :up
+           :up
+           :up
            "_SHARED-FILES"
            "IN-FILES"
            "SOUNDFILES"))
          (:device :unspecific)
-         (:host nil)
+         (:host :unspecific)
          (:name "basmba")
-         (:type "aiff")))
-       (:sample-rate 48000)
-       (:n-channels 1)
-       (:n-samples 153741)
-       (:gain 1.0)
-       (:access-from-file nil)))))
+         (:type "aiff")))))))
    (:id 0))
   (:box
-   (:library "OM-Spat")
+   (:library "spat")
    (:type :object)
    (:reference spat-dsp)
    (:group-id nil)
@@ -91,12 +85,10 @@
    (:roundness nil)
    (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
    (:align :center)
-   (:name "SPAT-DSP")
    (:display :mini-view)
    (:showname t)
    (:show-markers t)
-   (:group-id nil)
-   (:lock :locked)
+   (:lock nil)
    (:lambda nil)
    (:inputs
     (:input
@@ -183,11 +175,7 @@
           (:class sound)
           (:slots
            ((:onset 0)
-            (:duration 0)
-            (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
-            (:default-frame-type marker-frame)
-            (:frames nil)
-            (:buffer nil)
+            (:duration 3202.9375)
             (:n-samples 153741)
             (:n-channels 1)
             (:sample-rate 48000)
@@ -195,24 +183,23 @@
             (:sample-size 24)))
           (:add-slots
            ((:markers nil)
+            (:gain 1.0)
+            (:access-from-file nil)
             (:file-pathname
              (:pathname
               (:directory
-               (:absolute
-                "Users"
-                "bresson"
+               (:relative
+                :up
+                :up
+                :up
+                :up
                 "_SHARED-FILES"
                 "IN-FILES"
                 "SOUNDFILES"))
               (:device :unspecific)
-              (:host nil)
+              (:host :unspecific)
               (:name "basmba")
-              (:type "aiff")))
-            (:sample-rate 48000)
-            (:n-channels 1)
-            (:n-samples 153741)
-            (:gain 1.0)
-            (:access-from-file nil))))))
+              (:type "aiff"))))))))
        (:controls
         (:list
          (:object
@@ -250,10 +237,7 @@
               (:list "/attenuation" 20.0)
               (:list "/gain" -30.0))))))))
        (:dsp-type "spat5.filterdesign")))
-     (:add-slots
-      ((:audio-sr 44100)
-       (:buffer-size 8192)
-       (:interpol (:number-or-nil (:number 100) (:t-or-nil t)))))))
+     (:add-slots ((:audio-sr 44100) (:buffer-size 8192)))))
    (:id 1))
   (:box
    (:type :value)
@@ -275,7 +259,7 @@
    (:value "spat5.filterdesign")
    (:id 2))
   (:box
-   (:library "OM-Spat")
+   (:library "spat")
    (:type :function)
    (:reference spat-synth)
    (:group-id nil)
@@ -289,6 +273,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align :left)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -313,12 +298,10 @@
    (:roundness nil)
    (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
    (:align :center)
-   (:name "filtered sound")
    (:display :mini-view)
    (:showname t)
    (:show-markers t)
-   (:group-id nil)
-   (:lock :locked)
+   (:lock nil)
    (:lambda nil)
    (:inputs
     (:input
@@ -335,23 +318,16 @@
      (:slots
       ((:onset 0)
        (:duration 0)
-       (:interpol (:number-or-nil (:number 50) (:t-or-nil nil)))
-       (:default-frame-type marker-frame)
-       (:frames nil)
-       (:buffer nil)
-       (:n-samples 141250)
-       (:n-channels 1)
-       (:sample-rate 44100)
+       (:n-samples nil)
+       (:n-channels nil)
+       (:sample-rate nil)
        (:smpl-type :float)
        (:sample-size 16)))
      (:add-slots
       ((:markers nil)
-       (:file-pathname nil)
-       (:sample-rate 44100)
-       (:n-channels 1)
-       (:n-samples 141250)
        (:gain 1.0)
-       (:access-from-file nil)))))
+       (:access-from-file nil)
+       (:file-pathname nil)))))
    (:id 4))
   (:box
    (:type :function)
@@ -367,6 +343,7 @@
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -392,10 +369,8 @@
    (:roundness nil)
    (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
    (:align :center)
-   (:name nil)
    (:display :mini-view)
    (:showname nil)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -453,10 +428,8 @@
    (:roundness nil)
    (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
    (:align :center)
-   (:name nil)
    (:display :mini-view)
    (:showname nil)
-   (:group-id nil)
    (:lock :locked)
    (:lambda nil)
    (:inputs
@@ -511,7 +484,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 13.0D0) (:style :bold)))
+     (:font (:font (:face "Calibri") (:size 13) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text "Advanced / temporal DSP control")
@@ -527,7 +500,7 @@
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 13.0D0) (:style :plain)))
+     (:font (:font (:face "Calibri") (:size 13) (:style :plain)))
      (:t-or-nil t)))
    (:align nil)
    (:text
@@ -552,6 +525,7 @@ Control-bundles/states can also be added from inside the editor using the 'timel
    (:roundness nil)
    (:text-font nil)
    (:align nil)
+   (:icon :left)
    (:lock nil)
    (:lambda nil)
    (:inputs
@@ -618,7 +592,7 @@ Control-bundles/states can also be added from inside the editor using the 'timel
    (:roundness nil)
    (:text-font
     (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 18.0D0) (:style :bold)))
+     (:font (:font (:face "Calibri") (:size 18) (:style :bold)))
      (:t-or-nil t)))
    (:align nil)
    (:text "SPAT-DSP")
@@ -644,27 +618,9 @@ Control-bundles/states can also be added from inside the editor using the 'timel
    (:to (:box 4 :in 0))
    (:attributes
     (:color (:color 0.3 0.3 0.3 1.0) :style nil :modif nil)))
-  (:connection
-   (:from (:box 5 :out 0))
-   (:to (:box 1 :in 3))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 6 :out 0))
-   (:to (:box 5 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 7 :out 0))
-   (:to (:box 10 :in 0))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 10 :out 0))
-   (:to (:box 5 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 11 :out 0))
-   (:to (:box 10 :in 1))
-   (:attributes (:color nil :style nil :modif nil)))
-  (:connection
-   (:from (:box 12 :out 0))
-   (:to (:box 1 :in 4))
-   (:attributes (:color nil :style nil :modif nil)))))
+  (:connection (:from (:box 5 :out 0)) (:to (:box 1 :in 3)))
+  (:connection (:from (:box 6 :out 0)) (:to (:box 5 :in 0)))
+  (:connection (:from (:box 7 :out 0)) (:to (:box 10 :in 0)))
+  (:connection (:from (:box 10 :out 0)) (:to (:box 5 :in 1)))
+  (:connection (:from (:box 11 :out 0)) (:to (:box 10 :in 1)))
+  (:connection (:from (:box 12 :out 0)) (:to (:box 1 :in 4)))))
