@@ -163,15 +163,10 @@
   (let ((b (time-sequence-get-active-timed-item-at self time-ms))) ;; will handle interpolation if needed
     (when b 
       (let ((set-state-messages (spat-set-controller-state-messages self b)))
-        (if (spat-component-window (spat-controller self))
-          (spat-osc-command-in-view 
-           (spat-component-window (spat-controller self))
-           (spat-component-ptr (spat-controller self)) 
-           set-state-messages)
-          (spat-osc-command 
-           (spat-component-ptr (spat-controller self)) 
-           set-state-messages))
-        (spat-get-dsp-commands (spat-component-ptr (spat-controller self)))))))
+        
+        (spat-osc-command (spat-component-ptr (spat-controller self)) 
+                          set-state-messages
+                          (spat-component-window (spat-controller self))))
        
 
 ;;;=========================
@@ -283,11 +278,10 @@
                             dsp (or (get-cursor-time (timeline-editor self)) 0))
                            (init-state dsp))))
             (when osc-b 
-              (spat-osc-command-in-view 
-               spatview 
+              (spat-osc-command 
                (spat-component-ptr spatviewhandler) 
-               (spat-set-controller-state-messages dsp osc-b)
-               )
+               (append-set-to-state-messages (messages osc-b))  
+               spatview)
               ))
           )))
     (call-next-method) ;;; will invalidate the timeline(s)

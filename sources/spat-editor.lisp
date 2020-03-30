@@ -132,11 +132,12 @@
 (defmethod om-view-resized ((self spat-view) size) 
   (call-next-method)
   (when (spat-view-handler self) 
-    (spat-osc-command-in-view 
-     self
+    (spat-osc-command 
      (spat-component-ptr (spat-view-handler self)) 
-     `(("/om/window/size" ,(w self) ,(h self))))
+     `(("/om/window/size" ,(w self) ,(h self)))
+     self)
     ))
+
 
 
 (defmethod spat-editor-set-spat-component ((editor spat-editor))
@@ -201,10 +202,10 @@
             
 (defmethod init-spat-viewer ((editor spat-editor))
   (when (and (spat-view editor) (spat-view-handler (spat-view editor)))
-    (spat-osc-command-in-view 
-     (spat-view editor)
+    (spat-osc-command 
      (spat-component-ptr (spat-view-handler (spat-view editor)))
-     (spat-init-messages editor))))
+     (spat-init-messages editor)
+     (spat-view editor))))
 
 ;;===================
 ;; PLAY FUNCTIONS

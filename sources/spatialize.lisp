@@ -7,7 +7,8 @@
 ;;;===============================
 ;;; OSC binding for Spat Component
 ;;;===============================
-(defun spat-osc-command (component-ptr messages)
+(defun spat-osc-command (component-ptr messages &optional apply-in-view)
+  
   (when messages 
     ;(om-print-dbg 
     ; "[~A] ~A ~{~%                         <= ~A ~}" 
@@ -15,16 +16,17 @@
     ; "OM-SPAT")
     (let ((osc-ptr (make-foreign-bundle-s-pointer messages))) ;; (ob (make-o.bundle messages))
       (unwind-protect  
-          (spat::OmSpatProcessOscCommands component-ptr osc-ptr)
+        
+          (if apply-in-view
+              
+              (capi::apply-in-pane-process apply-in-view view 'spat::OmSpatProcessOscCommands component-ptr osc-ptr)
+            
+            (spat::OmSpatProcessOscCommands component-ptr osc-ptr))
+        
         (odot::osc_bundle_s_deepFree osc-ptr))
+      
       )))
 
-(defun spat-osc-command-in-view (view component-ptr messages)
-  (capi::apply-in-pane-process
-   view
-   'spat-osc-command 
-   component-ptr 
-   messages))
 
 (defun spat-get-state (component-ptr)
   (let ((state-bundle (spat::OmSpatGetCurrentStateAsOscBundle component-ptr)))

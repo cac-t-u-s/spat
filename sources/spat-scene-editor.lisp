@@ -350,8 +350,8 @@
            (spatviewhandler (and spatview (spat-view-handler spatview))))
 
       (when spatviewhandler
-        (spat-osc-command-in-view  
-         spatview
+        
+        (spat-osc-command  
          (spat-component-ptr spatviewhandler)
          (append 
           (list (list "/source/number" (length (audio-in ss)))
@@ -360,7 +360,8 @@
           (loop for spk in (speakers ss) for n = 1 then (1+ n) append
                 (list (cons (format nil "/set/speaker/~D/xyz" n) spk)
                       (list (format nil "/set/speaker/~D/editable" n) 1))
-                )))
+                ))
+         spatview)
 
         (update-spat-view-sources self)
         
@@ -371,8 +372,7 @@
                     (pt (time-sequence-get-active-timed-item-at ;;; here goes the interpolation
                                                                 traj 
                                                                 (or (get-cursor-time (timeline-editor self)) 0))))
-                (spat-osc-command-in-view
-                 spatview
+                (spat-osc-command
                  (spat-component-ptr spatviewhandler)
                  (remove 
                   nil 
@@ -384,7 +384,8 @@
                                         ))
                         (list (format nil "/set/source/~D/name" n) (format nil "~A" n))
                         (and pt (list (format nil "/set/source/~D/xyz" n) (om-point-x pt) (om-point-y pt) (om-point-z pt)))))
-                 ))))
+                 spatview)
+                )))
       ;; (call-next-method) ;;; will invalidate the timeline(s)
       )))
 
@@ -395,14 +396,16 @@
            (spatviewhandler (and spatview (spat-view-handler spatview)))
            (ids (get-selected-timelines (timeline-editor self))))
       (when (and spatviewhandler ids)
-        (spat-osc-command-in-view 
-         spatview 
+        
+        (spat-osc-command
          (spat-component-ptr spatviewhandler) 
          (loop for n from 0 to (1- (length (audio-in (object-value self)))) append
                (list 
                 (list (format nil "/set/source/~D/select" (1+ n)) (if (find n ids) 1 0))
                                  ;(list (format nil "/set/source/~D/visible" (1+ n)) (if (find n (muted-sources self)) 0 1))
-                )))
+                ))
+         spatview)
+
         ))))
 
 
