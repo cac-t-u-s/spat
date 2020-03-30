@@ -37,7 +37,7 @@
 
 (defmethod ensure-init-state ((self spat-dsp))
   (unless (and (controls self) (= 0 (date (car (controls self)))))
-    (let ((init (get-init-state self)))
+    (let ((init (get-gui-state self)))
       (when init
         (setf (controls self) (cons init (controls self)))))))
 

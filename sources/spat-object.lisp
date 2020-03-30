@@ -36,7 +36,7 @@
 
 (defmethod play-obj? ((self spat-object)) t)
 
-(defmethod get-init-state ((self spat-object))
+(defmethod get-gui-state ((self spat-object))
   (when (spat-controller self)
     (make-instance 
      'osc-bundle :date 0
@@ -62,7 +62,7 @@
   (set-object-time-window self (* 4 (samples->ms (buffer-size self) (audio-sr self)))) 
   (spat-object-set-audio-dsp self)
   (spat-object-set-spat-controller self)
-  (setf (init-state self) (get-init-state self))
+  (setf (init-state self) (get-gui-state self))
   
   ;(when (equal (action self) 'render-audio)
   ;  (set-play-buffer self))
