@@ -28,13 +28,12 @@
     (panning-type self)))
 
 (defmethod reverb-accessor ((self spat-scene) &optional (value nil value-supplied-p))
-  
   (when value-supplied-p
     (setf (reverb self) value)
     (spat-object-set-audio-dsp self)
     (spat-object-set-spat-controller self))
-  
   (reverb self))
+
 
 (defmethod additional-class-attributes ((self spat-scene)) 
   (append (call-next-method)
@@ -64,7 +63,7 @@
   (if (reverb self) "spat.spat~" "spat.pan~"))
 
 (defmethod SpatControllerComponent-name ((self spat-scene)) 
-(if (reverb self) "spat.oper" "spat.viewer"))
+  (if (reverb self) "spat.oper" "spat.viewer"))
 
 (defmethod n-channels-in ((self spat-scene)) 
   (length (list! (audio-in self))))
