@@ -41,6 +41,19 @@
 (defmethod update-to-editor ((editor spat-scene-editor) (from t)) 
   (time-sequence-update-internal-times (object-value editor))
   (update-interpol-settings-for-trajs (object-value editor))
+  
+  ;;; update the viewer if switch from pan to spat
+  (when (and (spat-view editor)
+             (spat-gui-component (spat-view editor))
+             (not (string-equal (spat::omspatgetcomponenttype (spat-gui-component (spat-view editor)))
+                                (if (reverb (object-value editor)) "spat5.oper" "spat5.viewer"))))
+
+    (spat-editor-remove-spat-component editor)
+    (spat-editor-set-spat-component editor)
+    (init-spat-viewer editor)
+    (update-spat-display editor))
+    
+  
   (call-next-method))
 
 
