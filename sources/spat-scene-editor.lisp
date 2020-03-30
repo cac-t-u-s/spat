@@ -141,17 +141,12 @@
 (defmethod editor-window-init-size ((self spat-scene-editor)) (om-make-point 500 600))
 
 
-;(defmethod SpatComponent-name ((self spat-scene-editor)) "spat.viewer")
-
-
-
-  
 (defmethod set-spat-view ((self spat-scene-editor))
   (when (spat-view self)
     (call-next-method))
   (when (3D-view self)
-    (om-init-3d-view (3D-view self)))
-  )
+    (om-init-3d-view (3D-view self))))
+
 
 (defmethod update-view-mode ((self spat-scene-editor) mode)
   
