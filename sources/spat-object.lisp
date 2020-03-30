@@ -289,7 +289,7 @@
     ;(spat::omspatprintaudiobuffer (out-buffer self) nil)
     
         (handler-bind ((error #'(lambda (e) 
-                                  (print (format nil "ERROR ~A" e))
+                                  (print (format nil "!!! ~A" e))
                                   (print (spat::OmSpatGetLastError))
                                   (spat::OmSpatClearLastError)
                                   (abort e))))
@@ -343,6 +343,7 @@
                       :ptr (make-audio-buffer (n-channels-out sp) total-size))))
     
     (spat-osc-command (spat-processor self) '(("/dsp/clear")))
+    (spat-osc-command (spat-processor self) (spat-object-init-messages self))
 
     (loop for smp = 0 then (+ smp buffer-size)
           while (< smp total-size) do
