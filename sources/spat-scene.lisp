@@ -9,6 +9,7 @@
    (speakers :accessor speakers :initform '((-1 1 0) (1 1 0)) :initarg :speakers)    ;  (1 -1 0) (-1 -1 0)
    (controls :initarg :controls :accessor controls :initform nil :documentation "list of timed OSC-bundles")
    (panning-type :accessor panning-type :initform "angular")
+   (reverb :accessor reverb :initform nil)
    ))
 
 (defmethod get-properties-list ((self spat-scene))
@@ -17,6 +18,7 @@
      (:action "Action" :action action-accessor)
      (:interpol "Interpolation" ,(make-number-or-nil :min 20 :max 1000) interpol)
      (:panning "Panning type" ("angular" "binaural" "vbap3d" "hoa3d") panning-type-accessor "angular")
+     (:reverb "Reverb" :bool reverb-accessor nil)
      (:buffer-size "Buffer size" :number buffer-size-accessor))))
 
 (defmethod panning-type-accessor ((self spat-scene) &optional (value nil value-supplied-p))
@@ -25,9 +27,18 @@
         (spat-object-set-audio-dsp self))
     (panning-type self)))
 
+(defmethod reverb-accessor ((self spat-scene) &optional (value nil value-supplied-p))
+  
+  (when value-supplied-p
+    (setf (reverb self) value)
+    (spat-object-set-audio-dsp self)
+    (spat-object-set-spat-controller self))
+  
+  (reverb self))
+
 (defmethod additional-class-attributes ((self spat-scene)) 
   (append (call-next-method)
-          '(action panning-type buffer-size interpol)))
+          '(action panning-type reverb buffer-size interpol)))
 
 
 ;;; we have to do this because :panning-type is not a class initarg
@@ -49,8 +60,11 @@
                    ("vbap3d" "vbap3d")
                    ("hoa3d" "hoa3d")))))
 
-(defmethod SpatDSPComponent-name ((self spat-scene)) "spat.pan~")
-(defmethod SpatControllerComponent-name ((self spat-scene)) "spat.viewer")
+(defmethod SpatDSPComponent-name ((self spat-scene)) 
+  (if (reverb self) "spat.spat~" "spat.pan~"))
+
+(defmethod SpatControllerComponent-name ((self spat-scene)) 
+(if (reverb self) "spat.oper" "spat.viewer"))
 
 (defmethod n-channels-in ((self spat-scene)) 
   (length (list! (audio-in self))))
