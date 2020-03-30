@@ -6,20 +6,24 @@
 (defclass spat-object (om-cleanup-mixin named-object schedulable-object object-with-action)
   ((audio-in :accessor audio-in :initform nil :initarg :audio-in :documentation "audio input") ; sound or list of sounds
    (controls :initarg :controls :accessor controls :initform nil :documentation "list of timed OSC-bundles")
+   
+   (audio-sr :accessor audio-sr :initform 44100)
+   (buffer-size :accessor buffer-size :initform 8192)
+   
    (spat-processor :accessor spat-processor :initform nil)
    (spat-controller :accessor spat-controller :initform nil)
    (in-buffer :accessor in-buffer :initform nil)
    (out-buffer :accessor out-buffer :initform nil)
    (buffer-player :accessor buffer-player :initform nil)
    (init-state :accessor init-state :initform nil) ;; a memory of the initial state
-   (audio-sr :accessor audio-sr :initform 44100)
-   (buffer-size :accessor buffer-size :initform 256)))
+   ))
 
 ;;; we don't want to copy these slots
+;;; ?? this is probably not necessary are the slots are neither :initargs or adiitional-class-attributes...
 (defmethod excluded-slots-from-copy ((from spat-object)) 
   '(spat-processor spat-controller in-buffer out-buffer buffer-player init-state))
 
-(defmethod additional-class-attributes ((self spat-object)) '(audio-sr))
+(defmethod additional-class-attributes ((self spat-object)) '(audio-sr buffer-size))
 
 (defmethod SpatDSPComponent-name ((self spat-object)) nil)
 (defmethod SpatControllerComponent-name ((self spat-object)) nil)
@@ -276,7 +280,7 @@
     
     (if (< (buffer-size self) n-samples)
         
-        (om-beep-msg "Window [~D-~D] is too big for the SPAT-SCENE buffer size (~D)" from-smp to-smp buffer-size)
+        (om-beep-msg "Window [~D-~D] is too big for the SPAT-OBJECT buffer size (~D)" from-smp to-smp buffer-size)
     
       (let ()
     ;(om-print (format nil "Get ~D samples from ~D" n-samples from-smp) "SPAT-SCENE-PLAYER")
