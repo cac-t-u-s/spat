@@ -87,7 +87,7 @@
 
   
 (defmethod* sdif-export ((self spat-scene) &key out-filename (stream-mode 'sep) export-sounds)
-            :icon '(638)
+            :icon :spat
             :menuins '((2 (("separate streams" sep) ("merge streams" merge))))
             :indoc '("a SPAT-MATRIX" "output SDIF file name" "export stream format" "sources export mode" "room(s) descriptions")
             :outdoc '("sdif file pathname")
