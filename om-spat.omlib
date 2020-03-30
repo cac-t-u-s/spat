@@ -9,7 +9,7 @@
 (:om-lib
  (:author "J. Bresson, T. Carpentier, J. Garcia (2016-2017)")
  (:doc "Control sound processing and spatialization in OM7 with Spat5")
- (:version 3.1)
+ (:version 3.2)
  (:source-files
   "sources/omspat-api"
   "sources/spatialize"
