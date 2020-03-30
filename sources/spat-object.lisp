@@ -5,6 +5,7 @@
 
 (defclass spat-object (om-cleanup-mixin named-object schedulable-object object-with-action)
   ((audio-in :accessor audio-in :initform nil :initarg :audio-in :documentation "audio input") ; sound or list of sounds
+   (controls :initarg :controls :accessor controls :initform nil :documentation "list of timed OSC-bundles")
    (spat-processor :accessor spat-processor :initform nil)
    (spat-controller :accessor spat-controller :initform nil)
    (in-buffer :accessor in-buffer :initform nil)

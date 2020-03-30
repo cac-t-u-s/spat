@@ -7,6 +7,7 @@
   ((audio-in :accessor audio-in :initform nil :initarg :audio-in :documentation "audio source file(s)") ;;; repeated slot to make it appear on the box
    (trajectories :accessor trajectories :initform nil :initarg :trajectories) ;list of 3DC
    (speakers :accessor speakers :initform '((-1 1 0) (1 1 0)) :initarg :speakers)    ;  (1 -1 0) (-1 -1 0)
+   (controls :initarg :controls :accessor controls :initform nil :documentation "list of timed OSC-bundles")
    (panning-type :accessor panning-type :initform "angular")
    ))
 
