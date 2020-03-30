@@ -57,7 +57,7 @@
 ;;(probe-file "C:\\Program Files (x86)\\LispWorks\\omspat.dll")
 ;; (fli:register-module :spat :connection-style :immediate :real-name "C:\\Program Files (x86)\\LispWorks\\omspat.dll")
 
-(om::add-preference-section :externals "om-Spat5" nil '(:spat5lib-path))
+(om::add-preference-section :externals "OM-Spat" nil '(:spat5lib-path))
 
 ;; will load now and each time the preference is modified...
 (om::add-preference  :externals :spat5lib-path "OMSpat dynamic library path" :file (default-spatlib-path) nil 'load-spat-lib)
