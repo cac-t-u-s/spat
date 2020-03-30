@@ -9,25 +9,26 @@
 ;;;===============================
 (defun spat-osc-command (component-ptr messages &optional apply-in-view)
   
+  (om-print-dbg 
+   "[~A] ~A/~A ~{~%                         <= ~A ~}" 
+   (list (remove #\~ (spat::OmSpatGetComponentType component-ptr)) component-ptr apply-in-view messages)
+   "OM-SPAT")
+    
   (when messages 
-    ;(om-print-dbg 
-    ; "[~A] ~A ~{~%                         <= ~A ~}" 
-    ; (list (remove #\~ (spat::OmSpatGetComponentType component-ptr)) component-ptr messages)
-    ; "OM-SPAT")
-    (let ((osc-ptr (make-foreign-bundle-s-pointer messages))) ;; (ob (make-o.bundle messages))
-      (unwind-protect  
+   
+    (if apply-in-view
         
-          (if apply-in-view
-              
-              (capi::apply-in-pane-process apply-in-view view 'spat::OmSpatProcessOscCommands component-ptr osc-ptr)
-            
-            (spat::OmSpatProcessOscCommands component-ptr osc-ptr))
-        
-        (odot::osc_bundle_s_deepFree osc-ptr))
+        ;;; call itself again, but in another thread
+        (capi:apply-in-pane-process apply-in-view 'spat-osc-command component-ptr messages) 
       
-      )))
-
-
+      (let ((osc-ptr (make-foreign-bundle-s-pointer messages))) ;; (ob (make-o.bundle messages))
+        (unwind-protect  
+            (spat::OmSpatProcessOscCommands component-ptr osc-ptr)
+          (odot::osc_bundle_s_deepFree osc-ptr))
+        )
+      )
+    ))
+      
 (defun spat-get-state (component-ptr)
   (let ((state-bundle (spat::OmSpatGetCurrentStateAsOscBundle component-ptr)))
     (unwind-protect 

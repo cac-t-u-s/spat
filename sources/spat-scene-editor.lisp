@@ -383,7 +383,7 @@
                                         (if (and src (mute src)) 0.1 1.0)
                                         ))
                         (list (format nil "/set/source/~D/name" n) (format nil "~A" n))
-                        (and pt (list (format nil "/set/source/~D/xyz" n) (om-point-x pt) (om-point-y pt) (om-point-z pt)))))
+                      (and pt (list (format nil "/set/source/~D/xyz" n) (om-point-x pt) (om-point-y pt) (om-point-z pt)))))
                  spatview)
                 )))
       ;; (call-next-method) ;;; will invalidate the timeline(s)

@@ -325,7 +325,8 @@
                 (setq messages (append-set-to-state-messages messages)))
               
               (unless (spat-osc-command (spat-processor self) messages)
-                (error "ERROR IN SPAT CONTROL-MESSAGE PROCESSING"))))
+                (error "ERROR IN SPAT CONTROL-MESSAGE PROCESSING"))
+              ))
         
           ;;; PROCESS
           (if (spat::OmSpatProcessAudio (spat-processor self) (out-buffer self) (in-buffer self) n-samples)
