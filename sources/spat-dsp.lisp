@@ -21,17 +21,23 @@
 ;(spat::omspatsetverbose t)
 ;(spat::omspatisverbose)
 
+(defparameter *spat-components* '(("spat5.filterdesign" "spat5.cascade~") 
+                                  ("spat5.equalizer" "spat5.cascade~")   
+                                  ("spat5.eq" "spat5.cascade~")   
+                                  ("spat5.ircamverb" "spat5.ircamverb~")
+                                  ;("spat5.routing" "spat5.routing~")
+                                  ("spat5.compressor" "spat5.compressor~")
+                                  ("spat5.graphiceq" "spat5.graphiceq~")
+                                  ("spat5.hlshelf" "spat5.hlshelf~")
+                                  ;("spat5.viewer" "spat.pan~")
+                                  ;("spat5.oper" "spat.spat~")
+                                  ))
+
+(defun spat-components ()                                
+  (mapcar 'car *spat-components*))
+
 (defun spat-dsp-component-name (dsp-compo-name)
-  (cadr (find dsp-compo-name
-              '(("spat5.filterdesign" "spat5.cascade~") 
-                ("spat5.equalizer" "spat5.cascade~")   
-                ("spat5.ircamverb" "spat5.ircamverb~")
-                ("spat5.routing" "spat5.routing~")
-                ("spat5.compressor" "spat5.compressor~")
-                ("spat5.graphiceq" "spat5.graphiceq~")
-                ("spat5.hlshelf" "spat5.hlshelf~")
-                ("spat5.oper" "spat.spat~")
-                )
+  (cadr (find dsp-compo-name *spat-components* 
               :key 'car :test 'string-equal)))
 
 
