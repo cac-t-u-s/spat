@@ -43,6 +43,12 @@
      :messages (spat-get-state (spat-component-ptr (spat-controller self))))))
 
 
+(defmethod get-dsp-state ((self spat-object))
+  (when (spat-processor self)
+    (make-instance 
+     'osc-bundle :date 0
+     :messages (spat-get-state (spat-processor self)))))
+
 ;;; better use om-init-instance ?
 ;;; ... would solve a few things, e.g. in initializing spat-processors with panning-type in spat-scene
 

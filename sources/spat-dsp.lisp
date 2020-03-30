@@ -160,13 +160,21 @@
 |#
 
 (defmethod spat-object-get-process-messages-at-time ((self spat-dsp) time-ms)
+
   (let ((b (time-sequence-get-active-timed-item-at self time-ms))) ;; will handle interpolation if needed
     (when b 
+      
+      ;;; set the controller
       (let ((set-state-messages (spat-set-controller-state-messages self b)))
         
         (spat-osc-command (spat-component-ptr (spat-controller self)) 
                           set-state-messages
                           (spat-component-window (spat-controller self))))
+      
+      ;;; get DSP commands from controller
+      (spat-get-dsp-commands (spat-component-ptr (spat-controller self)))
+      
+      )))
        
 
 ;;;=========================
