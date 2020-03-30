@@ -131,39 +131,6 @@
 ;;; SYNTH
 ;;;=========================
 
-;;; messages to set the controller state from recorded OSC stream
-;(defmethod spat-set-controller-state-messages ((self spat-dsp) (state osc-bundle))
-;  (cond ((string-equal (SpatControllerComponent-name self) "spat5.filterdesign")
-;         (loop for msg in (remove "/cascades" (messages state) :key 'car :test 'string-equal)
-;               collect (cons (string+ "/set" (car msg)) (cdr msg))))
-;        (t ;(print (format nil "unknow spat controller: '~A'" (SpatControllerComponent-name self)))
-;         (messages state))
-;        ))
-
-(defmethod spat-set-controller-state-messages ((self spat-dsp) (state osc-bundle))
-  (loop for msg in (remove "/cascades" (messages state) :key 'car :test 'string-equal)
-        collect (cons (string+ "/set" (car msg)) (cdr msg))))
-
-
-#|
-(defmethod spat-object-get-process-messages-at-time ((self spat-dsp) time-ms)
-  (let ((b (time-sequence-get-active-timed-item-at self time-ms))) ;; will handle interpolation if needed
-    ;; (find time-ms (controls self) :test '<= :key 'date)
-    (when b 
-      (cond ((string-equal (SpatControllerComponent-name self) "spat5.filterdesign")
-             (let ((cascade-message 
-                    (or (find "/cascades" (messages b) :key 'car :test 'string-equal)
-                        (let ((set-state-messages (spat-set-controller-state-messages self b)))
-                          (spat-osc-command (spat-component-ptr (spat-controller self)) set-state-messages)
-                          (find "/cascades" (spat-get-state (spat-component-ptr (spat-controller self))) :key 'car :test 'string-equal)))))
-               (when cascade-message
-                 (list (cons "/channel/*/cascades" (cdr cascade-message)))))
-             )
-            (t (spat-osc-command (spat-component-ptr (spat-controller self)) (messages b))
-               (messages b)
-               nil)
-            ))))
-|#
 
 (defmethod spat-object-get-process-messages-at-time ((self spat-dsp) time-ms)
 
@@ -171,16 +138,15 @@
     (when b 
       
       ;;; set the controller
-      (let ((set-state-messages (spat-set-controller-state-messages self b)))
-        
-        (spat-osc-command (spat-component-ptr (spat-controller self)) 
-                          set-state-messages
-                          (spat-component-window (spat-controller self))))
+      (spat-osc-command (spat-component-ptr (spat-controller self)) 
+                        (append-set-to-state-messages (messages b))
+                        (spat-component-window (spat-controller self)))
       
       ;;; get DSP commands from controller
       (spat-get-dsp-commands (spat-component-ptr (spat-controller self)))
-      
+
       )))
+    
        
 
 ;;;=========================

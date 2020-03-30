@@ -50,6 +50,11 @@
      'osc-bundle :date 0
      :messages (spat-get-state (spat-processor self)))))
 
+(defun append-set-to-state-messages (messages)
+  (loop for msg in messages 
+        collect (cons (string+ "/set" (car msg)) (cdr msg))))
+
+
 ;;; better use om-init-instance ?
 ;;; ... would solve a few things, e.g. in initializing spat-processors with panning-type in spat-scene
 
@@ -309,7 +314,12 @@
           ;;; TIME = BEGINNING OF THE WINDOW ONLY 
           (let* ((time-ms (samples->ms from-smp (audio-sr self)))
                  (messages (spat-object-get-process-messages-at-time self time-ms)))
+            
             (when messages 
+              
+              (when (= time-ms 0)
+                (setq messages (append-set-to-state-messages messages)))
+              
               (unless (spat-osc-command (spat-processor self) messages)
                 (error "ERROR IN SPAT CONTROL-MESSAGE PROCESSING"))))
         
