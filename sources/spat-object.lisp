@@ -343,6 +343,56 @@
                 (fli:dereference (fli:dereference out-buffer-data :index c :type :pointer) :index smp :type :float)
                 ))))))
 
+
+;;;================
+;;; OFFLINE SYNTHESIS
+;;;================
+
+(defmethod* spat-synth ((self spat-object) &optional to-file)  
+  
+  (let* ((sp (om-copy self))
+         (buffer-size (buffer-size sp))
+         (total-size (ms->samples (get-obj-dur sp) (audio-sr sp)))
+         (out-buffer (make-om-sound-buffer-gc 
+                      :nch (n-channels-out sp)
+                      :ptr (make-audio-buffer (n-channels-out sp) total-size))))
+    
+    (spat-osc-command (spat-processor self) '(("/dsp/clear")))
+
+    (loop for smp = 0 then (+ smp buffer-size)
+          while (< smp total-size) do
+
+          (let ((smp2 (min total-size (1- (+ smp buffer-size)))))
+            
+            (om-print-format "Processing samples ~A to ~A" (list smp smp2) "OM-SPAT")  
+            (spat-object-process-dsp sp smp smp2)
+            
+            (spat-object-copy-output-to-buffer 
+             sp (om-sound-buffer-ptr out-buffer)
+             (1+ (- smp2 smp)) smp)
+            ))
+  
+    (om-print-format "Done! (~A channels)" (list (n-channels-out sp)) "OM-SPAT")
+    
+    (let ((sound (make-instance 'sound :buffer out-buffer
+                                :n-samples total-size
+                                :n-channels (n-channels-out sp) 
+                                :sample-rate (audio-sr sp)
+                                )))
+      
+      (when to-file 
+        (unless (pathname-directory to-file) 
+          (setf to-file (outfile to-file)))
+        (setf (file-pathname sound) (handle-new-file-exists to-file))
+        (setf (access-from-file sound) t))
+      
+      (om-init-instance sound)
+      sound)
+    ))
+
+
+
+
 ;;;===============================================
 ;;; PLAY
 ;;;===============================================
@@ -470,41 +520,6 @@
   (call-next-method))
 
 
-;;;================
-;;; OFFLINE SYNTHESIS
-;;;================
-
-(defmethod* spat-synth ((self spat-object) &optional to-file)  
-  (let* ((sp (om-copy self))
-         (buffer-size (buffer-size sp))
-         (total-size (ms->samples (get-obj-dur sp) (audio-sr sp)))
-         (out-buffer (make-om-sound-buffer-gc 
-                      :nch (n-channels-out sp)
-                      :ptr (make-audio-buffer (n-channels-out sp) total-size))))
-    (loop for smp = 0 then (+ smp buffer-size)
-          while (< smp total-size) do
-          (let ((smp2 (min total-size (1- (+ smp buffer-size)))))
-            ;(om-print-format "Processing samples ~A to ~A" (list smp smp2) "OM-SPAT")  
-            (spat-object-process-dsp sp smp smp2)
-            (spat-object-copy-output-to-buffer 
-             sp 
-             (om-sound-buffer-ptr out-buffer)
-             (1+ (- smp2 smp)) smp)
-            ))
-    (om-print-format "Done! (~A channels)" (list (n-channels-out sp)) "OM-SPAT")
-    (let ((sound (make-instance 'sound :buffer out-buffer
-                                                  :n-samples total-size
-                                                  :n-channels (n-channels-out sp) 
-                                                  :sample-rate (audio-sr sp)
-                                                  )))
-      (when to-file 
-        (unless (pathname-directory to-file) 
-          (setf to-file (outfile to-file)))
-        (setf (file-pathname sound) (handle-new-file-exists to-file))
-        (setf (access-from-file sound) t))
-      
-      (om-init-instance sound)
-      sound)))
 
 
 
