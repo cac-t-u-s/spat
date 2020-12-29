@@ -6,8 +6,8 @@
 
 (:om-lib
  (:author "J. Bresson, T. Carpentier, J. Garcia (2016-2017)")
- (:doc "Control sound processing and spatialization in om# with Spat")
- (:version 3.4)
+ (:doc "Control sound processing and spatialization with Spat")
+ (:version 3.5)
  (:source-files
   "sources/omspat-api"
   "sources/omspat-lib"
