@@ -508,11 +508,11 @@
 (defmethod spat-scene-speakers-messages ((ss spat-scene)) 
   (append 
    `(("/speaker/number" ,(length (speakers ss))))
-   (loop for spk in (speakers ss) for n = 1 then (1+ n) append
-         (list (cons (format nil "/speaker/~D/xyz" n) spk)
-               (list (format nil "/speaker/~D/editable" n) 1))
-         )
+   `(,(cons "/speakers/xyz" (apply #'append (speakers ss))))
+   (loop for spk in (speakers ss) for n = 1 then (1+ n) collect
+         (list (format nil "/speaker/~D/editable" n) 1))
    ))
+
    
 (defmethod spat-scene-sources-messages ((ss spat-scene) at-time &optional selection) 
 
