@@ -4,10 +4,10 @@
  (:doc "")
  (:info
   (:created "2019/09/23 17:17:53")
-  (:modified "2019/12/28 22:57:12")
+  (:modified "2020/08/01 18:11:15")
   (:by "om-sharp")
   (:version 1.0))
- (:window (:size (762 620)) (:position (373 91)))
+ (:window (:size (1021 616)) (:position (298 33)))
  (:grid nil)
  (:lock nil)
  (:boxes
@@ -17,7 +17,7 @@
    (:group-id nil)
    (:name "input sound")
    (:x 5)
-   (:y 258)
+   (:y 269)
    (:w 172)
    (:h 59)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -28,7 +28,7 @@
    (:display :mini-view)
    (:showname t)
    (:show-markers t)
-   (:lock :locked)
+   (:lock nil)
    (:lambda nil)
    (:inputs
     (:input
@@ -44,31 +44,17 @@
      (:class sound)
      (:slots
       ((:onset 0)
-       (:duration 3202.9375)
-       (:n-samples 153741)
-       (:n-channels 1)
-       (:sample-rate 48000)
+       (:duration 0)
+       (:n-samples nil)
+       (:n-channels nil)
+       (:sample-rate nil)
        (:smpl-type :float)
-       (:sample-size 24)))
+       (:sample-size 16)))
      (:add-slots
       ((:markers nil)
        (:gain 1.0)
        (:access-from-file nil)
-       (:file-pathname
-        (:pathname
-         (:directory
-          (:relative
-           :up
-           :up
-           :up
-           :up
-           "_SHARED-FILES"
-           "IN-FILES"
-           "SOUNDFILES"))
-         (:device :unspecific)
-         (:host :unspecific)
-         (:name "basmba")
-         (:type "aiff")))))))
+       (:file-pathname nil)))))
    (:id 0))
   (:box
    (:library "spat")
@@ -77,7 +63,7 @@
    (:group-id nil)
    (:name "SPAT-DSP")
    (:x 125)
-   (:y 345)
+   (:y 338)
    (:w 252)
    (:h 51)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -175,12 +161,12 @@
           (:class sound)
           (:slots
            ((:onset 0)
-            (:duration 3202.9375)
-            (:n-samples 153741)
-            (:n-channels 1)
-            (:sample-rate 48000)
+            (:duration 250.0)
+            (:n-samples 48000)
+            (:n-channels 2)
+            (:sample-rate 192000)
             (:smpl-type :float)
-            (:sample-size 24)))
+            (:sample-size 16)))
           (:add-slots
            ((:markers nil)
             (:gain 1.0)
@@ -192,14 +178,17 @@
                 :up
                 :up
                 :up
-                :up
-                "_SHARED-FILES"
-                "IN-FILES"
-                "SOUNDFILES"))
+                "Music"
+                "Ableton"
+                "Live Recordings"
+                "Temp-2796 Project"
+                "Samples"
+                "Processed"
+                "Reverse"))
               (:device :unspecific)
               (:host :unspecific)
-              (:name "basmba")
-              (:type "aiff"))))))))
+              (:name "test5 R")
+              (:type "aif"))))))))
        (:controls
         (:list
          (:object
@@ -241,7 +230,7 @@
    (:id 1))
   (:box
    (:type :value)
-   (:reference simple-base-string)
+   (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
    (:group-id nil)
    (:name "vb")
    (:x 189)
@@ -264,10 +253,10 @@
    (:reference spat-synth)
    (:group-id nil)
    (:name "spat-synth")
-   (:x 127)
+   (:x 125)
    (:y 424)
    (:w 97)
-   (:h 30)
+   (:h 29)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border 1.5)
    (:roundness nil)
@@ -289,7 +278,7 @@
    (:reference sound)
    (:group-id nil)
    (:name "filtered sound")
-   (:x 121)
+   (:x 125)
    (:y 461)
    (:w 238)
    (:h 71)
@@ -299,7 +288,7 @@
    (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
    (:align :center)
    (:display :mini-view)
-   (:showname t)
+   (:showname nil)
    (:show-markers t)
    (:lock nil)
    (:lambda nil)
@@ -334,10 +323,10 @@
    (:reference list)
    (:group-id nil)
    (:name "list")
-   (:x 413)
+   (:x 414)
    (:y 260)
-   (:w 53)
-   (:h 30)
+   (:w 54)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -360,7 +349,7 @@
    (:reference osc-bundle)
    (:group-id nil)
    (:name nil)
-   (:x 355)
+   (:x 343)
    (:y 77)
    (:w 125)
    (:h 107)
@@ -419,7 +408,7 @@
    (:reference osc-bundle)
    (:group-id nil)
    (:name nil)
-   (:x 491)
+   (:x 486)
    (:y 77)
    (:w 136)
    (:h 107)
@@ -474,8 +463,8 @@
          (:list "/gain" -30.0)))))))
    (:id 7))
   (:comment
-   (:x 81)
-   (:y 89)
+   (:x 75)
+   (:y 77)
    (:w 192)
    (:h 22)
    (:fgcolor nil)
@@ -492,16 +481,13 @@
   (:comment
    (:x 414)
    (:y 338)
-   (:w 260)
-   (:h 207)
+   (:w 259)
+   (:h 206)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border (:number-or-nil (:number 0.0) (:t-or-nil t)))
    (:roundness nil)
-   (:text-font
-    (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 13) (:style :plain)))
-     (:t-or-nil t)))
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
    (:text
     "SPAT-DSP can also be controlled by initializing it with one or several OSC bundles.
@@ -516,10 +502,10 @@ Control-bundles/states can also be added from inside the editor using the 'timel
    (:reference osc-timetag)
    (:group-id nil)
    (:name "osc-timetag")
-   (:x 536)
+   (:x 531)
    (:y 222)
-   (:w 96)
-   (:h 30)
+   (:w 103)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -566,8 +552,8 @@ Control-bundles/states can also be added from inside the editor using the 'timel
    (:reference fixnum)
    (:group-id nil)
    (:name "value box")
-   (:x 328)
-   (:y 309)
+   (:x 323)
+   (:y 298)
    (:w 32)
    (:h 30)
    (:color
@@ -584,7 +570,7 @@ Control-bundles/states can also be added from inside the editor using the 'timel
   (:comment
    (:x 75)
    (:y 58)
-   (:w 85)
+   (:w 103)
    (:h 30)
    (:fgcolor nil)
    (:bgcolor nil)

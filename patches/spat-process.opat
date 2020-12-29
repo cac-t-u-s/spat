@@ -4,10 +4,10 @@
  (:doc "")
  (:info
   (:created "2016/12/21 11:20:58")
-  (:modified "2019/12/28 22:57:20")
+  (:modified "2020/08/01 18:09:22")
   (:by "om-sharp")
   (:version 1.0))
- (:window (:size (1398 496)) (:position (282 532)))
+ (:window (:size (1398 496)) (:position (113 274)))
  (:grid nil)
  (:lock nil)
  (:boxes
@@ -16,8 +16,8 @@
    (:reference sound)
    (:group-id nil)
    (:name "SOUND")
-   (:x 42)
-   (:y 94)
+   (:x 48)
+   (:y 102)
    (:w 138)
    (:h 67)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -44,33 +44,17 @@
      (:class sound)
      (:slots
       ((:onset 0)
-       (:duration 3202.9375)
-       (:n-samples 153741)
-       (:n-channels 1)
-       (:sample-rate 48000)
+       (:duration 0)
+       (:n-samples nil)
+       (:n-channels nil)
+       (:sample-rate nil)
        (:smpl-type :float)
-       (:sample-size 24)))
+       (:sample-size 16)))
      (:add-slots
       ((:markers nil)
        (:gain 1.0)
        (:access-from-file nil)
-       (:file-pathname
-        (:pathname
-         (:directory
-          (:relative
-           :up
-           :up
-           :up
-           :up
-           :up
-           :up
-           "_SHARED-FILES"
-           "IN-FILES"
-           "SOUNDFILES"))
-         (:device :unspecific)
-         (:host :unspecific)
-         (:name "basmba")
-         (:type "aiff")))))))
+       (:file-pathname nil)))))
    (:id 0))
   (:box
    (:type :object)
@@ -78,7 +62,7 @@
    (:group-id nil)
    (:name "OSC-BUNDLE")
    (:x 259)
-   (:y 116)
+   (:y 102)
    (:w 193)
    (:h 92)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -135,7 +119,7 @@
    (:reference sound)
    (:group-id nil)
    (:name "SOUND")
-   (:x 116)
+   (:x 120)
    (:y 297)
    (:w 195)
    (:h 110)
@@ -177,10 +161,10 @@
    (:id 2))
   (:box
    (:type :value)
-   (:reference simple-base-string)
+   (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
    (:group-id nil)
    (:name "vb")
-   (:x 163)
+   (:x 166)
    (:y 164)
    (:w 82)
    (:h 30)
@@ -199,8 +183,8 @@
    (:reference fixnum)
    (:group-id nil)
    (:name "vb")
-   (:x 208)
-   (:y 195)
+   (:x 213)
+   (:y 214)
    (:w 32)
    (:h 30)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -219,7 +203,7 @@
    (:group-id nil)
    (:name "SOUND")
    (:x 680)
-   (:y 226)
+   (:y 227)
    (:w 138)
    (:h 67)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -264,7 +248,7 @@
    (:group-id nil)
    (:name "OSC-BUNDLE")
    (:x 934)
-   (:y 181)
+   (:y 169)
    (:w 142)
    (:h 97)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -322,7 +306,7 @@
    (:reference sound)
    (:group-id nil)
    (:name "SOUND")
-   (:x 769)
+   (:x 773)
    (:y 359)
    (:w 235)
    (:h 91)
@@ -364,10 +348,10 @@
    (:id 7))
   (:box
    (:type :value)
-   (:reference simple-base-string)
+   (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
    (:group-id nil)
    (:name "vb")
-   (:x 836)
+   (:x 839)
    (:y 236)
    (:w 82)
    (:h 30)
@@ -386,7 +370,7 @@
    (:reference fixnum)
    (:group-id nil)
    (:name "vb")
-   (:x 881)
+   (:x 886)
    (:y 264)
    (:w 32)
    (:h 30)
@@ -406,7 +390,7 @@
    (:group-id nil)
    (:name "SOUND")
    (:x 599)
-   (:y 79)
+   (:y 78)
    (:w 148)
    (:h 56)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -433,33 +417,17 @@
      (:class sound)
      (:slots
       ((:onset 0)
-       (:duration 3202.9375)
-       (:n-samples 153741)
-       (:n-channels 1)
-       (:sample-rate 48000)
+       (:duration 0)
+       (:n-samples nil)
+       (:n-channels nil)
+       (:sample-rate nil)
        (:smpl-type :float)
-       (:sample-size 24)))
+       (:sample-size 16)))
      (:add-slots
       ((:markers nil)
        (:gain 1.0)
        (:access-from-file nil)
-       (:file-pathname
-        (:pathname
-         (:directory
-          (:relative
-           :up
-           :up
-           :up
-           :up
-           :up
-           :up
-           "_SHARED-FILES"
-           "IN-FILES"
-           "SOUNDFILES"))
-         (:device :unspecific)
-         (:host :unspecific)
-         (:name "basmba")
-         (:type "aiff")))))))
+       (:file-pathname nil)))))
    (:id 10))
   (:box
    (:type :object)
@@ -494,33 +462,17 @@
      (:class sound)
      (:slots
       ((:onset 0)
-       (:duration 33882.36)
-       (:n-samples 1494212)
-       (:n-channels 1)
-       (:sample-rate 44100)
+       (:duration 0)
+       (:n-samples nil)
+       (:n-channels nil)
+       (:sample-rate nil)
        (:smpl-type :float)
        (:sample-size 16)))
      (:add-slots
       ((:markers nil)
        (:gain 1.0)
        (:access-from-file nil)
-       (:file-pathname
-        (:pathname
-         (:directory
-          (:relative
-           :up
-           :up
-           :up
-           :up
-           :up
-           :up
-           "_SHARED-FILES"
-           "IN-FILES"
-           "SOUNDFILES"))
-         (:device :unspecific)
-         (:host :unspecific)
-         (:name "cowbell")
-         (:type "aif")))))))
+       (:file-pathname nil)))))
    (:id 11))
   (:box
    (:type :function)
@@ -530,7 +482,7 @@
    (:x 693)
    (:y 182)
    (:w 112)
-   (:h 30)
+   (:h 29)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border 1.5)
    (:roundness nil)
@@ -555,7 +507,7 @@
    (:x 727)
    (:y 146)
    (:w 54)
-   (:h 30)
+   (:h 29)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border 1.5)
    (:roundness nil)
@@ -581,8 +533,8 @@
    (:name "spat-process")
    (:x 842)
    (:y 306)
-   (:w 100)
-   (:h 30)
+   (:w 108)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -621,9 +573,9 @@
    (:group-id nil)
    (:name "spat-process")
    (:x 169)
-   (:y 230)
-   (:w 100)
-   (:h 30)
+   (:y 246)
+   (:w 108)
+   (:h 29)
    (:color nil)
    (:border nil)
    (:roundness nil)
@@ -657,7 +609,7 @@
    (:id 15))
   (:comment
    (:x 599)
-   (:y 54)
+   (:y 41)
    (:w 149)
    (:h 21)
    (:fgcolor nil)
