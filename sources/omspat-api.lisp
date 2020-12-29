@@ -146,7 +146,7 @@
 (cffi:defcfun ("OmSpatIsValidComponentType" OmSpatIsValidComponentType) :boolean (type :string))
 (cffi:defcfun ("OmSpatIsDspComponent" OmSpatIsDspComponent) :boolean (component :pointer))
 (cffi:defcfun ("OmSpatIsGuiComponent" OmSpatIsGuiComponent) :boolean (component :pointer))
-(cffi:defcfun ("OmSpatGetCurrentStateAsOscBundle" OmSpatGetCurrentStateAsOscBundle) :pointer (component :pointer))
+(cffi:defcfun ("OmSpatGetStateAsOscBundle" OmSpatGetStateAsOscBundle) :pointer (component :pointer))
 (cffi:defcfun ("OmSpatGetBundleFromGuiToDsp" OmSpatGetBundleFromGuiToDsp) :pointer (component :pointer))
 (cffi:defcfun ("OmSpatProcessOscCommands" OmSpatProcessOscCommands) :boolean (component :pointer)(bundle :pointer))
 
