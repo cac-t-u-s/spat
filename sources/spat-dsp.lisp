@@ -32,12 +32,19 @@
   (append (call-next-method)
           '(interpol)))
 
-;;; DATA-STREAM API
-(defmethod data-stream-frames-slot ((self spat-dsp)) 'controls)
 
-;;; TIME-SEQUENCE API
-(defmethod time-sequence-get-timed-item-list ((self spat-dsp)) (controls self))
-(defmethod time-sequence-set-timed-item-list ((self spat-dsp) list) (setf (controls self) list))
+(defmethod initialize-instance ((self spat-dsp) &rest initargs)
+  (call-next-method)
+  (data-stream-set-frames self (slot-value self 'controls))
+  (setf (slot-value self 'controls) nil)
+  self)
+
+(defmethod controls ((self spat-dsp))
+  (data-stream-get-frames self))
+
+(defmethod (setf controls) (controls (self spat-dsp))
+  (data-stream-set-frames self controls))
+
 
 (defmethod time-sequence-make-timed-item-at ((self spat-dsp) at)
   (let ((previous (find at (time-sequence-get-timed-item-list self) :key 'date :test '> :from-end t)))

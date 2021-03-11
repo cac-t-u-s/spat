@@ -24,7 +24,7 @@
 (defclass! spat-dsp (spat-object data-stream)
   ((audio-in :accessor audio-in :initform nil :initarg :audio-in :documentation "audio source")
    (dsp-type :initarg :dsp-type :accessor dsp-type :initform "spat5.filterdesign")
-   (controls :initarg :controls :accessor controls :initform nil :documentation "list of timed OSC-bundles"))
+   (controls :initarg :controls :initform nil :documentation "list of timed OSC-bundles"))
   (:default-initargs :default-frame-type 'osc-bundle :action 'render-audio)
   (:documentation "A Spat sound processor.
 
