@@ -194,7 +194,9 @@
   self)
 
 (defmethod format-traj-as-3DC ((self list))
-  (let* ((tranformed-lists (mat-trans self))
+  (let* ((tranformed-lists (if (listp (car self))
+                               (mat-trans self)
+                             self))
         (obj (make-instance '3DC 
                    :x-points (nth 0 tranformed-lists) 
                    :y-points (nth 1 tranformed-lists) 
