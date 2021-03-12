@@ -112,7 +112,6 @@ If input is a multi-channel audio file, is channel is treated as a source for th
                                                   :sample-rate (sample-rate input))
                                    ))
 
-                      
                       (when to-file 
                         (unless (pathname-directory to-file) 
                           (setf to-file (outfile to-file)))
@@ -130,5 +129,3 @@ If input is a multi-channel audio file, is channel is treated as a source for th
           )))
     (om-beep-msg "Invalid Spat component: ~A" spat-comp)
     ))
-
-

@@ -17,8 +17,8 @@
 ;===========================
 
 
-
 (in-package :om)
+
 
 (defmethod get-properties-list ((self spat-dsp))
   `((""  
@@ -132,8 +132,6 @@
                  (om-copy (messages previous))))
     ))
   
-
-
 
 ;;;=========================
 ;;; SYNTH
@@ -271,11 +269,3 @@
             ))
         ))
     ))
-      
-
-
-
-
-
-
-

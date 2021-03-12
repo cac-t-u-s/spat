@@ -33,7 +33,6 @@ Controls the transformation of a sound source using OSC bundles.
 Offline rendering with SPAT-SYNTH."))
 
 
-
 (defclass! spat-scene (spat-object time-sequence)
   ((audio-in :accessor audio-in :initform nil :initarg :audio-in :documentation "audio source file(s)") ;;; repeated slot to make it appear on the box
    (trajectories :accessor trajectories :initform nil :initarg :trajectories :documentation "source trajectories") ;list of 3DC
