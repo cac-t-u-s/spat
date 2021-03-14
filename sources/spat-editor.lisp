@@ -2,12 +2,12 @@
 ;   spat library for OM#
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 
@@ -21,7 +21,7 @@
 ;;======= spat GUI view =========
 ;;directly controlled by the spat object using a pointer to the view.
 
-(defclass spat-view (om-view) 
+(defclass spat-view (om-view)
   ((spat-GUI-component :accessor spat-GUI-component :initform nil)
    (spat-object :accessor spat-object :initform nil)
    (id :accessor id :initform nil :initarg :id)))
@@ -30,26 +30,26 @@
 
 (defun find-window-with-spat-view (id)
   (find id (capi::collect-interfaces 'OMEditorWindow)
-        :test #'(lambda (id win) 
+        :test #'(lambda (id win)
                   (= id (get-spat-view-id (editor win))))))
 
 
-(defmethod om-view-resized ((self spat-view) size) 
+(defmethod om-view-resized ((self spat-view) size)
   (call-next-method)
-  (when (spat-GUI-component self) 
+  (when (spat-GUI-component self)
     (spat::OmSpatSetWindowSize (spat-GUI-component self) (w self) (h self))))
 
 
 ;;======= an editor of SPAT-OBJECT containing a spat-view =========
 
-(defclass spat-editor (OMEditor play-editor-mixin) 
-  ((timeline-editor :accessor timeline-editor :initform nil) 
+(defclass spat-editor (OMEditor play-editor-mixin)
+  ((timeline-editor :accessor timeline-editor :initform nil)
    (spat-view :accessor spat-view :initform nil)
    (source-picts :accessor source-picts :initform nil)))
 
 (defmethod SpatComponent-name ((self spat-editor)) nil)
 
-(defmethod get-spat-view-id ((self spat-editor)) 
+(defmethod get-spat-view-id ((self spat-editor))
   (if (spat-view self)
       (id (spat-view self))
     -2))
@@ -78,24 +78,24 @@
   (let ((timeline-container (om-make-layout 'om-simple-layout))
         (spat-view (om-make-view 'spat-view  :size (omp 200 200)))
         (attributes-view (make-default-editor-view editor)))
-    
+
     (setf (spat-view editor) spat-view)
 
     (when (timeline-editor editor)
       (set-g-component (timeline-editor editor) :main-panel timeline-container)
       (make-timeline-view (timeline-editor editor)))
-    
-    (om-make-layout 
-     'om-row-layout 
-     :bg-color (spat-editor-bg-color editor) 
+
+    (om-make-layout
+     'om-row-layout
+     :bg-color (spat-editor-bg-color editor)
      :align :center
      :ratios '(1 50 1)
-     :subviews (list 
+     :subviews (list
                 nil
-                (om-make-layout 
+                (om-make-layout
                  'om-column-layout
                  :ratios '(9 1 nil)
-                 :subviews (list (om-make-layout 
+                 :subviews (list (om-make-layout
                                   'om-row-layout
                                   :ratios '(98 1)
                                   :subviews (list (om-make-layout 'om-simple-layout :subviews (list spat-view))
@@ -123,7 +123,7 @@
   t)
 
 
-(defmethod update-timeline-display ((self spat-editor)) 
+(defmethod update-timeline-display ((self spat-editor))
   (editor-invalidate-views (timeline-editor self)))
 
 ;;;=========================================================
@@ -139,15 +139,15 @@
 ;;; add stuff for spat-scene (and other sub-classes)
 (defmethod spat-update-to-editor ((editor spat-editor) from) nil)
 
-(defmethod update-to-editor ((editor spat-editor) (from t)) 
+(defmethod update-to-editor ((editor spat-editor) (from t))
   (call-next-method)
   (time-sequence-update-internal-times (object-value editor))
   (enable-play-controls editor t)
   (spat-update-to-editor editor from)
   (when (window editor) (editor-invalidate-views editor)))
 
-(defmethod update-to-editor ((editor spat-editor) (from OMBox)) 
-  (when (and (window editor) (spat-view editor)) 
+(defmethod update-to-editor ((editor spat-editor) (from OMBox))
+  (when (and (window editor) (spat-view editor))
     (if (equal (spat-object (spat-view editor)) (object-value editor))
         (call-next-method)
       ;;; it's a new object => reinitialize the spat-view
@@ -163,7 +163,7 @@
 ;;;=========================================================
 
 (defmethod select-all-command ((self spat-editor))
-  #'(lambda () 
+  #'(lambda ()
       (set-selection (timeline-editor self)
                      (time-sequence-get-timed-item-list (object-value self)))
       (editor-invalidate-views self)))
@@ -177,38 +177,38 @@
 ;;===================
 
 (defmethod spat-editor-set-spat-component ((editor spat-editor))
-  
+
   (let ((spat-object (object-value editor))
         (view (spat-view editor)))
-   
-      ;;; not used...
+
+    ;;; not used...
     (setf (id view) (read-from-string (subseq (string (gensym)) 1)))
-    
+
     (let ((ctrl-comp-name (SpatControllerComponent-name spat-object)))
-      
+
       (when ctrl-comp-name
-      
+
         (if (spat::omspatisvalidcomponenttype ctrl-comp-name)
-            
+
             (let ((comp (spat::OmSpatCreateComponentWithType ctrl-comp-name)))
 
               (om-print-dbg "Create GUI-Component ~A [~A] in ~A" (list comp (remove #\~ ctrl-comp-name) editor) "OM-SPAT")
               (setf (spat-GUI-component view) comp)
-                    
-              (capi:execute-with-interface 
+
+              (capi:execute-with-interface
                (window editor)
-               'spat::OmSpatInstallComponentInNSView 
-               (spat-GUI-component view) 
+               'spat::OmSpatInstallComponentInNSView
+               (spat-GUI-component view)
                (spat::spat-get-view-pointer view))
 
               ;(spat::spat-component-register-callback (spat-GUI-component view))
               (setf (spat-object view) spat-object)
               )
-          
+
           (om-beep-msg "OM-SPAT: Wrong GUI component: ~A" ctrl-comp-name))
-        
+
         ))
-    
+
     view))
 
 ;;; sometimes we want to do this later (to avoid receive all initialization callbacks...)
@@ -217,18 +217,18 @@
     (spat::spat-component-register-callback (spat-GUI-component (spat-view editor)))))
 
 (defmethod spat-editor-remove-spat-component ((editor spat-editor))
-  
-  (when (and (window editor) 
+
+  (when (and (window editor)
              (spat-view editor)
              (spat-GUI-component (spat-view editor)))
-    
+
     (capi:execute-with-interface (window editor)
-                                 'spat::OmSpatRemoveFromNSView 
+                                 'spat::OmSpatRemoveFromNSView
                                  (spat-GUI-component (spat-view editor)))
-    
+
     (om-print-dbg "Free GUI GUI-Component ~A in ~A" (list (spat-GUI-component (spat-view editor)) editor) "OM-SPAT")
     (spat::OmSpatFreeComponent (spat-GUI-component (spat-view editor)))
-    
+
     (setf (spat-GUI-component (spat-view editor)) nil)
     (setf (spat-object (spat-view editor)) nil)
     ))
@@ -238,35 +238,35 @@
   (spat-editor-remove-spat-component self)
   (call-next-method))
 
-  
+
 (defmethod spat-callback-to-front-editor ((editor t) bundle-ptr) nil)
 
-(defmethod spat-callback-to-front-editor ((editor collection-editor) bundle-ptr) 
+(defmethod spat-callback-to-front-editor ((editor collection-editor) bundle-ptr)
   (spat-callback-to-front-editor (internal-editor editor) bundle-ptr))
 
 ;;; uses odot to decode OSC data
 (defun spat::spat-component-handle-callback (component-ptr bundle-ptr)
-  
-    (declare (ignore component-ptr))
 
-    (let ((frontwin (om-front-window))) ;;; mmpf..
-      (unwind-protect
-          (let ((messages (odot::osc_decode_bundle_s_data bundle-ptr)))
-            (om-print-dbg 
-             "Received from SPAT: ~{~%                         => ~A ~}" 
-             (list messages) "OM-SPAT")
-            (spat-callback-to-front-editor (editor frontwin) messages)
-            )
-        (odot::osc_bundle_s_deepFree bundle-ptr))
-      )
+  (declare (ignore component-ptr))
+
+  (let ((frontwin (om-front-window))) ;;; mmpf..
+    (unwind-protect
+        (let ((messages (odot::osc_decode_bundle_s_data bundle-ptr)))
+          (om-print-dbg
+           "Received from SPAT: ~{~%                         => ~A ~}"
+           (list messages) "OM-SPAT")
+          (spat-callback-to-front-editor (editor frontwin) messages)
+          )
+      (odot::osc_bundle_s_deepFree bundle-ptr))
     )
+  )
 
-(defmethod spat-object-init-GUI-messages ((editor spat-editor)) 
+(defmethod spat-object-init-GUI-messages ((editor spat-editor))
   (messages (car (controls (object-value editor)))))
-            
+
 (defmethod init-messages-to-spat-viewer ((editor spat-editor))
   (when (and (spat-view editor) (spat-GUI-component (spat-view editor)))
-    (spat-osc-command 
+    (spat-osc-command
      (spat-GUI-component (spat-view editor))
      (append-set-to-state-messages (spat-object-init-GUI-messages editor))
      (spat-view editor))
@@ -285,12 +285,12 @@
                          :test '<)))
     (if next-time
         (set-cursor-time (timeline-editor self) next-time)
-    (om-beep))))
-    
-(defmethod editor-previous-step ((self spat-editor)) 
+      (om-beep))))
+
+(defmethod editor-previous-step ((self spat-editor))
   (let ((previous-time (find (get-cursor-time (timeline-editor self))
-                         (get-all-sorted-times (object-value self))
-                         :test '> :from-end t)))
+                             (get-all-sorted-times (object-value self))
+                             :test '> :from-end t)))
     (if previous-time
         (set-cursor-time (timeline-editor self) previous-time)
       (om-beep))))
@@ -307,38 +307,38 @@
 
 ;;; In spat-objects the timeline left item is a source file selection button
 (defmethod make-timeline-left-item ((self spat-editor) id)
-  (om-make-view 
-               'om-view :size (omp 15 15)
-               :subviews 
-               (list  
-                (om-make-graphic-object 
-                 'om-icon-button :size (omp 15 15) :position (omp 0 0)
-                 :icon :folder :icon-pushed :folder-pushed
-                 :lock-push nil
-                 :action #'(lambda (b)
-                             (declare (ignore b))
-                             (editor-stop self)
-                             (let ((snd (om-init-instance (objFromObjs :choose-file (make-instance 'sound))))
-                                   (spat-obj (object-value self)))
-                               (when snd 
-                                 (if (consp (audio-in spat-obj))
-                                     (setf (nth id (audio-in spat-obj)) snd)
-                                   (setf (audio-in spat-obj) (list snd)))
-                                 (update-source-picts self)
-                                 (spat-object-set-audio-dsp spat-obj)
-                                 (reinit-ranges (timeline-editor self)))))
-                 ))))
+  (om-make-view
+   'om-view :size (omp 15 15)
+   :subviews
+   (list
+    (om-make-graphic-object
+     'om-icon-button :size (omp 15 15) :position (omp 0 0)
+     :icon :folder :icon-pushed :folder-pushed
+     :lock-push nil
+     :action #'(lambda (b)
+                 (declare (ignore b))
+                 (editor-stop self)
+                 (let ((snd (om-init-instance (objFromObjs :choose-file (make-instance 'sound))))
+                       (spat-obj (object-value self)))
+                   (when snd
+                     (if (consp (audio-in spat-obj))
+                         (setf (nth id (audio-in spat-obj)) snd)
+                       (setf (audio-in spat-obj) (list snd)))
+                     (update-source-picts self)
+                     (spat-object-set-audio-dsp spat-obj)
+                     (reinit-ranges (timeline-editor self)))))
+     ))))
 
 
 (defmethod update-source-picts ((editor spat-editor))
-  
+
   (setf (source-picts editor)
         (loop for src in (list! (audio-in (object-value editor)))
               collect (when (subtypep (type-of src) 'sound)
 
-                          (list (get-cache-display-for-draw src (object editor))
-                                (get-obj-dur src))
-                          )
+                        (list (get-cache-display-for-draw src (object editor))
+                              (get-obj-dur src))
+                        )
               )))
 
 ;;; from time-sequence
@@ -378,9 +378,9 @@
       (steps 20))
   (capi:contain progress-bar)
   (loop  for i from 0 to steps
-         do 
+         do
          (setf (capi:range-slug-start progress-bar) (* (/ 100 (1- steps)) i))
-         (gp::invalidate-rectangle progress-bar) 
+         (gp::invalidate-rectangle progress-bar)
          (sleep .2))
   (setf (capi:range-slug-start progress-bar) 100))
 |#

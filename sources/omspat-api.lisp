@@ -2,17 +2,17 @@
 ;   spat library for OM#
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 
 ;/************************************************************************************/
-;/*  FILE DESCRIPTION							             */
+;/*  FILE DESCRIPTION                    */
 ;/*----------------------------------------------------------------------------------*/
 ; *   @brief      lisp-interface to OMSpat.framework Utilities
 ; *   @author     Thibaut Carpentier / Jean Bresson
@@ -59,14 +59,14 @@
 (defun number-to-float (i) (coerce i 'float))
 
 (defun coerce-list (liste type)
-  (case type 
+  (case type
     (:double (mapcar #'number-to-double liste))
     (:float (mapcar #'number-to-float liste))
     (otherwise nil)))
 
-; Takes a list from OM and converts it into a C array. 
+; Takes a list from OM and converts it into a C array.
 ; The C-array is allocated here, but not freed
-(defun lisp-list-to-c-array (liste &optional (type :float)) 
+(defun lisp-list-to-c-array (liste &optional (type :float))
   (cffi::foreign-alloc :float :initial-contents (coerce-list liste type)))
 
 ; Takes a C-array and converts it into a lisp list
@@ -79,16 +79,16 @@
 ;;; AUDIOBUFFER
 ;;;================================================================================
 
-(cffi:defcstruct omspat-audiobuffer 
-  (numChannels :unsigned-int) 
+(cffi:defcstruct omspat-audiobuffer
+  (numChannels :unsigned-int)
   (numSamples :unsigned-long)
   (data :pointer))
 
 (cffi::defctype omspat-audiobuffer_T (:struct omspat-audiobuffer))
 
 ;;; we suppose that **DATA is already allocated
-(defun allocate-spat-audiobuffer (&key (size nil) 
-                                       (channels nil) 
+(defun allocate-spat-audiobuffer (&key (size nil)
+                                       (channels nil)
                                        (data nil))
   (let ((audiob (cffi::foreign-alloc 'omspat-audiobuffer_T)))
     (when channels (setf (cffi:foreign-slot-value audiob 'omspat-audiobuffer_T 'numChannels) channels))
@@ -116,11 +116,11 @@
           (cffi:foreign-slot-value buffer 'omspat-audiobuffer_T 'numChannels)
           (cffi:foreign-slot-value buffer 'omspat-audiobuffer_T 'numSamples)))
 
-(cffi:defcfun ("OmSpatResizeAudioBuffer" OmSpatResizeAudioBuffer) :boolean 
+(cffi:defcfun ("OmSpatResizeAudioBuffer" OmSpatResizeAudioBuffer) :boolean
   (buffer (:pointer omspat-audiobuffer_T))
   (numChannels :unsigned-int) (numSamples :unsigned-long))
 
-(cffi:defcfun ("OmSpatFreeAudioBuffer" OmSpatFreeAudioBuffer) :boolean 
+(cffi:defcfun ("OmSpatFreeAudioBuffer" OmSpatFreeAudioBuffer) :boolean
   (buffer (:pointer omspat-audiobuffer_T)))
 
 
@@ -158,12 +158,12 @@
 
 (cffi:defctype spat_component_T :pointer)
 
-(cffi:defcfun ("OmSpatCreateDspComponentWithType" OmSpatCreateDspComponentWithType) spat_component_T 
-  (type :string)   
-  (numInputs :unsigned-int) 
+(cffi:defcfun ("OmSpatCreateDspComponentWithType" OmSpatCreateDspComponentWithType) spat_component_T
+  (type :string)
+  (numInputs :unsigned-int)
   (numOutputs :unsigned-int))
 
-(cffi:defcfun ("OmSpatProcessAudio" OmSpatProcessAudio) :boolean 
+(cffi:defcfun ("OmSpatProcessAudio" OmSpatProcessAudio) :boolean
   (obj :pointer)
   (out :pointer)
   (int :pointer)
@@ -192,7 +192,7 @@
     (spat-component-handle-callback component bundle)))
 
 ;;; to be redefined
-;(defun spat-component-handle-callback (component-ptr bundle-ptr) 
+;(defun spat-component-handle-callback (component-ptr bundle-ptr)
 ;  (declare (ignore component-ptr bundle-ptr))
 ;  (print "Callback undefined"))
 

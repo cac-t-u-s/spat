@@ -2,12 +2,12 @@
 ;   spat library for OM#
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 
@@ -20,7 +20,7 @@
 
 
 (defmethod get-properties-list ((self spat-scene))
-  `(("" 
+  `((""
      (:name "Name" :string name)
      (:action "Action" :action action-accessor)
      (:interpol "Interpolation" ,(make-number-or-nil :min 20 :max 1000) interpol-accessor)
@@ -45,7 +45,7 @@
 
 
 (defmethod update-interpol-settings-for-trajs ((self spat-scene))
-  (loop for 3dc in (trajectories self) do 
+  (loop for 3dc in (trajectories self) do
         (setf (interpol 3dc) (interpol self))))
 
 
@@ -56,7 +56,7 @@
   (interpol self))
 
 
-(defmethod additional-class-attributes ((self spat-scene)) 
+(defmethod additional-class-attributes ((self spat-scene))
   (append (call-next-method)
           '(action panning-type reverb interpol)))
 
@@ -64,58 +64,58 @@
 ;;; we have to do this because :panning-type is not a class initarg
 ;(defmethod om-init-instance ((self spat-scene) &optional args)
 ;  (let ((ss (call-next-method)))
-;    
+;
 ;    (when (and (find-value-in-kv-list args :buffer-size)
-;               (not (= (find-value-in-kv-list args :buffer-size) 
+;               (not (= (find-value-in-kv-list args :buffer-size)
 ;                       (buffer-size self))))
 ;     (setf (buffer-size ss) (find-value-in-kv-list args :buffer-size))
 ;      (spat-object-set-audio-dsp self))
-;    
+;
 ;    ss))
 
 
-(defmethod class-attributes-menus ((self spat-scene)) 
-  '((panning-type (("angular" "angular") 
+(defmethod class-attributes-menus ((self spat-scene))
+  '((panning-type (("angular" "angular")
                    ("binaural" "binaural")
                    ("vbap3d" "vbap3d")
                    ("hoa3d" "hoa3d")))))
 
-(defmethod SpatDSPComponent-name ((self spat-scene)) 
+(defmethod SpatDSPComponent-name ((self spat-scene))
   (if (reverb self) "spat5.spat~" "spat5.pan~"))
 
-(defmethod SpatControllerComponent-name ((self spat-scene)) 
+(defmethod SpatControllerComponent-name ((self spat-scene))
   (if (reverb self) "spat5.oper" "spat5.viewer"))
 
 
-(defmethod n-channels-in ((self spat-scene)) 
+(defmethod n-channels-in ((self spat-scene))
   (length (list! (audio-in self))))
 
-(defmethod n-channels-out ((self spat-scene)) 
+(defmethod n-channels-out ((self spat-scene))
   (if (string-equal (panning-type self) "binaural")
-      2 
+      2
     (length (speakers self))))
 
 
-(defmethod get-obj-dur ((self spat-scene)) 
-  (reduce 'max 
+(defmethod get-obj-dur ((self spat-scene))
+  (reduce 'max
           (cons (get-last-time-point self)
                 (remove nil (mapcar 'get-obj-dur (audio-in self))))))
 
 
-(defmethod spat-object-init-DSP-messages ((self spat-scene)) 
+(defmethod spat-object-init-DSP-messages ((self spat-scene))
   (append (call-next-method)
           `(("/panning/type" ,(panning-type self))
             ("/speakers/xyz" ,.(apply 'append (speakers self))))))
-          
+
 
 ;;;======================================================
 ;;; INIT
 ;;;======================================================
 
-(defvar *excluded-spat-state-messages* 
-  '("/source/number" 
-    "/speaker/number" 
-    "/format" 
+(defvar *excluded-spat-state-messages*
+  '("/source/number"
+    "/speaker/number"
+    "/format"
     "/layout"
     "/source/.*/aed"
     "/source/.*/xyz"
@@ -130,7 +130,7 @@
 
 (defmethod get-controller-state ((self spat-scene))
   (when (spat-controller self)
-    (make-instance 
+    (make-instance
      'osc-bundle :date 0
      :messages (filter-osc-messages (spat-get-state (spat-controller self))
                                     *excluded-spat-state-messages*))
@@ -138,9 +138,9 @@
 
 
 (defmethod ensure-init-state ((self spat-scene))
-  (spat-osc-command 
+  (spat-osc-command
    (spat-controller self)
-   (append 
+   (append
     `(("/set/source/number" ,(length (audio-in self)))
       ("/set/speaker/number" ,(length (speakers self)))
       ("/set/format" "xyz"))
@@ -150,16 +150,16 @@
           )
     ))
   (call-next-method))
-  
+
 
 ;; do this with om-init-instance ??
 ;(defmethod initialize-instance :after ((self spat-scene) &rest args)
 (defmethod om-init-instance ((self spat-scene) &optional initargs)
- 
+
   (call-next-method)
- 
-  (when initargs 
-    
+
+  (when initargs
+
     (let ((speakers (find :speakers initargs :key 'car)))
       (when speakers
         (setf (speakers self) (loop for spk in (cadr speakers) collect
@@ -168,15 +168,15 @@
 
     (setf (audio-in self) (list! (audio-in self))
           (trajectories self) (list! (trajectories self)))
-  
+
     (let* ((max-len (max (length (list! (trajectories self))) (length (list! (audio-in self))))))
 
-      (loop for i from 0 to (1- max-len) 
-            collect (if (nth i (audio-in self)) 
+      (loop for i from 0 to (1- max-len)
+            collect (if (nth i (audio-in self))
                         (get-sound (nth i (audio-in self)))
                       (om-init-instance (make-instance 'sound)))
             into sounds
-            collect (format-traj-as-3DC (nth i (trajectories self))) 
+            collect (format-traj-as-3DC (nth i (trajectories self)))
             into trajects
             finally (setf (audio-in self) sounds
                           (trajectories self) trajects))
@@ -185,12 +185,12 @@
 
       (loop for sr in (audio-in self)
             for tr in (trajectories self) do
-   
+
             (let ((dur (if sr (sound-dur-ms sr) 0)))
               (when (< (get-obj-dur tr) dur)
-                (time-sequence-insert-timed-item tr (time-sequence-make-timed-item-at tr dur)))))    
+                (time-sequence-insert-timed-item tr (time-sequence-make-timed-item-at tr dur)))))
       ))
-  
+
   self)
 
 (defmethod format-traj-as-3DC ((self list))
@@ -204,7 +204,7 @@
 
 ; new version used for the range functions
 (defmethod time-sequence-get-timed-item-list ((self spat-scene))
-  (loop for traj in (list! (trajectories self)) 
+  (loop for traj in (list! (trajectories self))
         when traj append (time-sequence-get-timed-item-list traj)))
 
 
@@ -213,10 +213,10 @@
 
 (defmethod get-all-traj-points ((self spat-scene))
   (loop for traj in (trajectories self) append (point-pairs traj)))
-  
+
 (defmethod get-all-sorted-times ((self spat-scene))
-  (sort 
-   (loop for traj in (trajectories self) 
+  (sort
+   (loop for traj in (trajectories self)
          append (time-sequence-get-internal-times traj))
    '<))
 
@@ -228,10 +228,10 @@
 (defmethod get-last-time-point ((self spat-scene))
   (or (car (last (get-all-sorted-times self))) 0))
 
-(defmethod time-sequence-update-internal-times ((self spat-scene) 
-                                                &optional (interpol-mode :constant-speed) 
+(defmethod time-sequence-update-internal-times ((self spat-scene)
+                                                &optional (interpol-mode :constant-speed)
                                                 (duration 10000) (modif-time nil))
-  (with-schedulable-object 
+  (with-schedulable-object
    self
    (loop for traj in (trajectories self) do
          (time-sequence-update-internal-times traj))))
@@ -243,13 +243,13 @@
 ;;;TIME MARKERS TO REDEFINE FOR YOUR SUBCLASS
 (defmethod get-time-markers ((self spat-scene))
   "returns a list of time markers"
-  (flat (loop for traj in (trajectories self) 
-        collect (get-all-master-points-times traj))))
+  (flat (loop for traj in (trajectories self)
+              collect (get-all-master-points-times traj))))
 
 ;;;TIME MARKERS TO REDEFINE FOR YOUR SUBCLASS
 (defmethod get-elements-for-marker ((self spat-scene) marker)
   "returns a list of elements matching the marker"
-  (loop for traj in (trajectories self) 
+  (loop for traj in (trajectories self)
         collect
         (list traj (point-exists-at-time traj marker))))
 
@@ -270,8 +270,8 @@
 
 
 ;;; to be redefined by objects if they have a specific draw/cache strategy
-(defmethod get-cache-display-for-draw ((self spat-scene) box) 
-  (list 
+(defmethod get-cache-display-for-draw ((self spat-scene) box)
+  (list
    ;;; just record a zoom factor for drawing
    (loop for p in (append (get-all-traj-points self) (speakers self))
          maximize (if p (sqrt (+ (* (car p) (car p)) (* (cadr p) (cadr p)))) 0))))
@@ -320,15 +320,15 @@
                                        z-t-ranges
                              ;(+ x 7) (+ y 10) (- w 14) (- h 20)
                                        x (+ y-new 5) w (- h-new 5)
-                                       ) 
+                                       )
               t)))))
 
 
-(defvar *spat-mini-view-source-radius* 3)   
+(defvar *spat-mini-view-source-radius* 3)
 
 (defmethod draw-spat-scene ((self spat-scene) x y w h max at)
   (flet ((relpos (coord ref) (+ ref (* coord (/ (- ref 15) max)))))
-   
+
     (let ((x0 (/ w 2))
           (y0 (/ h 2)))
 
@@ -342,21 +342,21 @@
                                       (+ y (- (relpos (- (cadr spk)) y0) 4))
                                       8 8 :fill t)))
         )
-     
+
       (loop for traj in (trajectories self) do
-            (when traj 
+            (when traj
               (let* ((start (car (list! at)))
-                     (end (cadr (list! at))) 
+                     (end (cadr (list! at)))
                      (pt (get-point-at-time traj start)))
                 (when pt
                   (om-with-fg-color (color traj)
                     (om-draw-circle (+ x (relpos (om-point-x pt) x0)) ; - *spat-mini-view-source-radius*)
                                     (+ y (relpos (- (om-point-y pt)) y0)) ; - *spat-mini-view-source-radius*)
-                                    (/ h 30) ;(* 2 *spat-mini-view-source-radius*) 
+                                    (/ h 30) ;(* 2 *spat-mini-view-source-radius*)
                                     :fill t)
                     ))
                 (when end
-                  (loop for atp from start to end by 50 do 
+                  (loop for atp from start to end by 50 do
                         (let ((pt1 (get-point-at-time traj atp))
                               (pt2 (get-point-at-time traj (+ atp 50))))
                           (when pt1
@@ -373,11 +373,11 @@
       )))
 
 
-   
+
 ;;; second version using keyframes
 ;;need to add the time parameters and it should animate the good keyframe...
 (defun draw-spat-scene-frames (self box x y w h frame-w)
-  (let* ((dur (get-obj-dur self)) 
+  (let* ((dur (get-obj-dur self))
          (frames (max 1 (round (/ w frame-w))))
          (frame-width (round (/ w frames))))
     (when (> dur 0)
@@ -387,11 +387,11 @@
                   (frame-x (+ x (* frame frame-width))))
               (when (not (equal frame 0))
                 (om-draw-line frame-x (+ y 8) frame-x (+ y h -8) :color (om-def-color :dark-gray) :style '(2 2)))
-               
-              (draw-spat-scene self frame-x y frame-width h 
-                              (car (get-display-draw box))
-                              (list frame-time frame-end-time)
-                              ))))))
+
+              (draw-spat-scene self frame-x y frame-width h
+                               (car (get-display-draw box))
+                               (list frame-time frame-end-time)
+                               ))))))
 
 
 (defmethod draw-mini-view ((self spat-scene) (box t) x y w h &optional time)
@@ -402,12 +402,12 @@
       ;; (:3dc (draw-spat-scene-curves self box x y w h))
       (otherwise (draw-spat-scene self x y w h max time)))
     ))
-      
+
 
 
 (defparameter *min-key-frames-size* 100)
 
-(defmethod draw-maquette-mini-view ((self spat-scene) (box t) x y w h &optional time) 
+(defmethod draw-maquette-mini-view ((self spat-scene) (box t) x y w h &optional time)
   (declare (ignore time))
   (ensure-cache-display-draw box self)
   (case (get-edit-param box :view-mode)
@@ -422,9 +422,9 @@
 
 ;;; RETURNS THE POSITIONS FRO EACH SOURCE
 (defmethod spat-object-get-process-messages-at-time ((self spat-scene) time-ms)
-  (remove 
-   nil 
-   (loop for traj in (trajectories self) 
+  (remove
+   nil
+   (loop for traj in (trajectories self)
          for i = 1 then (+ i 1) collect
          (let ((p (time-sequence-get-active-timed-item-at traj time-ms))) ;; will handle interpolation if needed
            ;; (find time-ms (point-list traj) :test '<= :key 'tpoint-internal-time)))
@@ -453,27 +453,27 @@
 
 (defmethod spat-object-actions ((self spat-scene) interval)
   (when (action self)
-    (sort 
+    (sort
      (if (number-? (interpol self))
-        
+
          (let* ((root (get-active-interpol-time self (car interval))))
-           (loop for interpolated-time in (arithm-ser root (1- (cadr interval)) (number-number (interpol self))) 
-                 append (loop for 3dc in (trajectories self) 
-                              for i = 1 then (+ i 1) 
-                              collect (list 
-                                       interpolated-time 
-                                       #'(lambda (pt) (funcall (action-fun self) pt)) 
+           (loop for interpolated-time in (arithm-ser root (1- (cadr interval)) (number-number (interpol self)))
+                 append (loop for 3dc in (trajectories self)
+                              for i = 1 then (+ i 1)
+                              collect (list
+                                       interpolated-time
+                                       #'(lambda (pt) (funcall (action-fun self) pt))
                                        (list (list i (make-default-tpoint-at-time 3dc interpolated-time))) ;; (traj-id point)
                                        ))))
-      
-       (loop for 3dc in (trajectories self) 
+
+       (loop for 3dc in (trajectories self)
              for i = 1 then (+ i 1) append
              (loop for pt in (filter-list (point-list 3dc) (car interval) (cadr interval) :key 'tpoint-internal-time)
                    collect
                    (list (tpoint-internal-time pt)
                          #'(lambda (ptmp) (funcall (action-fun self) ptmp))
                          (list (list i pt))  ;; (traj-id point)
-                         ))) 
+                         )))
        )
      '< :key 'car)))
 
@@ -483,16 +483,16 @@
 ;;;===============================================
 
 (defun omcol2svgcolorstr (color)
-  (format nil "rgb(~D, ~D, ~D)" 
+  (format nil "rgb(~D, ~D, ~D)"
           (round (* 255 (om-color-r color)))
           (round (* 255 (om-color-g color)))
           (round (* 255 (om-color-b color)))))
 
 ;to improve to adapt to the size
 (defmethod export-keyframe-as-svg ((self spat-scene) file-path &key  (time 0) (w 300) (h 300) (margins 20) (speakers t))
-  (let* ((pathname (or file-path (om-choose-new-file-dialog :directory (def-save-directory) 
-                                                       :prompt "New SVG file"
-                                                       :types '("SVG Files" "*.svg")))))
+  (let* ((pathname (or file-path (om-choose-new-file-dialog :directory (def-save-directory)
+                                                            :prompt "New SVG file"
+                                                            :types '("SVG Files" "*.svg")))))
     (when pathname
       (setf *last-saved-dir* (make-pathname :directory (pathname-directory pathname)))
       (let* ((scene (svg::make-svg-toplevel 'svg::svg-1.1-toplevel :height h :width w))
@@ -500,37 +500,37 @@
              (scale (/ (min (/ (- h (* 2 margins)) 2) (/ (- w (* 2 margins)) 2)) 2) ))
 
         ;draw the frame
-        (svg::draw scene 
+        (svg::draw scene
                    (:rect :x margins :y margins :height (- h (* margins 2)) :width (- w (* margins 2)))
                    :fill "none" :stroke "rgb(0, 0, 0)" :stroke-width 1 )
 
         ;draw a cross ath the center
-        (svg::draw scene 
+        (svg::draw scene
                    (:line
-                    :x1 (- (om-point-x center) (* 0.1 scale)) :y1 (om-point-y center) 
-                    :x2  (+ (om-point-x center) (* 0.1 scale)) :y2 (om-point-y center) 
+                    :x1 (- (om-point-x center) (* 0.1 scale)) :y1 (om-point-y center)
+                    :x2  (+ (om-point-x center) (* 0.1 scale)) :y2 (om-point-y center)
                     :stroke "rgb(0, 0, 0)"))
-        (svg::draw scene 
+        (svg::draw scene
                    (:line
                     :x1 (om-point-x center) :y1 (- (om-point-y center) (* 0.1 scale))
                     :x2 (om-point-x center) :y2 (+ (om-point-y center) (* 0.1 scale))
                     :stroke "rgb(0, 0, 0)"))
-        
+
         ;draw a unit circle
-        (svg::draw scene 
+        (svg::draw scene
                    (:circle :cx (om-point-x center) :cy (om-point-y center) :r (* 1 scale)
                     :stroke "rgb(0, 0, 0)"
                     :fill "none"))
-      
+
         ;draw the speakers
         (when speakers
           (let ((speak_w (* 0.1 scale)))
             (loop for spk in (speakers self) do
                   (when spk
-                    (svg::draw scene 
-                               (:rect 
-                                :x  (- (- (om-point-x center) (* (car spk) scale)) (/ speak_w 2))  
-                                :y (- (- (om-point-x center) (* (cadr spk) scale)) (/ speak_w 2)) 
+                    (svg::draw scene
+                               (:rect
+                                :x  (- (- (om-point-x center) (* (car spk) scale)) (/ speak_w 2))
+                                :y (- (- (om-point-x center) (* (cadr spk) scale)) (/ speak_w 2))
                                 :height speak_w
                                 :width speak_w)
                                :fill "rgb(0, 0, 0)" :stroke "rgb(0, 0, 0)" :stroke-width 1 )
@@ -539,34 +539,34 @@
         ;draw the sources at time
         (loop for traj in (trajectories self)
               for n = 1 then (+ n 1) do
-          (when traj 
-            (let ((pt (if (number-? (interpol traj))
-                          (make-default-tpoint-at-time traj time)
-                        (time-sequence-get-active-timed-item-at traj time))))
-              (when pt
-                (let ((cx (+ (om-point-x center) (* (om-point-x pt) scale)))
-                      (cy (-  (om-point-y center) (* scale (om-point-y pt))))
-                      (col (omcol2svgcolorstr (or (color traj) (om-def-color :black))))
-                      (rad  (* 0.1 scale))
-                      (txt (format nil "~D" n )))
-                (svg::draw scene 
-                           (:circle :cx cx :cy cy :r rad
-                            :stroke "rgb(0, 0, 0)"
-                            :fill col))
-                (svg::draw scene 
-                           (:circle :cx cx :cy cy :r rad
-                            :stroke "rgb(0, 0, 0)"
-                            :fill "none"))
-                (svg:text scene (:x (- cx 2) :y (+ cy 3))  (svg:tspan (:font-size "10") txt))
-                )))))
+              (when traj
+                (let ((pt (if (number-? (interpol traj))
+                              (make-default-tpoint-at-time traj time)
+                            (time-sequence-get-active-timed-item-at traj time))))
+                  (when pt
+                    (let ((cx (+ (om-point-x center) (* (om-point-x pt) scale)))
+                          (cy (-  (om-point-y center) (* scale (om-point-y pt))))
+                          (col (omcol2svgcolorstr (or (color traj) (om-def-color :black))))
+                          (rad  (* 0.1 scale))
+                          (txt (format nil "~D" n )))
+                      (svg::draw scene
+                                 (:circle :cx cx :cy cy :r rad
+                                  :stroke "rgb(0, 0, 0)"
+                                  :fill col))
+                      (svg::draw scene
+                                 (:circle :cx cx :cy cy :r rad
+                                  :stroke "rgb(0, 0, 0)"
+                                  :fill "none"))
+                      (svg:text scene (:x (- cx 2) :y (+ cy 3))  (svg:tspan (:font-size "10") txt))
+                      )))))
 
         ;draw the time
         (svg:text scene (:x (+ margins 4) :y (+ margins 14))  (format nil "~D" time ) " ms")
-  
-             (with-open-file (s pathname :direction :output :if-exists :supersede)
-               (svg::stream-out s scene)))
-        pathname
-        )))
+
+        (with-open-file (s pathname :direction :output :if-exists :supersede)
+          (svg::stream-out s scene)))
+      pathname
+      )))
 
 
 ;to improve to adapt to the size
@@ -577,9 +577,9 @@
   :doc "
 Exports <self> to SVG format.
 "
-  (let* ((pathname (or file-path (om-choose-new-file-dialog :directory (def-save-directory) 
-                                                       :prompt "New SVG file"
-                                                       :types '("SVG Files" "*.svg")))))
+  (let* ((pathname (or file-path (om-choose-new-file-dialog :directory (def-save-directory)
+                                                            :prompt "New SVG file"
+                                                            :types '("SVG Files" "*.svg")))))
     (unless end-time
       (setf end-time (get-obj-dur self)))
 
@@ -590,37 +590,37 @@ Exports <self> to SVG format.
              (scale (/ (min (/ (- h (* 2 margins)) 2) (/ (- w (* 2 margins)) 2)) 2) ))
 
         ;draw the frame
-        (svg::draw scene 
+        (svg::draw scene
                    (:rect :x margins :y margins :height (- h (* margins 2)) :width (- w (* margins 2)))
                    :fill "none" :stroke "rgb(0, 0, 0)" :stroke-width 1 )
 
         ;draw a cross ath the center
-        (svg::draw scene 
+        (svg::draw scene
                    (:line
-                    :x1 (- (om-point-x center) (* 0.1 scale)) :y1 (om-point-y center) 
-                    :x2  (+ (om-point-x center) (* 0.1 scale)) :y2 (om-point-y center) 
+                    :x1 (- (om-point-x center) (* 0.1 scale)) :y1 (om-point-y center)
+                    :x2  (+ (om-point-x center) (* 0.1 scale)) :y2 (om-point-y center)
                     :stroke "rgb(0, 0, 0)"))
-        (svg::draw scene 
+        (svg::draw scene
                    (:line
                     :x1 (om-point-x center) :y1 (- (om-point-y center) (* 0.1 scale))
                     :x2 (om-point-x center) :y2 (+ (om-point-y center) (* 0.1 scale))
                     :stroke "rgb(0, 0, 0)"))
-        
+
         ;draw a unit circle
-        (svg::draw scene 
+        (svg::draw scene
                    (:circle :cx (om-point-x center) :cy (om-point-y center) :r (* 1 scale)
                     :stroke "rgb(0, 0, 0)"
                     :fill "none"))
-      
+
         ;draw the speakers
         (when speakers
           (let ((speak_w (* 0.1 scale)))
             (loop for spk in (speakers self) do
                   (when spk
-                    (svg::draw scene 
-                               (:rect 
-                                :x  (- (- (om-point-x center) (* (car spk) scale)) (/ speak_w 2))  
-                                :y (- (- (om-point-x center) (* (cadr spk) scale)) (/ speak_w 2)) 
+                    (svg::draw scene
+                               (:rect
+                                :x  (- (- (om-point-x center) (* (car spk) scale)) (/ speak_w 2))
+                                :y (- (- (om-point-x center) (* (cadr spk) scale)) (/ speak_w 2))
                                 :height speak_w
                                 :width speak_w)
                                :fill "rgb(0, 0, 0)" :stroke "rgb(0, 0, 0)" :stroke-width 1 )
@@ -629,75 +629,75 @@ Exports <self> to SVG format.
         ;draw the motions at start-time
         (loop for traj in (trajectories self)
               for n = 1 then (+ n 1) do
-          (when traj 
-            (let ((start-pt (if (number-? (interpol traj))
-                          (make-default-tpoint-at-time traj start-time)
-                              (time-sequence-get-active-timed-item-at traj start-time)))
-                  (end-pt (if (number-? (interpol traj))
-                              (make-default-tpoint-at-time traj end-time)
-                            (time-sequence-get-active-timed-item-at traj end-time))))
+              (when traj
+                (let ((start-pt (if (number-? (interpol traj))
+                                    (make-default-tpoint-at-time traj start-time)
+                                  (time-sequence-get-active-timed-item-at traj start-time)))
+                      (end-pt (if (number-? (interpol traj))
+                                  (make-default-tpoint-at-time traj end-time)
+                                (time-sequence-get-active-timed-item-at traj end-time))))
 
               ;draw a line between start and end
-              (when (and start-pt end-pt)
-                (let ((spos (find-active-position-at-time traj start-time))
-                      (epos (find-active-position-at-time traj end-time)))
-                  (loop for idx = spos then (+ idx 1)
-                         while (< idx epos) do
-                         
-                         (let* ((p1 (get-nth-point traj idx))
-                               (p2 (get-nth-point traj (1+ idx)))
-                               (csx (+ (om-point-x center) (* (om-point-x p1) scale)))
-                               (csy (-  (om-point-y center) (* scale (om-point-y p1))))
-                               (cex (+ (om-point-x center) (* (om-point-x p2) scale)))
-                               (cey (-  (om-point-y center) (* scale (om-point-y p2))))
-                               (col (omcol2svgcolorstr (or (color traj) (om-def-color :black)))))
-                           (svg::draw scene 
-                                      (:line
-                                       :x1 csx :y1 csy)
-                                      :x2 cex :y2 cey
-                                      :stroke col)
-                           ))))
+                  (when (and start-pt end-pt)
+                    (let ((spos (find-active-position-at-time traj start-time))
+                          (epos (find-active-position-at-time traj end-time)))
+                      (loop for idx = spos then (+ idx 1)
+                            while (< idx epos) do
+
+                            (let* ((p1 (get-nth-point traj idx))
+                                   (p2 (get-nth-point traj (1+ idx)))
+                                   (csx (+ (om-point-x center) (* (om-point-x p1) scale)))
+                                   (csy (-  (om-point-y center) (* scale (om-point-y p1))))
+                                   (cex (+ (om-point-x center) (* (om-point-x p2) scale)))
+                                   (cey (-  (om-point-y center) (* scale (om-point-y p2))))
+                                   (col (omcol2svgcolorstr (or (color traj) (om-def-color :black)))))
+                              (svg::draw scene
+                                         (:line
+                                          :x1 csx :y1 csy)
+                                         :x2 cex :y2 cey
+                                         :stroke col)
+                              ))))
 
               ;draw start point
-              (when start-pt
-                (let ((cx (+ (om-point-x center) (* (om-point-x start-pt) scale)))
-                      (cy (-  (om-point-y center) (* scale (om-point-y start-pt))))
-                      (col (omcol2svgcolorstr (or (color traj) (om-def-color :black))))
-                      (rad  (* 0.1 scale))
-                      (txt (format nil "~D" n )))
-                (svg::draw scene 
-                           (:circle :cx cx :cy cy :r rad
-                            :stroke col
-                            :fill "none"))
-                (svg::draw scene 
-                           (:circle :cx cx :cy cy :r rad
-                            :stroke col
-                            :fill "none"))
-                (svg:text scene (:x (- cx 2) :y (+ cy 3))  (svg:tspan (:font-size "10") txt))
-                ))
+                  (when start-pt
+                    (let ((cx (+ (om-point-x center) (* (om-point-x start-pt) scale)))
+                          (cy (-  (om-point-y center) (* scale (om-point-y start-pt))))
+                          (col (omcol2svgcolorstr (or (color traj) (om-def-color :black))))
+                          (rad  (* 0.1 scale))
+                          (txt (format nil "~D" n )))
+                      (svg::draw scene
+                                 (:circle :cx cx :cy cy :r rad
+                                  :stroke col
+                                  :fill "none"))
+                      (svg::draw scene
+                                 (:circle :cx cx :cy cy :r rad
+                                  :stroke col
+                                  :fill "none"))
+                      (svg:text scene (:x (- cx 2) :y (+ cy 3))  (svg:tspan (:font-size "10") txt))
+                      ))
               ;draw end-point
-              (when end-pt
-                (let ((cx (+ (om-point-x center) (* (om-point-x end-pt) scale)))
-                      (cy (-  (om-point-y center) (* scale (om-point-y end-pt))))
-                      (col (omcol2svgcolorstr (or (color traj) (om-def-color :black))))
-                      (rad  (* 0.1 scale))
-                      (txt (format nil "~D" n )))
-                (svg::draw scene 
-                           (:circle :cx cx :cy cy :r rad
-                            :stroke "rgb(0, 0, 0)"
-                            :fill col))
-                (svg::draw scene 
-                           (:circle :cx cx :cy cy :r rad
-                            :stroke "rgb(0, 0, 0)"
-                            :fill "none"))
-                (svg:text scene (:x (- cx 2) :y (+ cy 3))  (svg:tspan (:font-size "10") txt))
-                )))))
+                  (when end-pt
+                    (let ((cx (+ (om-point-x center) (* (om-point-x end-pt) scale)))
+                          (cy (-  (om-point-y center) (* scale (om-point-y end-pt))))
+                          (col (omcol2svgcolorstr (or (color traj) (om-def-color :black))))
+                          (rad  (* 0.1 scale))
+                          (txt (format nil "~D" n )))
+                      (svg::draw scene
+                                 (:circle :cx cx :cy cy :r rad
+                                  :stroke "rgb(0, 0, 0)"
+                                  :fill col))
+                      (svg::draw scene
+                                 (:circle :cx cx :cy cy :r rad
+                                  :stroke "rgb(0, 0, 0)"
+                                  :fill "none"))
+                      (svg:text scene (:x (- cx 2) :y (+ cy 3))  (svg:tspan (:font-size "10") txt))
+                      )))))
 
         ;draw the time
         (svg:text scene (:x (+ margins 4) :y (+ margins 14))  (format nil "[~D, ~D]" start-time end-time ) " ms")
-  
-             (with-open-file (s pathname :direction :output :if-exists :supersede)
-               (svg::stream-out s scene)))
-        pathname
-        )))
+
+        (with-open-file (s pathname :direction :output :if-exists :supersede)
+          (svg::stream-out s scene)))
+      pathname
+      )))
 

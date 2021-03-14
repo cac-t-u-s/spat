@@ -2,17 +2,17 @@
 ;   spat library for OM#
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 
 ;===========================
-; FOREIGN LIB LOADER 
+; FOREIGN LIB LOADER
 ; @author: J. Bresson
 ;===========================
 
@@ -30,33 +30,33 @@
 
 (defun default-spatlib-path ()
   (merge-pathnames "Documents/Max 8/Packages/spat5/media/omspat/OmSpat.framework/OmSpat"
-   (om::om-user-home)
-   ))
+                   (om::om-user-home)
+                   ))
 
 (defun load-spat-lib ()
   (let ((sharedlibpath (get-pref-value :externals :spat5lib-path)))
-    
-    (if (and sharedlibpath (probe-file sharedlibpath)) 
-        
+
+    (if (and sharedlibpath (probe-file sharedlibpath))
+
         (progn (om-fi::om-load-foreign-library
                 "LIBOMSPAT"
                 `((:macosx ,sharedlibpath)
                   (:windows ,(om-fi::om-foreign-library-pathname "omspat.dll"))
                   (t (:default "omspat"))))
-          
+
           ;(when *load-pathname* ;; we are loading this...
           ;  (compile&load (merge-pathnames "omspat-api" *load-pathname*)))
 
           (spat::OmSpatInitialize)
           (spat::OmSpatSetVerbose t)
-              (om-print (spat::OmSpatGetVersion) "SPAT")
+          (om-print (spat::OmSpatGetVersion) "SPAT")
           (if (spat::OmSpatIsInitialized)
               (push :spat *features*)
             (om-print "Initialization Error." "SPAT"))
           )
-    
-     (om::om-beep-msg "Library OMSpat not found:~A. See Preferences/Externals" sharedlibpath))
-   
+
+      (om::om-beep-msg "Library OMSpat not found:~A. See Preferences/Externals" sharedlibpath))
+
     ))
 
 ;;(probe-file "C:\\Program Files (x86)\\LispWorks\\omspat.dll")

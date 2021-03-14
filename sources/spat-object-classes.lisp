@@ -2,17 +2,17 @@
 ;   spat library for OM#
 ;============================================================================
 ;
-;   This program is free software. For information on usage 
+;   This program is free software. For information on usage
 ;   and redistribution, see the "LICENSE" file in this distribution.
 ;
 ;   This program is distributed in the hope that it will be useful,
 ;   but WITHOUT ANY WARRANTY; without even the implied warranty of
-;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ;
 ;============================================================================
 
 ;===========================
-; SPAT-OBJECT OMClass definitions 
+; SPAT-OBJECT OMClass definitions
 ; @author: J. Bresson
 ;===========================
 
@@ -26,9 +26,9 @@
    (dsp-type :initarg :dsp-type :accessor dsp-type :initform "spat5.filterdesign")
    (controls :initarg :controls :accessor controls :initform nil :documentation "list of timed OSC-bundles"))
   (:default-initargs :default-frame-type 'osc-bundle :action 'render-audio)
-  (:documentation "A Spat sound processor. 
+  (:documentation "A Spat sound processor.
 
-Controls the transformation of a sound source using OSC bundles. 
+Controls the transformation of a sound source using OSC bundles.
 
 Offline rendering with SPAT-SYNTH."))
 
@@ -41,8 +41,8 @@ Offline rendering with SPAT-SYNTH."))
    (panning-type :accessor panning-type :initform "angular")
    (reverb :accessor reverb :initform nil)
    )
-  (:documentation "A Spat spatialization processor. 
+  (:documentation "A Spat spatialization processor.
 
-Controls the spatialization of a set of sound sources using 3D-trajectories and other controllers formatted as OSC bundles. 
+Controls the spatialization of a set of sound sources using 3D-trajectories and other controllers formatted as OSC bundles.
 
 Offline rendering with SPAT-SYNTH."))
