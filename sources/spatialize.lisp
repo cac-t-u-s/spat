@@ -90,7 +90,7 @@ If input is a multi-channel audio file, is channel is treated as a source for th
               (unwind-protect
                   (handler-bind ((error #'(lambda (e)
                                             (print (format nil "~A" e))
-                                            (print (spat::OmSpatGetLastError))
+                                            (print (string+ "Spat Error: " (spat::OmSpatGetLastError)))
                                             (spat::OmSpatClearLastError)
                                             (abort e))))
 
