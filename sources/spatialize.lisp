@@ -94,8 +94,9 @@ If input is a multi-channel audio file, is channel is treated as a source for th
                                             (spat::OmSpatClearLastError)
                                             (abort e))))
 
-                    (unless (spat-osc-command spat (messages oscb))
-                      (error "ERROR IN SPAT OSC-CONTROL PROCESSING"))
+                    (if (and (messages oscb)
+                             (null (spat-osc-command spat (messages oscb))))
+                        (error "ERROR IN SPAT OSC-CONTROL PROCESSING"))
 
                     ;(print (spat::OmSpatGetComponentType spat))
                     ;(print (spat-get-state spat))
