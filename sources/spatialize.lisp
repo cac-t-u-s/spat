@@ -57,8 +57,6 @@
         (odot::osc_decode_bundle_s_data state-bundle)
       (odot::osc_bundle_s_deepFree state-bundle))))
 
-;; (spat-osc-command spat '(("/panning/type" "binaural")))
-
 
 ;; (spat::omspatisvalidcomponenttype "spat.decoder~")
 
