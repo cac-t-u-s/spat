@@ -137,6 +137,11 @@
     ))
 
 
+(defun fix-speaker-data (positions)
+  (loop for spk in positions collect
+        (list (or (nth 0 spk) 0) (or (nth 1 spk) 0) (or (nth 2 spk) 0))))
+
+
 (defmethod ensure-init-state ((self spat-scene))
   (spat-osc-command
    (spat-controller self)
@@ -162,9 +167,7 @@
 
     (let ((speakers (find :speakers initargs :key 'car)))
       (when speakers
-        (setf (speakers self) (loop for spk in (cadr speakers) collect
-                                    (list (or (nth 0 spk) 0) (or (nth 1 spk) 0) (or (nth 2 spk) 0)))
-              )))
+        (setf (speakers self) (fix-speaker-data (cadr speakers)))))
 
     (setf (audio-in self) (list! (audio-in self))
           (trajectories self) (list! (trajectories self)))
