@@ -24,7 +24,7 @@
      (:name "Name" :string name)
      (:action "Action" :action action-accessor)
      (:interpol "Interpolation" ,(make-number-or-nil :min 20 :max 1000) interpol-accessor)
-     (:panning "Panning type" ("angular" "binaural" "vbap3d" "hoa3d") panning-type-accessor "angular")
+     (:panning "Panning type" ("angular" "binaural" "vbap3d" "hoa3d" "wfs") panning-type-accessor "angular")
      (:reverb "Reverb" :bool reverb-accessor nil)
      (:buffer-size "Buffer size" :number buffer-size-accessor))))
 
@@ -78,7 +78,8 @@
   '((panning-type (("angular" "angular")
                    ("binaural" "binaural")
                    ("vbap3d" "vbap3d")
-                   ("hoa3d" "hoa3d")))))
+                   ("hoa3d" "hoa3d")
+                   ("wfs" "wfs")))))
 
 (defmethod SpatDSPComponent-name ((self spat-scene))
   (if (reverb self) "spat5.spat~" "spat5.pan~"))
