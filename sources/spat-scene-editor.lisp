@@ -442,40 +442,41 @@
 
 ;;; add a source audio file selector and a "mute" check box on the left of the timelines
 (defmethod make-timeline-left-item ((self spat-scene-editor) id)
-  (let* ((src (nth id (audio-in (object-value self))))
-         (cb (om-make-di
-              'om-check-box :size (omp 15 15)
-              :enable src
-              :checked-p (and src (not (mute src)))
-              :di-action #'(lambda (b)
-                             (when src (setf (mute src) (not (om-checked-p b))))
-                             (update-display-contents self))))
-         (folder-b (om-make-graphic-object
-                    'om-icon-button :size (omp 15 15) :position (omp 0 0)
-                    :icon :folder :icon-pushed :folder-pushed
-                    :lock-push nil
-                    :action #'(lambda (b)
-                                (declare (ignore b))
-                                (let ((snd (om-init-instance (objFromObjs :choose-file (make-instance 'sound)))))
-                                  (when snd
-                                    (let* ((ss (object-value self))
-                                           (traj (nth id (trajectories ss)))
-                                           (point (make-default-tpoint-at-time traj (get-obj-dur snd))))
-                                      (setf (nth id (audio-in ss)) snd)
-                                      (time-sequence-insert-timed-item-and-update traj point))
-                                    (update-source-picts self)
-                                    (om-enable-dialog-item cb t)
-                                    (om-set-check-box cb t)
-                                    (reinit-ranges (timeline-editor self)))))
-                    )))
-    (om-make-layout
-     'om-row-layout :position (omp 0 0) :size (omp 30 15)
-     :subviews (list
-                (om-make-view
-                 'om-view :size (omp 15 15)
-                 :subviews (list folder-b))
-                cb))
-    ))
+  (if id
+      (let* ((src (nth id (audio-in (object-value self))))
+             (cb (om-make-di
+                  'om-check-box :size (omp 15 15)
+                  :enable src
+                  :checked-p (and src (not (mute src)))
+                  :di-action #'(lambda (b)
+                                 (when src (setf (mute src) (not (om-checked-p b))))
+                                 (update-display-contents self))))
+             (folder-b (om-make-graphic-object
+                        'om-icon-button :size (omp 15 15) :position (omp 0 0)
+                        :icon :folder :icon-pushed :folder-pushed
+                        :lock-push nil
+                        :action #'(lambda (b)
+                                    (declare (ignore b))
+                                    (let ((snd (om-init-instance (objFromObjs :choose-file (make-instance 'sound)))))
+                                      (when snd
+                                        (let* ((ss (object-value self))
+                                               (traj (nth id (trajectories ss)))
+                                               (point (make-default-tpoint-at-time traj (get-obj-dur snd))))
+                                          (setf (nth id (audio-in ss)) snd)
+                                          (time-sequence-insert-timed-item-and-update traj point))
+                                        (update-source-picts self)
+                                        (om-enable-dialog-item cb t)
+                                        (om-set-check-box cb t)
+                                        (reinit-ranges (timeline-editor self)))))
+                        )))
+        (om-make-layout
+         'om-row-layout :position (omp 0 0) :size (omp 30 15)
+         :subviews (list
+                    (om-make-view
+                     'om-view :size (omp 15 15)
+                     :subviews (list folder-b))
+                    cb))
+        (call-next-method))))
 
 
 ;;;====================================
