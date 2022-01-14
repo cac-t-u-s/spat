@@ -35,6 +35,7 @@
 
 (defmethod initialize-instance ((self spat-dsp) &rest initargs)
   (call-next-method)
+  (setf (slot-value self 'controls) (list! (slot-value self 'controls)))
   (data-stream-set-frames self (slot-value self 'controls))
   (setf (slot-value self 'controls) nil)
   self)

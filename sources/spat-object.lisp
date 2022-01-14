@@ -104,6 +104,8 @@
             )
     (setf (audio-in self) (list! (audio-in self))))
 
+  (setf (slot-value self 'controls) (list! (slot-value self 'controls)))
+
   (set-object-time-window self (* 4 (samples->ms (buffer-size self) (audio-sr self))))
   (spat-object-set-audio-dsp self)
   (spat-object-set-spat-controller self)
