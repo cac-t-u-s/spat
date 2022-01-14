@@ -4,9 +4,9 @@
  (:doc "")
  (:info
   (:created "2016/12/21 11:20:58")
-  (:modified "2020/08/01 18:09:22")
+  (:modified "2022/01/03 21:11:17")
   (:by "om-sharp")
-  (:version 1.0))
+  (:version 1.05))
  (:window (:size (1398 496)) (:position (113 274)))
  (:grid nil)
  (:lock nil)
@@ -17,7 +17,7 @@
    (:group-id nil)
    (:name "SOUND")
    (:x 48)
-   (:y 102)
+   (:y 117)
    (:w 138)
    (:h 67)
    (:color (:color 0.9 0.9 0.9 1.0))
@@ -30,6 +30,7 @@
    (:show-markers t)
    (:lock :locked)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -44,17 +45,31 @@
      (:class sound)
      (:slots
       ((:onset 0)
-       (:duration 0)
-       (:n-samples nil)
-       (:n-channels nil)
-       (:sample-rate nil)
+       (:duration 5377.483)
+       (:n-samples 237147)
+       (:n-channels 1)
+       (:sample-rate 44100)
        (:smpl-type :float)
        (:sample-size 16)))
      (:add-slots
       ((:markers nil)
        (:gain 1.0)
        (:access-from-file nil)
-       (:file-pathname nil)))))
+       (:file-pathname
+        (:pathname
+         (:directory
+          (:relative
+           :up
+           :up
+           :up
+           :up
+           "_SHARED-FILES"
+           "IN-FILES"
+           "SOUNDFILES"))
+         (:device :unspecific)
+         (:host :unspecific)
+         (:name "Bassclarinet2")
+         (:type "aif")))))))
    (:id 0))
   (:box
    (:type :object)
@@ -74,6 +89,7 @@
    (:showname t)
    (:lock :locked)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -101,7 +117,6 @@
      (:class osc-bundle)
      (:slots
       ((:onset 0)
-       (:item-time nil)
        (:item-internal-time nil)
        (:item-type nil)
        (:attributes nil)
@@ -119,7 +134,7 @@
    (:reference sound)
    (:group-id nil)
    (:name "SOUND")
-   (:x 120)
+   (:x 121)
    (:y 297)
    (:w 195)
    (:h 110)
@@ -133,6 +148,93 @@
    (:show-markers t)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
+   (:inputs
+    (:input
+     (:type :standard)
+     (:name "SELF")
+     (:value :choose-file)
+     (:reactive nil)))
+   (:outputs (:output (:name "SELF") (:reactive nil)))
+   (:window (:size (nil nil)) (:position (nil nil)))
+   (:edition-params)
+   (:value
+    (:object
+     (:class sound)
+     (:slots
+      ((:onset 0)
+       (:duration 5377.483)
+       (:n-samples 237147)
+       (:n-channels 4)
+       (:sample-rate 44100)
+       (:smpl-type :float)
+       (:sample-size 16)))
+     (:add-slots
+      ((:markers nil)
+       (:gain 1.0)
+       (:access-from-file nil)
+       (:file-pathname nil)))))
+   (:id 2))
+  (:box
+   (:type :value)
+   (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
+   (:group-id nil)
+   (:name "vb")
+   (:x 162)
+   (:y 184)
+   (:w 91)
+   (:h 29)
+   (:color (:color-or-nil (:color nil) (:t-or-nil nil)))
+   (:border 1.5)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :left)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value "spat5.pan~")
+   (:id 3))
+  (:box
+   (:type :value)
+   (:reference fixnum)
+   (:group-id nil)
+   (:name "vb")
+   (:x 215)
+   (:y 214)
+   (:w 32)
+   (:h 29)
+   (:color (:color-or-nil (:color nil) (:t-or-nil nil)))
+   (:border 1.5)
+   (:roundness nil)
+   (:text-font nil)
+   (:align :left)
+   (:lock nil)
+   (:reactive nil)
+   (:inputs)
+   (:outputs (:output (:name "value") (:reactive nil)))
+   (:value 4)
+   (:id 4))
+  (:box
+   (:type :object)
+   (:reference sound)
+   (:group-id nil)
+   (:name "SOUND")
+   (:x 684)
+   (:y 227)
+   (:w 138)
+   (:h 67)
+   (:color (:color 0.9 0.9 0.9 1.0))
+   (:border 1.5)
+   (:roundness nil)
+   (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
+   (:align :center)
+   (:display :mini-view)
+   (:showname nil)
+   (:show-markers t)
+   (:lock nil)
+   (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -149,89 +251,6 @@
       ((:onset 0)
        (:duration 3202.9375)
        (:n-samples 153741)
-       (:n-channels 4)
-       (:sample-rate 48000)
-       (:smpl-type :float)
-       (:sample-size 16)))
-     (:add-slots
-      ((:markers nil)
-       (:gain 1.0)
-       (:access-from-file nil)
-       (:file-pathname nil)))))
-   (:id 2))
-  (:box
-   (:type :value)
-   (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
-   (:group-id nil)
-   (:name "vb")
-   (:x 166)
-   (:y 164)
-   (:w 82)
-   (:h 30)
-   (:color (:color 0.9 0.9 0.9 1.0))
-   (:border 1.5)
-   (:roundness nil)
-   (:text-font nil)
-   (:align :left)
-   (:lock nil)
-   (:inputs)
-   (:outputs (:output (:name "value") (:reactive nil)))
-   (:value "spat5.pan~")
-   (:id 3))
-  (:box
-   (:type :value)
-   (:reference fixnum)
-   (:group-id nil)
-   (:name "vb")
-   (:x 213)
-   (:y 214)
-   (:w 32)
-   (:h 30)
-   (:color (:color 0.9 0.9 0.9 1.0))
-   (:border 1.5)
-   (:roundness nil)
-   (:text-font nil)
-   (:align :left)
-   (:lock nil)
-   (:inputs)
-   (:outputs (:output (:name "value") (:reactive nil)))
-   (:value 4)
-   (:id 4))
-  (:box
-   (:type :object)
-   (:reference sound)
-   (:group-id nil)
-   (:name "SOUND")
-   (:x 680)
-   (:y 227)
-   (:w 138)
-   (:h 67)
-   (:color (:color 0.9 0.9 0.9 1.0))
-   (:border 1.5)
-   (:roundness nil)
-   (:text-font (:font (:face "Verdana") (:size 10) (:style :italic)))
-   (:align :center)
-   (:display :mini-view)
-   (:showname nil)
-   (:show-markers t)
-   (:lock nil)
-   (:lambda nil)
-   (:inputs
-    (:input
-     (:type :standard)
-     (:name "SELF")
-     (:value :choose-file)
-     (:reactive nil)))
-   (:outputs (:output (:name "SELF") (:reactive nil)))
-   (:window (:size (nil nil)) (:position (nil nil)))
-   (:edition-params)
-   (:value
-    (:object
-     (:class sound)
-     (:slots
-      ((:onset 0)
-       (:duration 31129.418)
-       (:n-samples 1494212)
        (:n-channels 2)
        (:sample-rate 48000)
        (:smpl-type :float)
@@ -249,7 +268,7 @@
    (:name "OSC-BUNDLE")
    (:x 934)
    (:y 169)
-   (:w 142)
+   (:w 167)
    (:h 97)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border 1.5)
@@ -260,6 +279,7 @@
    (:showname nil)
    (:lock :locked)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -287,7 +307,6 @@
      (:class osc-bundle)
      (:slots
       ((:onset 0)
-       (:item-time nil)
        (:item-internal-time nil)
        (:item-type nil)
        (:attributes nil)
@@ -306,7 +325,7 @@
    (:reference sound)
    (:group-id nil)
    (:name "SOUND")
-   (:x 773)
+   (:x 774)
    (:y 359)
    (:w 235)
    (:h 91)
@@ -320,6 +339,7 @@
    (:show-markers t)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -334,9 +354,9 @@
      (:class sound)
      (:slots
       ((:onset 0)
-       (:duration 31129.418)
-       (:n-samples 1494212)
-       (:n-channels 21)
+       (:duration 3202.9375)
+       (:n-samples 153741)
+       (:n-channels 4)
        (:sample-rate 48000)
        (:smpl-type :float)
        (:sample-size 16)))
@@ -351,7 +371,7 @@
    (:reference (:symbol "SIMPLE-TEXT-STRING" "LISPWORKS"))
    (:group-id nil)
    (:name "vb")
-   (:x 839)
+   (:x 840)
    (:y 236)
    (:w 82)
    (:h 30)
@@ -361,6 +381,7 @@
    (:text-font nil)
    (:align :left)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value "spat5.pan~")
@@ -370,7 +391,7 @@
    (:reference fixnum)
    (:group-id nil)
    (:name "vb")
-   (:x 886)
+   (:x 888)
    (:y 264)
    (:w 32)
    (:h 30)
@@ -380,6 +401,7 @@
    (:text-font nil)
    (:align :left)
    (:lock nil)
+   (:reactive nil)
    (:inputs)
    (:outputs (:output (:name "value") (:reactive nil)))
    (:value 4)
@@ -403,6 +425,7 @@
    (:show-markers t)
    (:lock :locked)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -417,17 +440,31 @@
      (:class sound)
      (:slots
       ((:onset 0)
-       (:duration 0)
-       (:n-samples nil)
-       (:n-channels nil)
-       (:sample-rate nil)
+       (:duration 3202.9375)
+       (:n-samples 153741)
+       (:n-channels 1)
+       (:sample-rate 48000)
        (:smpl-type :float)
-       (:sample-size 16)))
+       (:sample-size 24)))
      (:add-slots
       ((:markers nil)
        (:gain 1.0)
        (:access-from-file nil)
-       (:file-pathname nil)))))
+       (:file-pathname
+        (:pathname
+         (:directory
+          (:relative
+           :up
+           :up
+           :up
+           :up
+           "_SHARED-FILES"
+           "IN-FILES"
+           "SOUNDFILES"))
+         (:device :unspecific)
+         (:host :unspecific)
+         (:name "basmba")
+         (:type "aiff")))))))
    (:id 10))
   (:box
    (:type :object)
@@ -448,6 +485,7 @@
    (:show-markers t)
    (:lock :locked)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -462,24 +500,38 @@
      (:class sound)
      (:slots
       ((:onset 0)
-       (:duration 0)
-       (:n-samples nil)
-       (:n-channels nil)
-       (:sample-rate nil)
+       (:duration 2825.4422)
+       (:n-samples 124602)
+       (:n-channels 1)
+       (:sample-rate 44100)
        (:smpl-type :float)
        (:sample-size 16)))
      (:add-slots
       ((:markers nil)
        (:gain 1.0)
        (:access-from-file nil)
-       (:file-pathname nil)))))
+       (:file-pathname
+        (:pathname
+         (:directory
+          (:relative
+           :up
+           :up
+           :up
+           :up
+           "_SHARED-FILES"
+           "IN-FILES"
+           "SOUNDFILES"))
+         (:device :unspecific)
+         (:host :unspecific)
+         (:name "Bassclarinet1")
+         (:type "aif")))))))
    (:id 11))
   (:box
    (:type :function)
    (:reference sound-merge)
    (:group-id nil)
    (:name "sound-merge")
-   (:x 693)
+   (:x 697)
    (:y 182)
    (:w 112)
    (:h 29)
@@ -491,6 +543,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -506,7 +559,7 @@
    (:name "list")
    (:x 727)
    (:y 146)
-   (:w 54)
+   (:w 62)
    (:h 29)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border 1.5)
@@ -516,6 +569,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input (:type :optional) (:name "x") (:value nil) (:reactive nil))
     (:input
@@ -533,7 +587,7 @@
    (:name "spat-process")
    (:x 842)
    (:y 306)
-   (:w 108)
+   (:w 111)
    (:h 29)
    (:color nil)
    (:border nil)
@@ -543,6 +597,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -573,8 +628,8 @@
    (:group-id nil)
    (:name "spat-process")
    (:x 169)
-   (:y 246)
-   (:w 108)
+   (:y 253)
+   (:w 111)
    (:h 29)
    (:color nil)
    (:border nil)
@@ -584,6 +639,7 @@
    (:icon :left)
    (:lock nil)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -609,9 +665,9 @@
    (:id 15))
   (:comment
    (:x 599)
-   (:y 41)
-   (:w 149)
-   (:h 21)
+   (:y 48)
+   (:w 200)
+   (:h 22)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border (:number-or-nil (:number 0.0) (:t-or-nil t)))
@@ -621,9 +677,9 @@
    (:text "Processing several sources...")
    (:id 16))
   (:comment
-   (:x 301)
-   (:y 214)
-   (:w 173)
+   (:x 304)
+   (:y 196)
+   (:w 189)
    (:h 36)
    (:fgcolor nil)
    (:bgcolor nil)
@@ -634,31 +690,27 @@
    (:text "OSC-Bundle containing OSC-formatted spat messages")
    (:id 17))
   (:comment
-   (:x 48)
-   (:y 39)
-   (:w 461)
-   (:h 23)
+   (:x 65)
+   (:y 47)
+   (:w 392)
+   (:h 22)
    (:fgcolor nil)
    (:bgcolor nil)
    (:border (:number-or-nil (:number 0.0) (:t-or-nil t)))
    (:roundness nil)
-   (:text-font
-    (:font-or-nil
-     (:font (:font (:face "Calibri") (:size 14) (:style :bold)))
-     (:t-or-nil t)))
+   (:text-font (:font-or-nil (:font nil) (:t-or-nil nil)))
    (:align nil)
-   (:text
-    "SPAT-PROCESS: using spat5 DSP processors to process audio files and buffers ")
+   (:text "Using spat5 processors to process audio files and buffers ")
    (:id 18))
   (:box
    (:type :object)
    (:reference osc-bundle)
    (:group-id nil)
    (:name "OSC-BUNDLE")
-   (:x 1157)
-   (:y 55)
-   (:w 159)
-   (:h 285)
+   (:x 1158)
+   (:y 60)
+   (:w 172)
+   (:h 339)
    (:color (:color 0.9 0.9 0.9 1.0))
    (:border 1.5)
    (:roundness nil)
@@ -668,6 +720,7 @@
    (:showname nil)
    (:lock :locked)
    (:lambda nil)
+   (:reactive nil)
    (:inputs
     (:input
      (:type :standard)
@@ -695,7 +748,6 @@
      (:class osc-bundle)
      (:slots
       ((:onset 0)
-       (:item-time nil)
        (:item-internal-time nil)
        (:item-type nil)
        (:attributes nil)
@@ -727,7 +779,23 @@
          (:list "/speaker/23/aed" -72 57 1)
          (:list "/speaker/24/aed" -90 90 1)
          (:list "/panning/type" "vbap3d")))))))
-   (:id 19)))
+   (:id 19))
+  (:comment
+   (:x 63)
+   (:y 21)
+   (:w 119)
+   (:h 30)
+   (:fgcolor nil)
+   (:bgcolor nil)
+   (:border (:number-or-nil (:number 0.0) (:t-or-nil t)))
+   (:roundness nil)
+   (:text-font
+    (:font-or-nil
+     (:font (:font (:face "Calibri") (:size 18) (:style :bold)))
+     (:t-or-nil t)))
+   (:align nil)
+   (:text "SPAT-PROCESS")
+   (:id 20)))
  (:connections
   (:connection (:from (:box 0 :out 0)) (:to (:box 15 :in 0)))
   (:connection (:from (:box 1 :out 0)) (:to (:box 15 :in 3)))
