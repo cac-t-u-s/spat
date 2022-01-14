@@ -98,10 +98,11 @@
   ; maybe better to round it ?
 
   (if (find-value-in-kv-list args :audio-in)
+
       (setf (audio-in self)
             (loop for s in (list! (find-value-in-kv-list args :audio-in))
-                  collect (get-sound (om-copy s)))
-            )
+                  collect (get-sound (om-copy s))))
+
     (setf (audio-in self) (list! (audio-in self))))
 
   (setf (slot-value self 'controls) (list! (slot-value self 'controls)))

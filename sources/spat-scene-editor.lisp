@@ -121,10 +121,8 @@
   (update-to-editor (3dc-editor editor) from))
 
 
-
 (defmethod editor-close :before ((editor spat-scene-editor))
   (editor-close (3dc-editor editor)))
-
 
 
 ;;=========================
@@ -269,17 +267,13 @@
     ))
 
 
-
-
 (defmethod spat-view-init ((self spat-scene-editor))
   (case (editor-get-edit-param self :view-mode)
     (:spat
-     (spat-editor-set-spat-component self)
-     )
+     (spat-editor-set-spat-component self))
     (:3dc
      (enable-multi-display (3DC-editor self) (trajectories (object-value self)))
-     (init-editor-window (3DC-editor self))
-     )
+     (init-editor-window (3DC-editor self)))
     ))
 
 
@@ -287,8 +281,6 @@
 
   (cond
    ((equal mode :spat)
-
-
     (om-remove-all-subviews (get-g-component editor :spat-view-container))
 
     (om-add-subviews
@@ -300,7 +292,6 @@
     (activate-spat-callback editor))
 
    ((equal mode :3dc)
-
     (spat-editor-remove-spat-component editor)
     (om-remove-all-subviews (get-g-component editor :spat-view-container))
     (setf (spat-view editor) nil)
@@ -317,8 +308,7 @@
     (enable-multi-display (3DC-editor editor) (trajectories (object-value editor)))
     (init-editor-window (3DC-editor editor))
 
-    )
-   )
+    ))
 
   (editor-set-edit-param editor :view-mode mode)
   (update-display-contents editor)
@@ -345,8 +335,7 @@
 
       (:3dc
        (editor-set-edit-param (3dc-editor editor) :background (make-bg-speakers (speakers (object-value editor))))
-       (update-editor-3d-object (3dc-editor editor))
-       )
+       (update-editor-3d-object (3dc-editor editor)))
 
       (:spat
        (spat-osc-command
@@ -423,7 +412,6 @@
       )))
 
 
-
 (defmethod select-source ((editor spat-scene-editor) (n number))
 
   (setf (selected-sources editor) (list n))
@@ -442,7 +430,6 @@
                                  (build-selected-source-items editor)))
 
   (editor-invalidate-views (3DC-editor editor)))
-
 
 
 (defmethod editor-delete-contents-from-timeline ((self spat-scene-editor) timeline-id sel)
@@ -537,9 +524,7 @@
                     (coerce (om-color-b col) 'single-float)
                     (if (and src (mute src)) 0.2 1.0)))
              ))
-         )
-   )
-  )
+         )))
 
 
 ;;======================
@@ -551,14 +536,14 @@
     (if p (om-point-set-values-from-point p new-p)
       (progn
         (om-point-set new-p :time time)
-        (time-sequence-insert-timed-item-and-update self new-p)))))
+        (time-sequence-insert-timed-item-and-update self new-p)
+        ))))
 
 (defun source-moved-callback (editor n pos)
   (let* ((ss (object-value editor))
          (traj (nth n (trajectories ss))))
     (update-position-at-time traj (make-3Dpoint :x (nth 0 pos) :y (nth 1 pos) :z (nth 2 pos))
                              (or (get-cursor-time (timeline-editor editor)) 0))
-    ;;(report-modifications editor)
     ))
 
 (defun source-selected-callback (editor n t-or-nil)
@@ -566,8 +551,7 @@
     (set-selected-timelines (timeline-editor editor)
                             (if t-or-nil
                                 (cons n (get-selected-timelines (timeline-editor editor)))
-                              (remove n (get-selected-timelines (timeline-editor editor)) :test '=))
-                            )
+                              (remove n (get-selected-timelines (timeline-editor editor)) :test '=)))
     ))
 
 (defun source-dbclick-callback (editor n) (declare (ignore editor n)) nil)

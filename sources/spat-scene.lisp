@@ -422,7 +422,7 @@
 ;;; SYNTH
 ;;;===============================================
 
-;;; RETURNS THE POSITIONS FRO EACH SOURCE
+;;; RETURNS THE POSITIONS FOR EACH SOURCE
 (defmethod spat-object-get-process-messages-at-time ((self spat-scene) time-ms)
   (remove
    nil
