@@ -105,7 +105,7 @@
 (defmethod spat-object-init-DSP-messages ((self spat-scene))
   (append (call-next-method)
           `(("/panning/type" ,(panning-type self))
-            ("/speakers/xyz" ,.(apply 'append (speakers self))))))
+            ("/speakers/xyz" ,.(apply 'append (fix-speaker-data (speakers self)))))))
 
 
 ;;;======================================================
@@ -149,7 +149,7 @@
     `(("/set/source/number" ,(length (audio-in self)))
       ("/set/speaker/number" ,(length (speakers self)))
       ("/set/format" "xyz"))
-    (loop for spk in (speakers self) for n = 1 then (1+ n) append
+    (loop for spk in (fix-speaker-data (speakers self)) for n = 1 then (1+ n) append
           (list (cons (format nil "/set/speaker/~D/xyz" n) spk)
                 (list (format nil "/set/speaker/~D/editable" n) 0))
           )
