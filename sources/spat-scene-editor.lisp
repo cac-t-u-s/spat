@@ -534,7 +534,9 @@
 
 (defmethod update-position-at-time ((self time-sequence) new-p time)
   (let ((p (point-exists-at-time self time)))
-    (if p (om-point-set-values-from-point p new-p)
+    (if p (om-point-set p :x (3dpoint-x new-p)
+                        :y (3dpoint-y new-p)
+                        :z (3dpoint-z new-p))
       (progn
         (om-point-set new-p :time time)
         (time-sequence-insert-timed-item-and-update self new-p)
