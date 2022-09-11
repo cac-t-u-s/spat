@@ -262,7 +262,8 @@
   )
 
 (defmethod spat-object-init-GUI-messages ((editor spat-editor))
-  (messages (car (controls (object-value editor)))))
+  (when (controls (object-value editor))
+    (messages (car (controls (object-value editor))))))
 
 (defmethod init-messages-to-spat-viewer ((editor spat-editor))
   (when (and (spat-view editor) (spat-GUI-component (spat-view editor)))
