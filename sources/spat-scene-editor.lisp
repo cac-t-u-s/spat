@@ -498,7 +498,7 @@
   (append
    `(("/speaker/number" ,(length (speakers ss))))
    `(,(cons "/speakers/xyz" (apply #'append (speakers ss))))
-   (loop for spk in (speakers ss) for n = 1 then (1+ n) collect
+   (loop for n from 1 to (length (speakers ss)) collect
          (list (format nil "/speaker/~D/editable" n) 1))
    ))
 
