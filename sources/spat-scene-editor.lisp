@@ -155,17 +155,17 @@
   (let* ((selection (car (get-selected-timelines (timeline-editor self))))
          (traj (and selection (nth selection (trajectories (object-value self))))))
     (list
-     (om-make-di 'om-simple-text :text "SELECTION" :font (om-def-font :font1b) :size (om-make-point 60 18))
+     (om-make-di 'om-simple-text :text "SELECTION" :font (om-def-font :gui-b) :size (om-make-point 100 18))
      (om-make-layout
       'om-row-layout
       :subviews (list
-                 (om-make-di 'om-simple-text :text "Name" :font (om-def-font :font1b) :size (om-make-point 60 18)
+                 (om-make-di 'om-simple-text :text "Name" :font (om-def-font :gui-b) :size (om-make-point 60 18)
                              :color (if traj (om-def-color :black) (om-def-color :gray)))
                  (when traj (make-prop-item :string :name traj :default nil :update self))))
      (om-make-layout
       'om-row-layout
       :subviews (list
-                 (om-make-di 'om-simple-text :text "Color" :font (om-def-font :font1b) :size (om-make-point 60 18)
+                 (om-make-di 'om-simple-text :text "Color" :font (om-def-font :gui-b) :size (om-make-point 60 18)
                              :color (if traj (om-def-color :black) (om-def-color :gray)))
                  (when traj (make-prop-item :color :color traj :default nil :update self))))
      )))
@@ -179,7 +179,7 @@
                         'om-popup-list :items '(:spat :3dc)
                         :value (editor-get-edit-param editor :view-mode)
                         :size (omp 120 24)
-                        :font (om-def-font :font1)
+                        :font (om-def-font :gui)
                         :di-action #'(lambda (b)
                                        (case (om-get-selected-item-index b)
                                          (0 (unless (equal (editor-get-edit-param editor :view-mode) :spat)
@@ -192,8 +192,8 @@
                           'om-row-layout
                           :subviews (list
                                      (om-make-di 'om-simple-text :text "SOURCES"
-                                                 :font (om-def-font :font1b)
-                                                 :size (om-make-point 50 18))
+                                                 :font (om-def-font :gui-b)
+                                                 :size (om-make-point 60 18))
 
                                      (om-make-di 'om-button :text "+"
                                                  :size (omp 40 24)
@@ -669,8 +669,3 @@
       (call-next-method)
       )
   )
-
-
-
-
-

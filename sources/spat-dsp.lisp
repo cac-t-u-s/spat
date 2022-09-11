@@ -210,7 +210,7 @@
                                nil
                                (om-make-di 'om-check-box
                                            :text "dynamic filter edit" :size (omp 150 24)
-                                           :font (om-def-font :font1)
+                                           :font (om-def-font :small)
                                            :checked-p (editor-get-edit-param editor :dynamic-edit)
                                            :di-action #'(lambda (item)
                                                           (editor-set-edit-param editor :dynamic-edit (om-checked-p item))))
