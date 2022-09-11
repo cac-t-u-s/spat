@@ -313,7 +313,7 @@
    (list
     (om-make-graphic-object
      'om-icon-button :size (omp 15 15) :position (omp 0 0)
-     :icon :folder :icon-pushed :folder-pushed
+     :icon :folder-button :icon-pushed :folder-button-pushed
      :lock-push nil
      :action #'(lambda (b)
                  (declare (ignore b))
