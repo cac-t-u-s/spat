@@ -261,7 +261,7 @@
 ;     (equal (action (object-value self)) 'render-audio))
 
 (defmethod update-spat-display ((self spat-dsp-editor))
-  (when (window self)
+  (when (and spat::*spat* (window self))
     (let* ((spatobject (object-value self))
            (spatview (spat-view self))
            (spatguicomponent (spat-GUI-component spatview)))

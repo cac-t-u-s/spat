@@ -36,7 +36,7 @@
 
 (defmethod om-view-resized ((self spat-view) size)
   (call-next-method)
-  (when (spat-GUI-component self)
+  (when (and spat::*spat* (spat-GUI-component self))
     (spat::OmSpatSetWindowSize (spat-GUI-component self) (w self) (h self))))
 
 
@@ -186,7 +186,7 @@
 
     (let ((ctrl-comp-name (SpatControllerComponent-name spat-object)))
 
-      (when ctrl-comp-name
+      (when (and spat::*spat* ctrl-comp-name)
 
         (if (spat::omspatisvalidcomponenttype ctrl-comp-name)
 
@@ -213,12 +213,13 @@
 
 ;;; sometimes we want to do this later (to avoid receive all initialization callbacks...)
 (defmethod activate-spat-callback ((editor spat-editor))
-  (when (spat-view editor)
+  (when (and spat::*spat* (spat-view editor))
     (spat::spat-component-register-callback (spat-GUI-component (spat-view editor)))))
 
 (defmethod spat-editor-remove-spat-component ((editor spat-editor))
 
-  (when (and (window editor)
+  (when (and spat::*spat*
+             (window editor)
              (spat-view editor)
              (spat-GUI-component (spat-view editor)))
 

@@ -16,13 +16,13 @@
 ; @author: J. Bresson
 ;===========================
 
-(in-package :om)
+(in-package :spat)
 
-(add-lib-alias "om-spat" "om-spat5")
+(om::add-lib-alias "om-spat" "om-spat5")
 
-(require-om-package "sound")
+(om::require-om-package "sound")
 
-(require-library "odot")
+(om::require-library "odot")
 
 
 ;;; if the library is included in teh lib release, taht would be here:
@@ -33,27 +33,33 @@
                    (om::om-user-home)
                    ))
 
+(defparameter *spat* nil)
+
 (defun load-spat-lib ()
-  (let ((sharedlibpath (get-pref-value :externals :spat5lib-path)))
+  (let ((sharedlibpath (om::get-pref-value :externals :spat5lib-path)))
 
     (if (and sharedlibpath (probe-file sharedlibpath))
 
-        (progn (om-fi::om-load-foreign-library
-                "LIBOMSPAT"
-                `((:macosx ,sharedlibpath)
-                  (:windows ,(om-fi::om-foreign-library-pathname "omspat.dll"))
-                  (t (:default "omspat"))))
-
+        (let ((lib (om-fi::om-load-foreign-library
+                    "LIBOMSPAT"
+                    `((:macosx ,sharedlibpath)
+                      (:windows ,(om-fi::om-foreign-library-pathname "omspat.dll"))
+                      (t (:default "omspat"))))))
+          
+          (if lib
           ;(when *load-pathname* ;; we are loading this...
           ;  (compile&load (merge-pathnames "omspat-api" *load-pathname*)))
-
-          (spat::OmSpatInitialize)
-          (spat::OmSpatSetVerbose t)
-          (om-print (spat::OmSpatGetVersion) "SPAT")
-          (if (spat::OmSpatIsInitialized)
-              (push :spat *features*)
-            (om-print "Initialization Error." "SPAT"))
-          )
+              (progn 
+                (setf *spat* t)
+                (spat::OmSpatInitialize)
+                (spat::OmSpatSetVerbose t)
+                (om::om-print (spat::OmSpatGetVersion) "SPAT")
+                (if (spat::OmSpatIsInitialized)
+                    (push :spat *features*)
+                  (om-print "Initialization Error." "SPAT"))
+                )
+            (om::om-message-dialog "Warning: Spat shared library could not be loaded.")
+            ))
 
       (om::om-beep-msg "Library OMSpat not found:~A. See Preferences/Externals" sharedlibpath))
 

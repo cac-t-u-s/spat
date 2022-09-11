@@ -108,8 +108,9 @@
   (setf (slot-value self 'controls) (list! (slot-value self 'controls)))
 
   (set-object-time-window self (* 4 (samples->ms (buffer-size self) (audio-sr self))))
-  (spat-object-set-audio-dsp self)
-  (spat-object-set-spat-controller self)
+  (when spat::*spat*
+    (spat-object-set-audio-dsp self)
+    (spat-object-set-spat-controller self))
 
   (ensure-init-state self)
 
@@ -377,49 +378,52 @@
 if <to-file> is NIL the generated sound is just stored in a buffer in RAM.
 If it contains a pathname, the sound in store on a file a this location."
 
-  (let* ((sp (om-copy self))
-         (buffer-size (buffer-size sp))
-         (total-size (ms->samples (get-obj-dur sp) (audio-sr sp)))
-         (out-buffer (make-om-sound-buffer-gc
-                      :nch (n-channels-out sp)
-                      :ptr (make-audio-buffer (n-channels-out sp) total-size))))
+  (if spat::*spat*
+      (let* ((sp (om-copy self))
+             (buffer-size (buffer-size sp))
+             (total-size (ms->samples (get-obj-dur sp) (audio-sr sp)))
+             (out-buffer (make-om-sound-buffer-gc
+                          :nch (n-channels-out sp)
+                          :ptr (make-audio-buffer (n-channels-out sp) total-size))))
 
-    (spat-osc-command (spat-processor self) '(("/dsp/clear")))
-    (spat-osc-command (spat-processor self) (spat-object-init-DSP-messages self))
-    ;;; messages from the first bundle (with "/set/...")
-    (spat-osc-command (spat-controller self)  (append-set-to-state-messages (messages (car (controls self)))))
-    (spat-osc-command (spat-processor self) (append-set-to-state-messages (spat-get-dsp-commands (spat-controller self))))
+        (spat-osc-command (spat-processor self) '(("/dsp/clear")))
+        (spat-osc-command (spat-processor self) (spat-object-init-DSP-messages self))
+        ;;; messages from the first bundle (with "/set/...")
+        (when (controls self)
+          (spat-osc-command (spat-controller self)  (append-set-to-state-messages (messages (car (controls self))))))
+        (spat-osc-command (spat-processor self) (append-set-to-state-messages (spat-get-dsp-commands (spat-controller self))))
 
-    (loop for smp = 0 then (+ smp buffer-size)
-          while (< smp total-size) do
+        (loop for smp = 0 then (+ smp buffer-size)
+              while (< smp total-size) do
 
-          (let ((smp2 (min total-size (1- (+ smp buffer-size)))))
+              (let ((smp2 (min total-size (1- (+ smp buffer-size)))))
 
-            (om-print-dbg "Processing samples ~A to ~A" (list smp smp2) "OM-SPAT")
-            (spat-object-process-dsp sp smp smp2)
+                (om-print-dbg "Processing samples ~A to ~A" (list smp smp2) "OM-SPAT")
+                (spat-object-process-dsp sp smp smp2)
 
-            (spat-object-copy-output-to-buffer
-             sp (om-sound-buffer-ptr out-buffer)
-             (1+ (- smp2 smp)) smp)
-            ))
+                (spat-object-copy-output-to-buffer
+                 sp (om-sound-buffer-ptr out-buffer)
+                 (1+ (- smp2 smp)) smp)
+                ))
 
-    (om-print-dbg "Done! (~A channels)" (list (n-channels-out sp)) "OM-SPAT")
+        (om-print-dbg "Done! (~A channels)" (list (n-channels-out sp)) "OM-SPAT")
 
-    (let ((sound (make-instance 'sound :buffer out-buffer
-                                :n-samples total-size
-                                :n-channels (n-channels-out sp)
-                                :sample-rate (audio-sr sp)
-                                )))
+        (let ((sound (make-instance 'sound :buffer out-buffer
+                                    :n-samples total-size
+                                    :n-channels (n-channels-out sp)
+                                    :sample-rate (audio-sr sp)
+                                    )))
 
-      (when to-file
-        (unless (pathname-directory to-file)
-          (setf to-file (outfile to-file)))
-        (setf (file-pathname sound) (handle-new-file-exists to-file))
-        (setf (access-from-file sound) t))
+          (when to-file
+            (unless (pathname-directory to-file)
+              (setf to-file (outfile to-file)))
+            (setf (file-pathname sound) (handle-new-file-exists to-file))
+            (setf (access-from-file sound) t))
 
-      (om-init-instance sound)
-      sound)
-    ))
+          (om-init-instance sound)
+          sound))
+
+    (om-beep-msg "Spat not available!")))
 
 
 

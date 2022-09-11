@@ -338,15 +338,16 @@
        (update-editor-3d-object (3dc-editor editor)))
 
       (:spat
-       (spat-osc-command
-        (spat-GUI-component (spat-view editor))
-        (append-set-to-state-messages
-         (append (spat-scene-speakers-messages (object-value editor))
-                 (spat-scene-sources-messages (object-value editor)
-                                              (or (get-cursor-time (timeline-editor editor)) 0)
-                                              (selected-sources editor))
-                 ))
-        (spat-view editor))
+       (when spat::*spat*
+         (spat-osc-command
+          (spat-GUI-component (spat-view editor))
+          (append-set-to-state-messages
+           (append (spat-scene-speakers-messages (object-value editor))
+                   (spat-scene-sources-messages (object-value editor)
+                                                (or (get-cursor-time (timeline-editor editor)) 0)
+                                                (selected-sources editor))
+                   ))
+          (spat-view editor)))
        ))
     ))
 

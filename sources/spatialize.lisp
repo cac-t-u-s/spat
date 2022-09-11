@@ -72,59 +72,61 @@
 
 If input is a multi-channel audio file, is channel is treated as a source for the spat DSP object.
 "
-  (if (spat::omspatisvalidcomponenttype spat-comp)
-      (with-audio-buffer (in-buffer input)
-        (when in-buffer ;;; guarantees that the audio samples are temporaily loaded in b
+  (if spat::*spat*
+      (if (spat::omspatisvalidcomponenttype spat-comp)
+          (with-audio-buffer (in-buffer input)
+            (when in-buffer ;;; guarantees that the audio samples are temporaily loaded in b
 
-          (let ((spat (spat::OmSpatCreateDspComponentWithType spat-comp (n-channels input) n-outputs))
-                (out-buffer (fli:allocate-foreign-object :type :pointer :nelems n-outputs)))
+              (let ((spat (spat::OmSpatCreateDspComponentWithType spat-comp (n-channels input) n-outputs))
+                    (out-buffer (fli:allocate-foreign-object :type :pointer :nelems n-outputs)))
 
-            ;;; allocate the out buffer channels
-            (dotimes (ch n-outputs)
-              (setf (fli:dereference out-buffer :index ch :type :pointer)
-                    (fli:allocate-foreign-object :type :float :nelems (n-samples input) :initial-element 0.0)))
+                ;;; allocate the out buffer channels
+                (dotimes (ch n-outputs)
+                  (setf (fli:dereference out-buffer :index ch :type :pointer)
+                        (fli:allocate-foreign-object :type :float :nelems (n-samples input) :initial-element 0.0)))
 
-            (let ((spat-in (spat::allocate-spat-audiobuffer :channels (n-channels input) :size (n-samples input) :data (om-sound-buffer-ptr in-buffer)))
-                  (spat-out (spat::allocate-spat-audiobuffer :channels n-outputs :size (n-samples input) :data out-buffer)))
+                (let ((spat-in (spat::allocate-spat-audiobuffer :channels (n-channels input) :size (n-samples input) :data (om-sound-buffer-ptr in-buffer)))
+                      (spat-out (spat::allocate-spat-audiobuffer :channels n-outputs :size (n-samples input) :data out-buffer)))
 
-              (unwind-protect
-                  (handler-bind ((error #'(lambda (e)
-                                            (print (format nil "~A" e))
-                                            (print (string+ "Spat Error: " (spat::OmSpatGetLastError)))
-                                            (spat::OmSpatClearLastError)
-                                            (abort e))))
+                  (unwind-protect
+                      (handler-bind ((error #'(lambda (e)
+                                                (print (format nil "~A" e))
+                                                (print (string+ "Spat Error: " (spat::OmSpatGetLastError)))
+                                                (spat::OmSpatClearLastError)
+                                                (abort e))))
 
-                    (if (and (messages oscb)
-                             (null (spat-osc-command spat (messages oscb))))
-                        (error "ERROR IN SPAT OSC-CONTROL PROCESSING"))
+                        (if (and (messages oscb)
+                                 (null (spat-osc-command spat (messages oscb))))
+                            (error "ERROR IN SPAT OSC-CONTROL PROCESSING"))
 
                     ;(print (spat::OmSpatGetComponentType spat))
                     ;(print (spat-get-state spat))
 
-                    (unless (spat::OmSpatProcessAudio spat spat-out spat-in (n-samples input))
-                      (error "ERROR IN SPAT DSP"))
+                        (unless (spat::OmSpatProcessAudio spat spat-out spat-in (n-samples input))
+                          (error "ERROR IN SPAT DSP"))
 
-                    (when out-buffer ;;; now contains spatialized audio tracks
-                      (let ((out-snd (make-instance 'sound :buffer (make-om-sound-buffer :ptr out-buffer :count 1 :nch n-outputs)
-                                                    :n-samples (n-samples input)
-                                                    :n-channels n-outputs
-                                                    :sample-rate (sample-rate input))
-                                     ))
+                        (when out-buffer ;;; now contains spatialized audio tracks
+                          (let ((out-snd (make-instance 'sound :buffer (make-om-sound-buffer :ptr out-buffer :count 1 :nch n-outputs)
+                                                        :n-samples (n-samples input)
+                                                        :n-channels n-outputs
+                                                        :sample-rate (sample-rate input))
+                                         ))
 
-                        (when to-file
-                          (unless (pathname-directory to-file)
-                            (setf to-file (outfile to-file)))
-                          (setf (file-pathname out-snd) (handle-new-file-exists to-file))
-                          (setf (access-from-file out-snd) t))
+                            (when to-file
+                              (unless (pathname-directory to-file)
+                                (setf to-file (outfile to-file)))
+                              (setf (file-pathname out-snd) (handle-new-file-exists to-file))
+                              (setf (access-from-file out-snd) t))
 
-                        out-snd))
+                            out-snd))
+                        )
+                    ;;; cleanup forms
+                    (spat::free-spat-audiobuffer spat-in)
+                    (spat::free-spat-audiobuffer spat-out)
+                    (spat::omspatfreecomponent spat)
                     )
-                ;;; cleanup forms
-                (spat::free-spat-audiobuffer spat-in)
-                (spat::free-spat-audiobuffer spat-out)
-                (spat::omspatfreecomponent spat)
-                )
-              )
-            )))
-    (om-beep-msg "Invalid Spat component: ~A" spat-comp)
+                  )
+                )))
+        (om-beep-msg "Invalid Spat component: ~A" spat-comp))
+    (om-beep-msg "Spat not available!")
     ))

@@ -144,17 +144,18 @@
 
 
 (defmethod ensure-init-state ((self spat-scene))
-  (spat-osc-command
-   (spat-controller self)
-   (append
-    `(("/set/source/number" ,(length (audio-in self)))
-      ("/set/speaker/number" ,(length (speakers self)))
-      ("/set/format" "xyz"))
-    (loop for spk in (fix-speaker-data (speakers self)) for n = 1 then (1+ n) append
+  (when spat::*spat*
+    (spat-osc-command
+     (spat-controller self)
+     (append
+      `(("/set/source/number" ,(length (audio-in self)))
+        ("/set/speaker/number" ,(length (speakers self)))
+        ("/set/format" "xyz"))
+      (loop for spk in (fix-speaker-data (speakers self)) for n = 1 then (1+ n) append
           (list (cons (format nil "/set/speaker/~D/xyz" n) spk)
                 (list (format nil "/set/speaker/~D/editable" n) 0))
           )
-    ))
+      )))
   (call-next-method))
 
 
