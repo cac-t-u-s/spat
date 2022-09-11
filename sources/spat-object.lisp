@@ -448,14 +448,14 @@ If it contains a pathname, the sound in store on a file a this location."
 
 (defmethod get-action-list-for-play ((self spat-object) interval &optional parent)
   (when (action self)
-    (if (equal (action self) 'render-audio)
+    (if (equal (action self) '(render-audio))
         (external-player-actions self interval parent)
-      (spat-object-actions self interval)
-      )))
+      (spat-object-actions self interval))
+      ))
 
 ;;; returns this in 'render-audio' mode
 (defmethod get-computation-list-for-play ((self spat-object) &optional interval)
-  (when (equal (action self) 'render-audio)
+  (when (equal (action self) '(render-audio))
     (spat-object-audio-actions self (car interval) (cadr interval))))
 
 ;;; to redefine by subclasses
@@ -529,8 +529,7 @@ If it contains a pathname, the sound in store on a file a this location."
 (defmethod player-play-object ((self scheduler) (object spat-object) caller &key parent interval)
   (declare (ignore parent))
   (call-next-method)
-
-  (when (equal (action object) 'render-audio)
+  (when (equal (action object) '(render-audio))
 
     (unless (buffer-player object) (set-play-buffer object))
 
@@ -541,14 +540,14 @@ If it contains a pathname, the sound in store on a file a this location."
   )
 
 (defmethod player-stop-object ((self scheduler) (object spat-object))
-  (when (and (equal (action object) 'render-audio)
+  (when (and (equal (action object) '(render-audio))
              (buffer-player object))
     (stop-buffer-player (buffer-player object))
     (spat-osc-command (spat-processor object) '(("/dsp/clear"))))
   (call-next-method))
 
 (defmethod player-pause-object ((self scheduler) (object spat-object))
-  (when (and (equal (action object) 'render-audio)
+  (when (and (equal (action object) '(render-audio))
              (buffer-player object))
     (pause-buffer-player (buffer-player object)))
   (call-next-method))
@@ -557,13 +556,13 @@ If it contains a pathname, the sound in store on a file a this location."
 
   (unless (buffer-player object) (set-play-buffer object))
 
-  (when (and (equal (action object) 'render-audio)
+  (when (and (equal (action object) '(render-audio))
              (buffer-player object))
     (continue-buffer-player (buffer-player object)))
   (call-next-method))
 
 (defmethod set-object-time ((self spat-object) time)
-  (when (and (equal (action self) 'render-audio)
+  (when (and (equal (action self) '(render-audio))
              (buffer-player self))
     (jump-to-time (buffer-player self) time))
   (call-next-method))
