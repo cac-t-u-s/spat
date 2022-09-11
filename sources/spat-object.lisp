@@ -500,16 +500,20 @@ If it contains a pathname, the sound in store on a file a this location."
       (if (>= (ms->samples t2 sr) (bp-size (buffer-player self)))
           (progn (om-print-dbg "Spat-object: player-buffer out of range... !!" nil "OM-SPAT")
             nil)
-        (let ((smp1 (ms->samples t1 sr))
-              (smp2 (1- (ms->samples t2 sr))))
-
-          ;;; ???
-           ;(when (= t1 0)
-           ;  (spat-osc-command (spat-processor self) '(("/dsp/clear")))
-           ;  (spat-osc-command (spat-processor self) (spat-object-init-DSP-messages self))
-           ;  ;;; messages from the first bundle (with "/set/...")
-           ;   ;(spat-osc-command (spat-processor object) (append-set-to-state-messages (spat-get-dsp-commands (spat-controller object))))
-           ;  (spat-osc-command (spat-processor self)  (spat-object-get-process-messages-at-time self 0)))
+        (list 
+         0 
+         t1
+         #'(lambda ()
+             (let ((smp1 (ms->samples t1 sr))
+                   (smp2 (1- (ms->samples t2 sr))))
+               
+               ;;; ???
+               ;;; (when (= t1 0)
+               ;;;  (spat-osc-command (spat-processor self) '(("/dsp/clear")))
+               ;;;  (spat-osc-command (spat-processor self) (spat-object-init-DSP-messages self))
+               ;;; messages from the first bundle (with "/set/...")
+               ;;;   (spat-osc-command (spat-processor object) (append-set-to-state-messages (spat-get-dsp-commands (spat-controller object))))
+               ;;;  (spat-osc-command (spat-processor self)  (spat-object-get-process-messages-at-time self 0)))
 
           (loop for s0 from smp1 to smp2 by (buffer-size self)
                 do
@@ -518,8 +522,8 @@ If it contains a pathname, the sound in store on a file a this location."
                  self
                  (bp-buffer (buffer-player self))
                  (buffer-size self) s0)
-                ))))
-    nil))
+                )))))
+      nil)))
 
 
 (defmethod player-play-object ((self scheduler) (object spat-object) caller &key parent interval)
