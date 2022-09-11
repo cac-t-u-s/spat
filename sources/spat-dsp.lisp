@@ -36,15 +36,15 @@
 (defmethod initialize-instance ((self spat-dsp) &rest initargs)
   (call-next-method)
   (setf (slot-value self 'controls) (list! (slot-value self 'controls)))
-  (data-stream-set-frames self (slot-value self 'controls))
+  (data-track-set-frames self (slot-value self 'controls))
   (setf (slot-value self 'controls) nil)
   self)
 
 (defmethod controls ((self spat-dsp))
-  (data-stream-get-frames self))
+  (data-track-get-frames self))
 
 (defmethod (setf controls) (controls (self spat-dsp))
-  (data-stream-set-frames self controls))
+  (data-track-set-frames self controls))
 
 
 (defmethod time-sequence-make-timed-item-at ((self spat-dsp) at)
@@ -216,10 +216,10 @@
                                                           (editor-set-edit-param editor :dynamic-edit (om-checked-p item))))
                                ))))
 
-;; copied from data-stream-editor
+;; copied from data-track-editor
 (defmethod editor-delete-contents-from-timeline ((self spat-dsp-editor) timeline-id sel)
   (let ((dsp (object-value self)))
-    (mapcar #'(lambda (point) (remove-timed-point-from-time-sequence dsp point)) sel)
+    (mapcar #'(lambda (point) (time-sequence-remove-timed-item dsp point)) sel)
     (ensure-init-state dsp)
     (time-sequence-update-internal-times dsp)
     (editor-invalidate-views self)

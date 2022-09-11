@@ -21,7 +21,7 @@
 (in-package :om)
 
 
-(defclass! spat-dsp (spat-object data-stream)
+(defclass! spat-dsp (spat-object data-track)
   ((audio-in :accessor audio-in :initform nil :initarg :audio-in :documentation "audio source")
    (dsp-type :initarg :dsp-type :accessor dsp-type :initform "spat5.filterdesign")
    (controls :initarg :controls :initform nil :documentation "list of timed OSC-bundles"))

@@ -434,7 +434,7 @@
 
 (defmethod editor-delete-contents-from-timeline ((self spat-scene-editor) timeline-id sel)
   (let ((traj (nth timeline-id (trajectories (object-value self)))))
-    (mapcar #'(lambda (point) (remove-timed-point-from-time-sequence traj point)) sel)
+    (mapcar #'(lambda (point) (time-sequence-remove-timed-item traj point)) sel)
     (time-sequence-update-internal-times traj))
   (editor-invalidate-views self)
   (report-modifications self))
